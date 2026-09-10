@@ -446,7 +446,7 @@ export default function DealsSection({ onAddToCart }: { onAddToCart: (item: { na
       {/* Detail Modal */}
       <DetailModal open={!!selectedMerchant} onClose={() => setSelectedMerchant(null)}>
         {selectedMerchant && (
-          <div className="flex flex-col h-[85vh]">
+          <div className="flex flex-col h-[85dvh] sm:h-[80vh]">
             {/* Header image */}
             <div className="relative h-56 shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}

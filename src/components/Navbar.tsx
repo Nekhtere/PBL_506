@@ -180,7 +180,7 @@ export default function Navbar({ items, onRemoveItem }: {
             onClick={() => setCartOpen(false)}
           >
             <motion.section
-              className="card-soft relative w-full max-w-md max-h-[calc(100vh-1.5rem)] overflow-y-auto rounded-[28px] bg-white"
+              className="card-soft relative w-full max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-t-[28px] sm:rounded-[28px] bg-white"
               role="dialog"
               aria-modal="true"
               aria-label="Shopping cart"
@@ -220,7 +220,7 @@ export default function Navbar({ items, onRemoveItem }: {
                   </div>
                 ) : (
                   <>
-                    <ul className="space-y-2.5 max-h-[46vh] overflow-y-auto pr-1">
+                    <ul className="space-y-2.5 max-h-[46dvh] overflow-y-auto pr-1">
                       <AnimatePresence initial={false}>
                         {items.map((item) => (
                           <motion.li

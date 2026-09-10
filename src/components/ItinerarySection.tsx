@@ -199,7 +199,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
       {/* Detail Modal */}
       <DetailModal open={!!selectedTrip} onClose={() => setSelectedTrip(null)}>
         {selectedTrip && (
-          <div className="flex h-[85vh] flex-col">
+          <div className="flex h-[85dvh] sm:h-[80vh] flex-col">
             <div className="relative h-48 shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
