@@ -2,12 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────
+   Design tokens — single source of truth.
+   Any value used in more than one component
+   lives here, not in a className.
+   ───────────────────────────────────────────── */
 :root {
-  --background: #FBFBFD;
-  --foreground: #1D1D1F;
-  --accent: #0071E3;
-  /* WCAG AA-safe muted: contrast 5.1:1 on #FBFBFD */
-  --muted: #515154;
+  /* Surfaces */
+  --surface:        #FFFFFF;
+  --surface-sunken: #F5F5F7;
+  --bg:             #FBFBFD;
+  --line:           #E8E8ED;
+  --line-soft:      #E5E5EA;
+
+  /* Text. Contrast measured against --bg unless noted. */
+  --fg:    #1D1D1F;
+  --muted: #515154;  /* 5.1:1 ✓ AA */
+  --faint: #C7C7CC;  /* decorative only — never text */
+
+  /* Accent */
+  --accent:       #0071E3;
+  --accent-hover: #005BBB;
+  --accent-soft:  rgba(0, 113, 227, 0.1);
+
+  /* Radius */
+  --r-xs: 0.625rem;  /* 10px */
+  --r-sm: 0.75rem;   /* 12px */
+  --r-md: 1rem;      /* 16px */
+  --r-lg: 1.5rem;    /* 24px */
+  --r-xl: 1.75rem;   /* 28px */
+
+  /* Elevation */
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --sh-2: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --sh-3: 0 4px 24px rgba(0, 0, 0, 0.05), 0 12px 40px rgba(0, 0, 0, 0.06);
+  --sh-accent: 0 8px 24px rgba(0, 113, 227, 0.25);
+
+  /* Motion */
+  --dur-fast: 150ms;
+  --dur:      200ms;
+  --dur-slow: 400ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html {
@@ -15,11 +50,25 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  /* --font-inter is set by next/font on <html>. Naming the family
+     literally ('Inter') does nothing — the file is hashed and served
+     under that variable. */
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings break evenly, body copy avoids orphans. Native, no JS. */
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* One focus ring for the whole app. Keyboard only.
+   No border-radius here — outline already follows the element's own. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 @layer components {
@@ -69,17 +118,28 @@ body {
 
   /* ─── Apple-minimal card ─── */
   .card-soft {
-    background: #fff;
-    border: 1px solid #E8E8ED;
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.04),
-      0 8px 24px rgba(0, 0, 0, 0.06);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--sh-2);
+  }
+
+  /* ─── Focus ring for elements sitting on a dark photo ─── */
+  .focus-on-dark:focus-visible {
+    outline-color: #FFFFFF;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  /* Kill decorative motion outright, not just the scroll behaviour. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

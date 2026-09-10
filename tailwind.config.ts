@@ -12,7 +12,7 @@ const config: Config = {
         background: "#FBFBFD",
         foreground: "#1D1D1F",
         accent: "#0071E3",
-        muted: "#6E6E73",
+        muted: "#515154",
       },
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "SF Pro Display", "Helvetica Neue", "sans-serif"],

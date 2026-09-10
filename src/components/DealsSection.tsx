@@ -1,295 +1,103 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Star, ShoppingCart, ChevronLeft, ChevronRight, Heart, MapPin, Check, CheckCircle } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, Search, Navigation, X, LayoutGrid } from "lucide-react";
 import DetailModal from "./DetailModal";
+import MerchantCard from "./MerchantCard";
+import MerchantDetail from "./MerchantDetail";
+import { merchants, type Merchant } from "@/lib/merchants";
+import type { CartItem } from "./Navbar";
 
-const categories = ["All", "Seafood", "Spa", "Shopping", "Street Food"];
+// Leaflet reads window/document at import time, so it must never run on the server.
+// ponytail: ssr:false keeps this a client-only island; move to static tiles if pin SEO ever matters.
+const NearbyMap = dynamic(() => import("./NearbyMap"), { ssr: false });
 
-const merchants = [
-  {
-    id: 1,
-    name: "Golden Prawn Seafood",
-    category: "Seafood",
-    rating: 4.9,
-    reviews: 1240,
-    originalPrice: "Rp 200.000",
-    salePrice: "S$ 14",
-    tag: "Best Seller",
-    location: "Harbour Bay, Batam",
-    desc: "Fresh tiger prawns, chili crab & more — cooked live at the harbour.",
-    photo: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=700&q=80&auto=format&fit=crop",
-  },
-  {
-    id: 2,
-    name: "Nagoya Wellness Spa",
-    category: "Spa",
-    rating: 4.8,
-    reviews: 890,
-    originalPrice: "Rp 350.000",
-    salePrice: "S$ 24",
-    tag: "Top Rated",
-    location: "Nagoya Hill, Batam",
-    desc: "Full-body aromatherapy massage and scrub in a luxury setting.",
-    photo: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=700&q=80&auto=format&fit=crop",
-  },
-  {
-    id: 3,
-    name: "Harbour Bay Mall",
-    category: "Shopping",
-    rating: 4.7,
-    reviews: 2100,
-    originalPrice: "Rp 150.000",
-    salePrice: "S$ 10",
-    tag: "Popular",
-    location: "Harbour Bay, Batam",
-    desc: "Branded goods, electronics & local fashion at duty-free prices.",
-    photo: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=700&q=80&auto=format&fit=crop",
-  },
-  {
-    id: 4,
-    name: "Batam Night Market",
-    category: "Street Food",
-    rating: 4.8,
-    reviews: 650,
-    originalPrice: "Rp 120.000",
-    salePrice: "S$ 8",
-    tag: "Must Try",
-    location: "Nagoya, Batam",
-    desc: "Satay, nasi goreng, es teler — the authentic Batam street experience.",
-    photo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=700&q=80&auto=format&fit=crop",
-  },
-  {
-    id: 5,
-    name: "Avani Spa Resort",
-    category: "Spa",
-    rating: 4.9,
-    reviews: 320,
-    originalPrice: "Rp 500.000",
-    salePrice: "S$ 34",
-    tag: "Premium",
-    location: "Nongsa, Batam",
-    desc: "Resort-grade spa ritual with sea view. Pure indulgence.",
-    photo: "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=700&q=80&auto=format&fit=crop",
-  },
-  {
-    id: 6,
-    name: "Batam Fresh Crab House",
-    category: "Seafood",
-    rating: 4.7,
-    reviews: 780,
-    originalPrice: "Rp 280.000",
-    salePrice: "S$ 19",
-    tag: "New",
-    location: "Sekupang, Batam",
-    desc: "Butter crab and salted egg crab straight from the sea — daily catch.",
-    photo: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=700&q=80&auto=format&fit=crop",
-  },
-];
+// "Café" was dropped: no merchant carries it, so the chip always emptied the row.
+const popularTags = ["🦐 Seafood", "💆 Spa", "🛍️ Shopping", "🌃 Night Market", "🏨 Hotel", "🗺️ Attraction"];
 
-const merchantDetails: Record<number, {
-  hours: string;
-  highlights: string[];
-  includes: string[];
-  promo?: string;
-}> = {
-  1: {
-    hours: "11:00 – 22:00 WIB",
-    highlights: ["Live seafood selection", "Harbourfront dining", "Halal-friendly menu"],
-    includes: ["S$ 14 dining credit", "Freshly prepared seafood", "Air-conditioned seating"],
-    promo: "Weekday diners receive a complimentary iced tea.",
-  },
-  2: {
-    hours: "10:00 – 22:00 WIB",
-    highlights: ["60-minute aromatherapy", "Private treatment room", "Certified therapists"],
-    includes: ["Aromatherapy massage", "Warm towel welcome", "Herbal tea after treatment"],
-    promo: "Add a body scrub at 20% off before 15:00.",
-  },
-  3: {
-    hours: "10:00 – 22:00 WIB",
-    highlights: ["Duty-free shopping", "Local fashion finds", "Near ferry terminal"],
-    includes: ["S$ 10 shopping credit", "Mall directory", "Wi-Fi access"],
-  },
-  4: {
-    hours: "17:00 – 23:00 WIB",
-    highlights: ["Local street food", "Evening atmosphere", "Easy Nagoya access"],
-    includes: ["S$ 8 food credit", "Vendor recommendations", "Flexible redemption"],
-    promo: "Redeem Sunday–Thursday for a bonus dessert.",
-  },
-  5: {
-    hours: "09:00 – 21:00 WIB",
-    highlights: ["Sea-view treatment", "Resort ambience", "Premium essential oils"],
-    includes: ["75-minute spa ritual", "Steam-room access", "Post-treatment refreshment"],
-  },
-  6: {
-    hours: "11:00 – 22:00 WIB",
-    highlights: ["Daily local catch", "Signature salted egg crab", "Family-friendly tables"],
-    includes: ["S$ 19 dining credit", "Fresh crab selection", "Table reservation"],
-  },
-};
+type Coords = { lat: number; lng: number };
 
-const tagColors: Record<string, string> = {
-  "Best Seller": "bg-orange-500",
-  "Top Rated":   "bg-purple-500",
-  Popular:       "bg-emerald-600",
-  "Must Try":    "bg-amber-500",
-  Premium:       "bg-pink-600",
-  New:           "bg-blue-500",
-};
-
-function MerchantCard({ merchant, index, isInView, onSelect, onAddToCart }: {
-  merchant: typeof merchants[0];
-  index: number;
-  isInView: boolean;
-  onSelect: (m: typeof merchants[0]) => void;
-  onAddToCart: (item: { name: string; price: string; subtitle?: string; image?: string; items?: string[]; kind: "deal" | "route" }) => void;
-}) {
-  const [liked, setLiked] = useState(false);
-  const [added, setAdded] = useState(false);
-
-  const handleAdd = () => {
-    if (added) return;
-    setAdded(true);
-    onAddToCart({
-      name: merchant.name,
-      price: merchant.salePrice,
-      subtitle: `${merchant.category} · ${merchant.location}`,
-      image: merchant.photo,
-      kind: "deal",
-    });
-    setTimeout(() => setAdded(false), 1400);
-  };
-
-  return (
-    <motion.div
-      key={merchant.id}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay: index * 0.07 }}
-      className="shrink-0 w-72 rounded-3xl overflow-hidden group cursor-pointer card-soft border border-[#E8E8ED]"
-      onClick={() => onSelect(merchant)}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && onSelect(merchant)}
-      whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(0,0,0,0.14)" }}
-      whileTap={{ scale: 0.98 }}
-    >
-      {/* Photo */}
-      <div className="relative h-48 overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={merchant.photo}
-          alt={merchant.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          draggable={false}
-        />
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
-
-        {/* Tag badge */}
-        <span className={`absolute top-3 left-3 ${tagColors[merchant.tag]} text-white text-[11px] font-semibold px-2.5 py-1 rounded-full`}>
-          {merchant.tag}
-        </span>
-
-        {/* Like button */}
-        <button
-          className="absolute top-3 right-3 w-8 h-8 rounded-full glass flex items-center justify-center transition-transform duration-200 hover:scale-110"
-          onClick={(e) => { e.stopPropagation(); setLiked((v) => !v); }}
-          aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart
-            className={`w-4 h-4 transition-colors duration-200 ${liked ? "fill-red-500 text-red-500" : "text-[#1D1D1F]/60"}`}
-          />
-        </button>
-
-        {/* Location pill */}
-        <span className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white text-[11px] font-medium px-2.5 py-1 rounded-full border border-white/20">
-          <MapPin className="w-2.5 h-2.5" aria-hidden="true" />
-          {merchant.location}
-        </span>
-      </div>
-
-      {/* Info */}
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-[#1D1D1F] text-[14px] leading-snug flex-1 min-w-0 pr-2">
-            {merchant.name}
-          </h3>
-          <div className="flex items-center gap-1 shrink-0">
-            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
-            <span className="text-[12px] font-semibold text-[#1D1D1F]">{merchant.rating}</span>
-            {/* #515154 on white = 5.1:1 ✓ WCAG AA */}
-            <span className="text-[11px] text-[#515154]">({merchant.reviews})</span>
-          </div>
-        </div>
-
-        {/* Expand hint */}
-        <p className="text-[11px] text-[#0071E3] mt-1 mb-2 font-medium">Tap to view details</p>
-
-        {/* Price row */}
-        <div className="flex items-center justify-between mt-1">
-          <div>
-            <span className="text-[11px] text-[#515154] line-through mr-1.5">{merchant.originalPrice}</span>
-            <span className="text-[18px] font-bold text-[#1D1D1F]">{merchant.salePrice}</span>
-            <span className="text-[11px] text-[#515154] ml-1">E-Cash</span>
-          </div>
-          <motion.button
-            whileTap={{ scale: 0.94 }}
-            className={`flex items-center justify-center gap-1.5 w-[86px] text-white text-[12px] font-semibold px-3 py-2 rounded-xl transition-colors duration-200 ${added ? "bg-emerald-600" : "bg-[#0071E3] hover:bg-[#005BBB]"}`}
-            onClick={(e) => { e.stopPropagation(); handleAdd(); }}
-            aria-label={`Add ${merchant.name} to cart`}
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              {added ? (
-                <motion.span
-                  key="added"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.18 }}
-                  className="flex items-center gap-1.5"
-                >
-                  <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                  Added
-                </motion.span>
-              ) : (
-                <motion.span
-                  key="add"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.18 }}
-                  className="flex items-center gap-1.5"
-                >
-                  <ShoppingCart className="w-3.5 h-3.5" aria-hidden="true" />
-                  Add
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
-        </div>
-
-      </div>
-    </motion.div>
-  );
+// Great-circle distance, km. Batam-scale, so a sphere is accurate enough.
+function haversineKm(a: Coords, b: Coords) {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(h));
 }
 
-export default function DealsSection({ onAddToCart }: { onAddToCart: (item: { name: string; price: string; subtitle?: string; image?: string; items?: string[]; kind: "deal" | "route" }) => void }) {
+export default function DealsSection({ onAddToCart }: { onAddToCart: (item: Omit<CartItem, "id">) => void }) {
   const sectionRef    = useRef<HTMLDivElement>(null);
   const scrollRef     = useRef<HTMLDivElement>(null);
   const isInView      = useInView(sectionRef, { once: true, margin: "-100px" });
   const [canScrollLeft, setCanScrollLeft]   = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [activeFilter, setActiveFilter]     = useState("All");
-  const [selectedMerchant, setSelectedMerchant] = useState<typeof merchants[0] | null>(null);
+  const [query, setQuery]                   = useState("");
+  const [user, setUser]                     = useState<Coords | null>(null);
+  const [locating, setLocating]             = useState(false);
+  const [geoMsg, setGeoMsg]                 = useState<string | null>(null);
+  const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
   const isDragging    = useRef(false);
   const dragStartX    = useRef(0);
   const dragScrollLeft = useRef(0);
 
-  const filtered = activeFilter === "All"
-    ? merchants
-    : merchants.filter((m) => m.category === activeFilter);
-  const selectedDetails = selectedMerchant ? merchantDetails[selectedMerchant.id] : null;
+  const q = query.trim().toLowerCase();
+  // Idle, this row is a shop window: vouchers only, highest-rated first, capped. Attraction
+  // is excluded because it's a place, not a voucher, and /merchants lists it.
+  // A search drops both rules — the cap so a query reaches every partner, the exclusion so
+  // "Barelang" is findable without waiting for a map pin.
+  const FEATURED = 6;
+  const filtered = merchants
+    .filter((m) => q || m.category !== "Attraction")
+    .filter((m) => !q || [m.name, m.category, m.location, m.desc].some((f) => f.toLowerCase().includes(q)))
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, q ? undefined : FEATURED);
+
+  // Nearest first — but only once the user has actually asked for it.
+  const withKm = (list: Merchant[]) =>
+    user
+      ? list.map((m) => ({ m, km: haversineKm(user, m) as number | undefined })).sort((a, b) => a.km! - b.km!)
+      : list.map((m) => ({ m, km: undefined as number | undefined }));
+
+  const near = withKm(filtered);
+
+  // The map shows everything, unfiltered by the carousel — it answers "what is around
+  // me", not "what is in this row". Search still narrows it.
+  const mapNear = withKm(
+    merchants.filter((m) => !q || [m.name, m.category, m.location, m.desc].some((f) => f.toLowerCase().includes(q))),
+  );
+
+  // The permission prompt happens here and nowhere else. On page load it would be
+  // unexplained, and most browsers now auto-suppress a prompt with no user gesture.
+  const locate = () => {
+    if (!navigator.geolocation) {
+      setGeoMsg("This browser can't share your location.");
+      return;
+    }
+    setLocating(true);
+    setGeoMsg(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUser({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocating(false);
+      },
+      (err) => {
+        setLocating(false);
+        setGeoMsg(
+          err.code === err.PERMISSION_DENIED
+            ? "Location blocked. Allow it in your browser settings to see deals near you."
+            : "Couldn't get your location just now. Try again.",
+        );
+      },
+      // City-scale accuracy is plenty for ranking merchants by distance.
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    );
+  };
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -344,7 +152,7 @@ export default function DealsSection({ onAddToCart }: { onAddToCart: (item: { na
             transition={{ duration: 0.5 }}
             className="text-[#0071E3] text-[12px] font-semibold tracking-widest uppercase"
           >
-            A La Carte Voucher
+            Top Picks in Batam
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -361,34 +169,100 @@ export default function DealsSection({ onAddToCart }: { onAddToCart: (item: { na
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-[#515154] mt-3 text-[15px] max-w-md leading-relaxed"
           >
-            Pick exactly what you want. No packages, no commitments. Pay in SGD.
+            The best-rated seafood, spa and shopping in Batam. Prices locked in SGD,
+            vouchers redeemed by QR — valid 30 days.
           </motion.p>
         </div>
 
-        {/* Category filter tabs */}
+        {/* Search + Near Me */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.25 }}
-          className="flex gap-2 mb-8 flex-wrap"
-          role="group"
-          aria-label="Filter by category"
+          transition={{ duration: 0.5, delay: 0.22 }}
+          className="mb-6"
         >
-          {categories.map((cat) => (
+          <div className="card-soft rounded-2xl p-1.5 flex items-center gap-1.5 sm:gap-2 max-w-2xl">
+            <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3 px-2.5 sm:px-4">
+              <Search className="w-4 h-4 text-[#1D1D1F]/50 shrink-0" strokeWidth={2} aria-hidden="true" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search Batam — seafood, spa, shopping…"
+                className="flex-1 min-w-0 bg-transparent text-[13px] sm:text-[14px] text-[#1D1D1F] placeholder:text-[#1D1D1F]/45 py-2.5"
+                aria-label="Search destinations in Batam"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label="Clear search"
+                  className="shrink-0 w-5 h-5 rounded-full bg-[#1D1D1F]/10 flex items-center justify-center"
+                >
+                  <X className="w-3 h-3 text-[#1D1D1F]/70" aria-hidden="true" />
+                </button>
+              )}
+            </div>
             <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              aria-pressed={activeFilter === cat}
-              className={`px-4 py-2 rounded-full text-[13px] font-medium transition-all duration-200 ${
-                activeFilter === cat
-                  ? "bg-[#1D1D1F] text-white shadow-sm"
-                  : "bg-[#F5F5F7] text-[#515154] hover:bg-[#E8E8ED] hover:text-[#1D1D1F]"
-              }`}
+              type="button"
+              onClick={locate}
+              disabled={locating}
+              aria-busy={locating}
+              className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#005BBB] disabled:opacity-60 text-white text-[12px] sm:text-[13px] font-semibold px-3 sm:px-4 py-2.5 rounded-xl transition-colors duration-200 shrink-0"
             >
-              {cat}
+              <Navigation className={`w-3.5 h-3.5 ${locating ? "animate-spin" : ""}`} aria-hidden="true" />
+              {locating ? "Locating…" : "Near Me"}
             </button>
-          ))}
+          </div>
+
+          {/* Popular tags */}
+          <div className="flex items-center gap-2 mt-3 flex-wrap">
+            <span className="text-[#515154] text-[11px] font-medium">Popular:</span>
+            {popularTags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => setQuery(tag.replace(/^\S+\s/, ""))}
+                className="text-[12px] text-[#515154] hover:text-[#1D1D1F] px-2.5 py-1 rounded-full bg-[#F5F5F7] hover:bg-[#E8E8ED] border border-[#E5E5EA] transition-colors duration-150"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
+          {geoMsg && (
+            <p className="text-[12px] text-[#B3261E] bg-[#B3261E]/10 px-3 py-2 rounded-xl mt-3" role="status">
+              {geoMsg}
+            </p>
+          )}
         </motion.div>
+
+        {/* Nearest-deals map — renders only once a location is shared */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-8"
+          >
+            <div className="isolate h-64 sm:h-80 rounded-3xl overflow-hidden border border-[#E8E8ED] shadow-[var(--sh-2)]">
+              <NearbyMap
+                points={mapNear.map(({ m, km }) => ({
+                  id: m.id,
+                  name: m.name,
+                  category: m.category,
+                  lat: m.lat,
+                  lng: m.lng,
+                  label: `${m.category} · ${m.location}`,
+                  photo: m.photo,
+                  km,
+                }))}
+                user={user}
+                onSelect={(id) => setSelectedMerchant(merchants.find((m) => m.id === id) ?? null)}
+              />
+            </div>
+          </motion.div>
+        )}
 
         {/* Carousel wrapper */}
         <div className="relative">
@@ -426,117 +300,60 @@ export default function DealsSection({ onAddToCart }: { onAddToCart: (item: { na
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
-            className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-6 px-6 cursor-grab active:cursor-grabbing"
+            className="flex gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-6 px-6 cursor-grab active:cursor-grabbing snap-x snap-proximity"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
-            {filtered.map((merchant, i) => (
+            {near.map(({ m, km }, i) => (
               <MerchantCard
-                key={merchant.id}
-                merchant={merchant}
+                key={m.id}
+                merchant={m}
                 index={i}
                 isInView={isInView}
                 onSelect={setSelectedMerchant}
                 onAddToCart={onAddToCart}
+                distanceKm={km}
               />
             ))}
+            {near.length === 0 && (
+              <p className="text-[13px] text-[#515154] py-12 w-full text-center">
+                No deals match &ldquo;{query}&rdquo;.{" "}
+                <button onClick={() => setQuery("")} className="text-[#0071E3] font-medium hover:underline">
+                  Try another search
+                </button>
+              </p>
+            )}
           </div>
         </div>
+
+        {/* Single "All" entry point — the full partner directory lives on its own page.
+            Category tabs were removed: the search box and popular tags already narrow
+            this row, and a filter that only ever showed 3 cards was doing no work. */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="flex justify-center mt-8"
+        >
+          <Link
+            href="/merchants"
+            className="inline-flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#000000] text-white text-[13px] font-semibold px-4 py-2 rounded-full transition-colors duration-200"
+          >
+            <LayoutGrid className="w-3.5 h-3.5" aria-hidden="true" />
+            All
+            <span className="text-white/60 font-medium">· {merchants.length} merchants</span>
+          </Link>
+        </motion.div>
+
       </div>
 
       {/* Detail Modal */}
       <DetailModal open={!!selectedMerchant} onClose={() => setSelectedMerchant(null)}>
         {selectedMerchant && (
-          <div className="flex flex-col h-[85dvh] sm:h-[80vh]">
-            {/* Header image */}
-            <div className="relative h-56 shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedMerchant.photo}
-                alt={selectedMerchant.name}
-                className="w-full h-full object-cover rounded-t-[28px]"
-                draggable={false}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-t-[28px]" />
-              <div className="absolute bottom-4 left-6 right-6 text-white">
-                <span className={`inline-block ${tagColors[selectedMerchant.tag]} text-white text-[11px] font-semibold px-2.5 py-1 rounded-full mb-2`}>
-                  {selectedMerchant.tag}
-                </span>
-                <h3 className="text-2xl font-bold">{selectedMerchant.name}</h3>
-                <div className="flex items-center gap-4 mt-1.5 text-white/85 text-[12px]">
-                  <span className="flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
-                    {selectedMerchant.rating} ({selectedMerchant.reviews} reviews)
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5" aria-hidden="true" /> {selectedMerchant.location}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Scrollable body */}
-            <div className="p-6 flex flex-1 min-h-0 flex-col">
-              <div className="flex-1 overflow-y-auto scrollbar-hide">
-                <p className="text-[13px] text-[#515154] leading-relaxed mb-4">{selectedMerchant.desc}</p>
-
-                {/* Highlights */}
-                {selectedDetails && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {selectedDetails.highlights.map((h) => (
-                      <span key={h} className="flex items-center gap-1.5 bg-[#F5F5F7] text-[#1D1D1F] text-[11px] font-medium px-3 py-1.5 rounded-full">
-                        ✦ {h}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Includes */}
-                {selectedDetails && (
-                  <div className="mb-4">
-                    <p className="text-[12px] font-semibold text-[#1D1D1F] mb-2">What's included</p>
-                    <ul className="space-y-1.5">
-                      {selectedDetails.includes.map((item) => (
-                        <li key={item} className="flex items-center gap-2 text-[12px] text-[#515154]">
-                          <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Promo */}
-                {selectedDetails?.promo && (
-                  <div className="bg-[#0071E3]/10 text-[#0071E3] text-[12px] font-medium px-4 py-2.5 rounded-xl mb-4">
-                    🎁 {selectedDetails.promo}
-                  </div>
-                )}
-              </div>
-
-              {/* Price and actions */}
-              <div className="flex items-center justify-between bg-[#F5F5F7] rounded-2xl p-4 mb-4 shrink-0">
-                <div>
-                  <span className="text-[12px] text-[#515154] line-through mr-2">{selectedMerchant.originalPrice}</span>
-                  <span className="text-2xl font-bold text-[#1D1D1F]">{selectedMerchant.salePrice}</span>
-                  <span className="text-[11px] text-[#515154] ml-1.5">E-Cash</span>
-                </div>
-              </div>
-
-              <div className="flex items-end justify-between mt-auto pt-4 border-t border-[#E5E5EA] shrink-0">
-                <div>
-                  <p className="text-[11px] text-[#515154]">Voucher can be redeemed at</p>
-                  <p className="text-[13px] font-semibold text-[#1D1D1F]">{selectedMerchant.location}</p>
-                </div>
-                <button
-                  className="flex items-center gap-2 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25"
-                  onClick={() => { onAddToCart({ name: selectedMerchant.name, price: selectedMerchant.salePrice, subtitle: `${selectedMerchant.category} · ${selectedMerchant.location}`, image: selectedMerchant.photo, kind: "deal" }); setSelectedMerchant(null); }}
-                >
-                  <ShoppingCart className="w-4 h-4" aria-hidden="true" />
-                  Add to Cart
-                </button>
-              </div>
-            </div>
-          </div>
+          <MerchantDetail
+            merchant={selectedMerchant}
+            onAddToCart={onAddToCart}
+            onDone={() => setSelectedMerchant(null)}
+          />
         )}
       </DetailModal>
     </section>

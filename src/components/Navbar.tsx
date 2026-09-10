@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Globe, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, X } from "lucide-react";
 
 const navLinks = [
   { label: "Home", href: "#home" },
   { label: "Deals", href: "#deals" },
   { label: "Itinerary", href: "#itinerary" },
+  { label: "Ferry", href: "#ferry" },
   { label: "Ride Guide", href: "#ride-guide" },
 ];
 
@@ -21,16 +22,19 @@ export interface CartItem {
   kind: "deal" | "route";
 }
 
-export default function Navbar({ items, onRemoveItem }: {
+export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange }: {
   items: CartItem[];
   onRemoveItem: (id: string) => void;
+  cartOpen: boolean;
+  onCartOpenChange: (open: boolean) => void;
 }) {
   const [scrolled, setScrolled] = useState(false);
-  const [currency, setCurrency] = useState<"SGD" | "IDR">("SGD");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
   const cartCount = items.length;
   const total = items.reduce((sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"), 0);
+  // Indicative conversion for IDR-side comparison. Fixed rate is a rough guide only.
+  // ponytail: swap for a live FX rate (or a daily constant) when pricing goes real.
+  const totalIDR = Math.round(total * 11800);
 
   useEffect(() => {
     if (!cartOpen) return;
@@ -86,20 +90,10 @@ export default function Navbar({ items, onRemoveItem }: {
 
         {/* Right Actions */}
         <div className="flex items-center gap-1.5">
-          {/* Currency Toggle */}
-          <button
-            onClick={() => setCurrency(currency === "SGD" ? "IDR" : "SGD")}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/[0.06] hover:bg-black/[0.1] transition-all duration-200 text-[12px] font-semibold text-[#1D1D1F]"
-            aria-label={`Switch currency, current: ${currency}`}
-          >
-            <Globe className="w-3.5 h-3.5" aria-hidden="true" />
-            {currency}
-          </button>
-
           {/* Cart */}
           <button
             className="relative p-2 rounded-full hover:bg-black/[0.06] transition-all duration-200"
-            onClick={() => setCartOpen(true)}
+            onClick={() => onCartOpenChange(true)}
             aria-label={`Cart, ${cartCount} items`}
           >
             <ShoppingCart className="w-[18px] h-[18px] text-[#1D1D1F]" strokeWidth={1.8} aria-hidden="true" />
@@ -154,16 +148,6 @@ export default function Navbar({ items, onRemoveItem }: {
                 {link.label}
               </a>
             ))}
-            <div className="border-t border-black/[0.08] mt-1 pt-2">
-              <button
-                onClick={() => setCurrency(currency === "SGD" ? "IDR" : "SGD")}
-                className="flex items-center gap-2 px-3 py-2.5 text-[13px] font-semibold text-[#1D1D1F] rounded-xl hover:bg-black/[0.06] transition-all w-full"
-                aria-label={`Switch to ${currency === "SGD" ? "IDR" : "SGD"}`}
-              >
-                <Globe className="w-4 h-4" aria-hidden="true" />
-                Switch to {currency === "SGD" ? "IDR" : "SGD"}
-              </button>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -177,7 +161,7 @@ export default function Navbar({ items, onRemoveItem }: {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/45 p-3 sm:p-6 backdrop-blur-md"
-            onClick={() => setCartOpen(false)}
+            onClick={() => onCartOpenChange(false)}
           >
             <motion.section
               className="card-soft relative w-full max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-t-[28px] sm:rounded-[28px] bg-white"
@@ -192,7 +176,7 @@ export default function Navbar({ items, onRemoveItem }: {
             >
               <button
                 className="glass absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-[#1D1D1F] transition-transform hover:scale-105"
-                onClick={() => setCartOpen(false)}
+                onClick={() => onCartOpenChange(false)}
                 aria-label="Close cart"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
@@ -290,7 +274,12 @@ export default function Navbar({ items, onRemoveItem }: {
                         <span className="text-emerald-600 font-medium">Free</span>
                       </div>
                       <div className="flex items-center justify-between pt-2">
-                        <p className="text-[13px] font-semibold text-[#1D1D1F]">Total</p>
+                        <div>
+                          <p className="text-[13px] font-semibold text-[#1D1D1F]">Total</p>
+                          <p className="text-[11px] text-[#515154]">
+                            ≈ Rp {totalIDR.toLocaleString("id-ID")} · charged in SGD
+                          </p>
+                        </div>
                         <p className="text-xl font-bold text-[#1D1D1F]">S$ {total.toFixed(2)}</p>
                       </div>
                       <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25">

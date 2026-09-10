@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Shield, Zap } from "lucide-react";
+import { MapPin, Shield, Zap } from "lucide-react";
 
 const bgSlides = [
   {
@@ -29,8 +29,6 @@ const stats = [
   { value: "SGD", label: "Pay in Dollars" },
   { value: "< 1 hr", label: "From Singapore" },
 ];
-
-const popularTags = ["🦐 Seafood", "💆 Spa", "🛍️ Shopping", "🌃 Night Market", "☕ Café"];
 
 export default function HeroSection() {
   const [current, setCurrent] = useState(0);
@@ -111,42 +109,6 @@ export default function HeroSection() {
           Curated deals for Seafood, Spa &amp; Shopping — pay in SGD, redeem instantly with QR.
         </motion.p>
 
-        {/* Search bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="max-w-xl mb-4"
-        >
-          <div className="glass rounded-2xl p-1.5 flex items-center gap-1.5 sm:gap-2 shadow-2xl shadow-black/30">
-            <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3 px-2.5 sm:px-4">
-              <Search className="w-4 h-4 text-[#1D1D1F]/50 shrink-0" strokeWidth={2} aria-hidden="true" />
-              <input
-                type="text"
-                placeholder="Search Batam"
-                className="flex-1 min-w-0 bg-transparent text-[13px] sm:text-[14px] text-[#1D1D1F] placeholder:text-[#1D1D1F]/45 outline-none py-2.5"
-                aria-label="Search destinations in Batam"
-              />
-            </div>
-            <button className="bg-[#0071E3] hover:bg-[#005BBB] text-white text-[12px] sm:text-[13px] font-semibold px-3 sm:px-5 py-2.5 rounded-xl transition-colors duration-200 shrink-0">
-              Search
-            </button>
-          </div>
-
-          {/* Popular tags */}
-          <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <span className="text-white/50 text-[11px] font-medium">Popular:</span>
-            {popularTags.map((tag) => (
-              <button
-                key={tag}
-                className="text-[12px] text-white/80 hover:text-white px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 transition-all duration-150"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-
         {/* Stats bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -164,13 +126,6 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
-      {/* Wave divider */}
-      <div className="relative z-10 -mb-px">
-        <svg viewBox="0 0 1440 64" fill="none" xmlns="http://www.w3.org/2000/svg"
-          className="w-full block" preserveAspectRatio="none">
-          <path d="M0 64 C360 0 1080 0 1440 64 L1440 64 L0 64 Z" fill="#FBFBFD" />
-        </svg>
-      </div>
     </section>
   );
 }

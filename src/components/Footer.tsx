@@ -1,8 +1,19 @@
 "use client";
 
 const footerLinks = {
-  Product: ["Deals", "Itinerary", "Ride Guide", "Help"],
-  Legal: ["Privacy Policy", "Terms of Service", "Cookie Policy", "Refund Policy"],
+  Product: [
+    { label: "Deals", href: "#deals" },
+    { label: "Itinerary", href: "#itinerary" },
+    { label: "Getting Here", href: "#ferry" },
+    { label: "Ride Guide", href: "#ride-guide" },
+    { label: "How It Works", href: "#how-it-works" },
+  ],
+  Legal: [
+    { label: "Privacy Policy", href: "/legal/privacy" },
+    { label: "Terms of Service", href: "/legal/terms" },
+    { label: "Cookie Policy", href: "/legal/cookies" },
+    { label: "Refund Policy", href: "/legal/refunds" },
+  ],
 };
 
 export default function Footer() {
@@ -20,8 +31,8 @@ export default function Footer() {
             </p>
           </div>
           <nav className="flex flex-wrap gap-4 justify-center md:justify-end text-sm">
-            {footerLinks.Product.map((label) => (
-              <a key={label} href="#" className="text-[#515154] hover:text-[#1D1D1F] transition-colors">
+            {footerLinks.Product.map(({ label, href }) => (
+              <a key={href} href={href} className="text-[#515154] hover:text-[#1D1D1F] transition-colors">
                 {label}
               </a>
             ))}
@@ -33,9 +44,9 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} BatamSmart. All rights reserved.</p>
           <p>Batam, Kepulauan Riau, Indonesia · SGD / IDR supported</p>
           <div className="flex gap-2">
-            {footerLinks.Legal.map((label, i) => (
-              <span key={label} className="flex items-center">
-                <a href="#" className="hover:underline">{label}</a>
+            {footerLinks.Legal.map(({ label, href }, i) => (
+              <span key={href} className="flex items-center">
+                <a href={href} className="hover:underline">{label}</a>
                 {i < footerLinks.Legal.length - 1 && <span className="mx-1 text-[#C7C7CC]">|</span>}
               </span>
             ))}
