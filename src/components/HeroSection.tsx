@@ -118,17 +118,17 @@ export default function HeroSection() {
           transition={{ duration: 0.7, delay: 0.4 }}
           className="max-w-xl mb-4"
         >
-          <div className="glass rounded-2xl p-1.5 flex items-center gap-2 shadow-2xl shadow-black/30">
-            <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3 px-3 sm:px-4">
+          <div className="glass rounded-2xl p-1.5 flex items-center gap-1.5 sm:gap-2 shadow-2xl shadow-black/30">
+            <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3 px-2.5 sm:px-4">
               <Search className="w-4 h-4 text-[#1D1D1F]/50 shrink-0" strokeWidth={2} aria-hidden="true" />
               <input
                 type="text"
-                placeholder="Where to in Batam?"
-                className="flex-1 min-w-0 bg-transparent text-[14px] text-[#1D1D1F] placeholder:text-[#1D1D1F]/45 outline-none py-2.5"
+                placeholder="Search Batam"
+                className="flex-1 min-w-0 bg-transparent text-[13px] sm:text-[14px] text-[#1D1D1F] placeholder:text-[#1D1D1F]/45 outline-none py-2.5"
                 aria-label="Search destinations in Batam"
               />
             </div>
-            <button className="bg-[#0071E3] hover:bg-[#005BBB] text-white text-[13px] font-semibold px-4 sm:px-5 py-2.5 rounded-xl transition-colors duration-200 shrink-0">
+            <button className="bg-[#0071E3] hover:bg-[#005BBB] text-white text-[12px] sm:text-[13px] font-semibold px-3 sm:px-5 py-2.5 rounded-xl transition-colors duration-200 shrink-0">
               Search
             </button>
           </div>
