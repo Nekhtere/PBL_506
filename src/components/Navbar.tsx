@@ -220,7 +220,7 @@ export default function Navbar({ items, onRemoveItem }: {
                   </div>
                 ) : (
                   <>
-                    <ul className="space-y-2.5 max-h-[46dvh] overflow-y-auto pr-1">
+                    <ul className="space-y-2.5 max-h-[46dvh] overflow-y-auto pr-1 scrollbar-hide">
                       <AnimatePresence initial={false}>
                         {items.map((item) => (
                           <motion.li

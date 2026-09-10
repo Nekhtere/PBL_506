@@ -236,7 +236,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
               {/* Includes — scroll only when list is long */}
               <div className="mb-4 shrink-0">
                 <p className="text-[12px] font-semibold text-[#1D1D1F] mb-2">What's included</p>
-                <ul className={`space-y-1.5 pr-1 ${selectedTrip.includes.length > 4 ? "max-h-32 overflow-y-auto" : ""}`}>
+                <ul className={`space-y-1.5 pr-1 scrollbar-hide ${selectedTrip.includes.length > 4 ? "max-h-32 overflow-y-auto" : ""}`}>
                   {selectedTrip.includes.map((item) => (
                     <li key={item} className="flex items-center gap-2 text-[12px] text-[#515154]">
                       <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
