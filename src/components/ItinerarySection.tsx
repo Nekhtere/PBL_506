@@ -233,10 +233,10 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                 ))}
               </div>
 
-              {/* Includes */}
+              {/* Includes — scroll only when list is long */}
               <div className="mb-4 shrink-0">
                 <p className="text-[12px] font-semibold text-[#1D1D1F] mb-2">What's included</p>
-                <ul className="space-y-1.5">
+                <ul className={`space-y-1.5 pr-1 ${selectedTrip.includes.length > 4 ? "max-h-32 overflow-y-auto" : ""}`}>
                   {selectedTrip.includes.map((item) => (
                     <li key={item} className="flex items-center gap-2 text-[12px] text-[#515154]">
                       <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
@@ -253,7 +253,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                 </div>
               )}
 
-              <div className="space-y-2 mb-4 overflow-y-auto flex-1 min-h-0">
+              <div className="space-y-2 mb-4 flex-1">
                 {selectedTrip.merchants.map((m, idx) => (
                   <div key={idx} className="flex items-center gap-3 bg-[#F5F5F7] rounded-2xl p-3">
                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xl shadow-sm shrink-0">
