@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Plus, MapPin, Clock, ShoppingCart, Check } from "lucide-react";
+import { Plus, MapPin, Clock, ShoppingCart, Check, CheckCircle } from "lucide-react";
 import DetailModal from "./DetailModal";
 
 const itineraries = [
@@ -51,10 +51,25 @@ const itineraries = [
   },
 ];
 
-export default function ItinerarySection() {
+export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: { name: string; price: string; subtitle?: string; image?: string; items?: string[]; kind: "deal" | "route" }) => void }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView   = useInView(sectionRef, { once: true, margin: "-100px" });
   const [selectedTrip, setSelectedTrip] = useState<typeof itineraries[0] | null>(null);
+  const [added, setAdded] = useState(false);
+
+  const handleAdd = (trip: typeof itineraries[0]) => {
+    if (added) return;
+    setAdded(true);
+    onAddToCart({
+      name: trip.vibe,
+      price: trip.totalSGD,
+      subtitle: `${trip.duration} · from ${trip.from}`,
+      image: trip.photo,
+      items: trip.merchants.map((m) => `${m.emoji} ${m.name} (${m.time})`),
+      kind: "route",
+    });
+    setTimeout(() => setAdded(false), 1400);
+  };
 
   return (
     <section id="itinerary" ref={sectionRef} className="py-24 px-6 bg-[#F5F5F7]">
@@ -257,10 +272,18 @@ export default function ItinerarySection() {
                   <p className="text-xl font-bold text-[#1D1D1F]">{selectedTrip.totalSGD}</p>
                   <p className={`text-[12px] font-semibold ${selectedTrip.savingsColor}`}>{selectedTrip.savings}</p>
                 </div>
-                <button className="flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#333] text-white text-[13px] font-semibold px-6 py-3 rounded-xl transition-colors shadow-lg">
-                  <ShoppingCart className="w-4 h-4" aria-hidden="true" />
-                  Add Route to Cart
-                </button>
+                <motion.button
+                  whileTap={{ scale: 0.96 }}
+                  className={`flex items-center gap-2 text-white text-[13px] font-semibold px-6 py-3 rounded-xl transition-colors shadow-lg ${added ? "bg-emerald-600" : "bg-[#1D1D1F] hover:bg-[#333]"}`}
+                  onClick={() => { handleAdd(selectedTrip); setSelectedTrip(null); }}
+                >
+                  {added ? (
+                    <CheckCircle className="w-4 h-4" aria-hidden="true" />
+                  ) : (
+                    <ShoppingCart className="w-4 h-4" aria-hidden="true" />
+                  )}
+                  {added ? "Added to Cart" : "Add Route to Cart"}
+                </motion.button>
               </div>
             </div>
           </div>

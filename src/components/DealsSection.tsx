@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
-import { motion, useInView } from "framer-motion";
-import { Star, ShoppingCart, ChevronLeft, ChevronRight, Heart, MapPin, Check } from "lucide-react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { Star, ShoppingCart, ChevronLeft, ChevronRight, Heart, MapPin, Check, CheckCircle } from "lucide-react";
 import DetailModal from "./DetailModal";
 
 const categories = ["All", "Seafood", "Spa", "Shopping", "Street Food"];
@@ -138,13 +138,28 @@ const tagColors: Record<string, string> = {
   New:           "bg-blue-500",
 };
 
-function MerchantCard({ merchant, index, isInView, onSelect }: {
+function MerchantCard({ merchant, index, isInView, onSelect, onAddToCart }: {
   merchant: typeof merchants[0];
   index: number;
   isInView: boolean;
   onSelect: (m: typeof merchants[0]) => void;
+  onAddToCart: (item: { name: string; price: string; subtitle?: string; image?: string; items?: string[]; kind: "deal" | "route" }) => void;
 }) {
   const [liked, setLiked] = useState(false);
+  const [added, setAdded] = useState(false);
+
+  const handleAdd = () => {
+    if (added) return;
+    setAdded(true);
+    onAddToCart({
+      name: merchant.name,
+      price: merchant.salePrice,
+      subtitle: `${merchant.category} · ${merchant.location}`,
+      image: merchant.photo,
+      kind: "deal",
+    });
+    setTimeout(() => setAdded(false), 1400);
+  };
 
   return (
     <motion.div
@@ -218,14 +233,40 @@ function MerchantCard({ merchant, index, isInView, onSelect }: {
             <span className="text-[18px] font-bold text-[#1D1D1F]">{merchant.salePrice}</span>
             <span className="text-[11px] text-[#515154] ml-1">E-Cash</span>
           </div>
-          <button
-            className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[12px] font-semibold px-3 py-2 rounded-xl transition-colors duration-200"
-            onClick={(e) => e.stopPropagation()}
+          <motion.button
+            whileTap={{ scale: 0.94 }}
+            className={`flex items-center justify-center gap-1.5 w-[86px] text-white text-[12px] font-semibold px-3 py-2 rounded-xl transition-colors duration-200 ${added ? "bg-emerald-600" : "bg-[#0071E3] hover:bg-[#005BBB]"}`}
+            onClick={(e) => { e.stopPropagation(); handleAdd(); }}
             aria-label={`Add ${merchant.name} to cart`}
           >
-            <ShoppingCart className="w-3.5 h-3.5" aria-hidden="true" />
-            Add
-          </button>
+            <AnimatePresence mode="wait" initial={false}>
+              {added ? (
+                <motion.span
+                  key="added"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                  className="flex items-center gap-1.5"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  Added
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="add"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                  className="flex items-center gap-1.5"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5" aria-hidden="true" />
+                  Add
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
 
       </div>
@@ -233,7 +274,7 @@ function MerchantCard({ merchant, index, isInView, onSelect }: {
   );
 }
 
-export default function DealsSection() {
+export default function DealsSection({ onAddToCart }: { onAddToCart: (item: { name: string; price: string; subtitle?: string; image?: string; items?: string[]; kind: "deal" | "route" }) => void }) {
   const sectionRef    = useRef<HTMLDivElement>(null);
   const scrollRef     = useRef<HTMLDivElement>(null);
   const isInView      = useInView(sectionRef, { once: true, margin: "-100px" });
@@ -395,6 +436,7 @@ export default function DealsSection() {
                 index={i}
                 isInView={isInView}
                 onSelect={setSelectedMerchant}
+                onAddToCart={onAddToCart}
               />
             ))}
           </div>
@@ -485,7 +527,10 @@ export default function DealsSection() {
                   <p className="text-[11px] text-[#515154]">Voucher can be redeemed at</p>
                   <p className="text-[13px] font-semibold text-[#1D1D1F]">{selectedMerchant.location}</p>
                 </div>
-                <button className="flex items-center gap-2 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25">
+                <button
+                  className="flex items-center gap-2 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25"
+                  onClick={() => { onAddToCart({ name: selectedMerchant.name, price: selectedMerchant.salePrice, subtitle: `${selectedMerchant.category} · ${selectedMerchant.location}`, image: selectedMerchant.photo, kind: "deal" }); setSelectedMerchant(null); }}
+                >
                   <ShoppingCart className="w-4 h-4" aria-hidden="true" />
                   Add to Cart
                 </button>

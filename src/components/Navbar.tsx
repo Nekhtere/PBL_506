@@ -11,11 +11,33 @@ const navLinks = [
   { label: "Ride Guide", href: "#ride-guide" },
 ];
 
-export default function Navbar() {
+export interface CartItem {
+  id: string;
+  name: string;
+  price: string; // e.g. "S$ 14"
+  subtitle?: string; // e.g. category, route type
+  image?: string;    // photo URL
+  items?: string[];  // included merchant/voucher names
+  kind: "deal" | "route";
+}
+
+export default function Navbar({ items, onRemoveItem }: {
+  items: CartItem[];
+  onRemoveItem: (id: string) => void;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [currency, setCurrency] = useState<"SGD" | "IDR">("SGD");
-  const [cartCount] = useState(2);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const cartCount = items.length;
+  const total = items.reduce((sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"), 0);
+
+  useEffect(() => {
+    if (!cartOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [cartOpen]);
 
   useEffect(() => {
     let rafId: number;
@@ -77,13 +99,20 @@ export default function Navbar() {
           {/* Cart */}
           <button
             className="relative p-2 rounded-full hover:bg-black/[0.06] transition-all duration-200"
+            onClick={() => setCartOpen(true)}
             aria-label={`Cart, ${cartCount} items`}
           >
             <ShoppingCart className="w-[18px] h-[18px] text-[#1D1D1F]" strokeWidth={1.8} aria-hidden="true" />
             {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#0071E3] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+              <motion.span
+                key={cartCount}
+                initial={{ scale: 0.6 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 18 }}
+                className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#0071E3] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none"
+              >
                 {cartCount}
-              </span>
+              </motion.span>
             )}
           </button>
 
@@ -135,6 +164,144 @@ export default function Navbar() {
                 Switch to {currency === "SGD" ? "IDR" : "SGD"}
               </button>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Cart Screen */}
+      <AnimatePresence>
+        {cartOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/45 p-3 sm:p-6 backdrop-blur-md"
+            onClick={() => setCartOpen(false)}
+          >
+            <motion.section
+              className="card-soft relative w-full max-w-md max-h-[calc(100vh-1.5rem)] overflow-y-auto rounded-[28px] bg-white"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Shopping cart"
+              initial={{ opacity: 0, scale: 0.94, y: 28 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 28 }}
+              transition={{ type: "spring", stiffness: 340, damping: 30 }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                className="glass absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-[#1D1D1F] transition-transform hover:scale-105"
+                onClick={() => setCartOpen(false)}
+                aria-label="Close cart"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-xl font-bold text-[#1D1D1F]">Your Cart</h3>
+                  {items.length > 0 && (
+                    <span className="text-[11px] font-semibold text-[#515154] bg-[#F5F5F7] px-2.5 py-1 rounded-full">
+                      {items.length} {items.length === 1 ? "item" : "items"}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[12px] text-[#515154] mb-5">E-Cash vouchers, redeemed via QR at the merchant.</p>
+
+                {items.length === 0 ? (
+                  <div className="text-center py-10">
+                    <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#F5F5F7] flex items-center justify-center">
+                      <ShoppingCart className="w-6 h-6 text-[#C7C7CC]" aria-hidden="true" />
+                    </div>
+                    <p className="text-[13px] text-[#515154] leading-relaxed">
+                      Your cart is empty.<br />Add a deal or itinerary route to get started.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <ul className="space-y-2.5 max-h-[46vh] overflow-y-auto pr-1">
+                      <AnimatePresence initial={false}>
+                        {items.map((item) => (
+                          <motion.li
+                            key={item.id}
+                            layout
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, x: -30 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex gap-3 bg-[#F5F5F7] rounded-2xl p-3"
+                          >
+                            {/* Thumbnail */}
+                            {item.image ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-14 h-14 rounded-xl object-cover shrink-0"
+                                draggable={false}
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0">
+                                <span className="text-[10px] font-bold text-[#0071E3] uppercase tracking-wide">
+                                  {item.kind === "route" ? "Route" : "Deal"}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="text-[13px] font-semibold text-[#1D1D1F] leading-snug">{item.name}</p>
+                                <p className="text-[13px] font-bold text-[#1D1D1F] shrink-0">{item.price}</p>
+                              </div>
+                              {item.subtitle && (
+                                <p className="text-[11px] text-[#515154] mt-0.5">{item.subtitle}</p>
+                              )}
+                              {item.items && item.items.length > 0 && (
+                                <p className="text-[11px] text-[#515154] mt-1.5 leading-relaxed line-clamp-2">
+                                  {item.items.join(" · ")}
+                                </p>
+                              )}
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="text-[10px] font-medium text-[#0071E3] bg-[#0071E3]/10 px-2 py-0.5 rounded-full">
+                                  QR Voucher
+                                </span>
+                                <button
+                                  className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-[#515154] hover:text-red-500 transition-colors shrink-0"
+                                  onClick={() => onRemoveItem(item.id)}
+                                  aria-label={`Remove ${item.name} from cart`}
+                                >
+                                  <X className="w-3.5 h-3.5" aria-hidden="true" />
+                                </button>
+                              </div>
+                            </div>
+                          </motion.li>
+                        ))}
+                      </AnimatePresence>
+                    </ul>
+
+                    <div className="pt-4 mt-4 border-t border-[#E5E5EA] space-y-1.5">
+                      <div className="flex items-center justify-between text-[12px] text-[#515154]">
+                        <span>Subtotal</span>
+                        <span>S$ {total.toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[12px] text-[#515154]">
+                        <span>Booking fee</span>
+                        <span className="text-emerald-600 font-medium">Free</span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2">
+                        <p className="text-[13px] font-semibold text-[#1D1D1F]">Total</p>
+                        <p className="text-xl font-bold text-[#1D1D1F]">S$ {total.toFixed(2)}</p>
+                      </div>
+                      <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25">
+                        <ShoppingCart className="w-4 h-4" aria-hidden="true" />
+                        Checkout · S$ {total.toFixed(2)}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.section>
           </motion.div>
         )}
       </AnimatePresence>
