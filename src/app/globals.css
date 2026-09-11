@@ -53,16 +53,17 @@
   /* Text. Contrast measured against --bg unless noted. */
   --fg:       rgb(var(--fg-rgb));
   --fg-hover: rgb(var(--fg-hover-rgb));
-  --muted:    rgb(var(--muted-rgb));   /* 5.1:1 ✓ AA */
-  --subtle:   rgb(var(--subtle-rgb));  /* 5.2:1 on white ✓ AA */
+  --muted:    rgb(var(--muted-rgb));   /* 7.7:1 on --bg ✓ AA */
+  --subtle:   rgb(var(--subtle-rgb));  /* 5.1:1 on white ✓ AA */
   --faint:    rgb(var(--faint-rgb));   /* decorative only — never text */
 
   /* Accent */
   --accent:       rgb(var(--accent-rgb));
   --accent-hover: rgb(var(--accent-hover-rgb));
   /* Text sitting on a light surface or on a 10% accent tint. Plain --accent is
-     only 4.0:1 on white and 4.2:1 on its own tint, so links and labels use
-     this darker ink. 5.4:1 ✓ */
+     4.7:1 on white — that clears AA — but only 4.1:1 on its own 10% tint, which
+     does not. Since the tint is where accent labels usually sit, links and
+     labels use this darker ink: 6.5:1 on white, 5.7:1 on the tint. Both ✓ */
   --accent-ink:   rgb(var(--accent-ink-rgb));
 
   /* Error / destructive text. 6.3:1 on --bg ✓ */

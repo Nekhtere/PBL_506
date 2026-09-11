@@ -135,7 +135,10 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
           <span className="text-white/60">Effortlessly.</span>
         </motion.h1>
 
-        {/* Sub-headline — white/80 = 9.4:1 contrast on dark overlay ✓ */}
+        {/* Sub-headline. No contrast ratio can be quoted here: the backdrop is a
+            photo, so the same text scores differently on a bright slide than a
+            dark one. Legibility comes from sitting in the dark end of the
+            bottom-to-top scrim. */}
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -205,7 +208,7 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
           {stats.map((s) => (
             <div key={s.label} className="text-left">
               <p className="text-xl md:text-2xl font-bold text-white">{s.value}</p>
-              {/* white/60 on dark overlay = high contrast ✓ */}
+              {/* Same caveat as the sub-headline: the scrim, not a ratio. */}
               <p className="text-[11px] text-white/60 mt-0.5">{s.label}</p>
             </div>
           ))}

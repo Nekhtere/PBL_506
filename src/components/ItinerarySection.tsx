@@ -96,7 +96,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
           <h2 className="text-4xl md:text-5xl font-bold text-fg mt-2 tracking-tight">
             1-Day Trip, Your Way
           </h2>
-          {/* #515154 on #F5F5F7 = 4.9:1 ✓ WCAG AA */}
+          {/* #515154 on #F5F5F7 = 7.3:1 ✓ WCAG AA */}
           <p className="text-muted mt-4 text-[15px] max-w-md mx-auto leading-relaxed">
             Curated routes you can mix-and-match. Add the whole bundle or cherry-pick only what you love.
           </p>
@@ -173,7 +173,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[13px] font-semibold text-fg truncate">{m.name}</p>
-                        {/* #515154 on #F5F5F7 = 4.9:1 ✓ WCAG AA */}
+                        {/* #515154 on #F5F5F7 = 7.3:1 ✓ WCAG AA */}
                         <p className="text-[11px] text-muted">{m.type} · {m.time}</p>
                       </div>
                       <div className="text-right shrink-0">

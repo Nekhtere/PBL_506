@@ -85,8 +85,8 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
             </div>
           )}
 
-          {/* Promo — --accent-ink, not --accent: the plain accent is only
-              4.2:1 on its own 10% tint. */}
+          {/* Promo — --accent-ink, not --accent: the plain accent is 4.1:1 on
+              its own 10% tint, below AA. The ink is 5.7:1 there. */}
           {details?.promo && (
             <div className="bg-accent/10 text-[var(--accent-ink)] text-[12px] font-medium px-4 py-2.5 rounded-xl mb-4">
               🎁 {details.promo}

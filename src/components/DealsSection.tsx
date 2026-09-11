@@ -234,7 +234,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
           >
             Smart Merchant Deals
           </motion.h2>
-          {/* #515154 on #FBFBFD = 5.1:1 ✓ WCAG AA */}
+          {/* #515154 on #FBFBFD = 7.7:1 ✓ WCAG AA */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}

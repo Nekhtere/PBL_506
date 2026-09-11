@@ -127,7 +127,7 @@ export default function RideGuideSection() {
               <br />
               No Problem.
               <br />
-              {/* #515154 on #FBFBFD = 5.1:1 ✓ WCAG AA */}
+              {/* #515154 on #FBFBFD = 7.7:1 ✓ WCAG AA */}
               <span className="text-[var(--muted)]">Go Local.</span>
             </h2>
             <p className="text-[var(--muted)] text-[15px] leading-relaxed mb-8">
@@ -151,7 +151,7 @@ export default function RideGuideSection() {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-medium text-[var(--fg)] truncate">{row.route}</p>
-                    {/* #515154 on white = 5.1:1 ✓ WCAG AA */}
+                    {/* #515154 on white = 7.9:1 ✓ WCAG AA */}
                     <p className="text-[11px] text-[var(--muted)]">{row.app} · {row.time}</p>
                   </div>
                   <span className="text-[13px] font-bold text-[var(--fg)] ml-4 shrink-0">{row.fare}</span>
@@ -171,7 +171,7 @@ export default function RideGuideSection() {
                     <span className="text-2xl shrink-0" aria-hidden="true">{p.emoji}</span>
                     <div>
                       <p className="text-[13px] font-semibold text-[var(--fg)]">{p.terminal}</p>
-                      {/* #515154 on #F5F5F7 = 4.9:1 ✓ WCAG AA */}
+                      {/* #515154 on #F5F5F7 = 7.3:1 ✓ WCAG AA */}
                       <p className="text-[12px] text-[var(--muted)] mt-0.5">{p.location}</p>
                       <p className="text-[12px] text-[var(--accent-ink)] mt-1 flex items-center gap-1">
                         <Smartphone className="w-3 h-3" aria-hidden="true" /> {p.tip}
