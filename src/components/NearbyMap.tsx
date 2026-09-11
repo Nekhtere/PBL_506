@@ -37,8 +37,12 @@ export default function NearbyMap({ points, user, onSelect }: {
   const mapRef = useRef<L.Map | null>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
   // Read inside the click handler without re-binding every marker on each render.
+  // Synced in an effect, not during render — writing a ref while rendering is a
+  // side effect and React's linter (rightly) rejects it.
   const onSelectRef = useRef(onSelect);
-  onSelectRef.current = onSelect;
+  useEffect(() => {
+    onSelectRef.current = onSelect;
+  }, [onSelect]);
 
   // Create the map once. Leaflet owns the DOM node, so it must never be re-created
   // on a re-render — only the layer contents get refreshed below.

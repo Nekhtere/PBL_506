@@ -1,12 +1,14 @@
 "use client";
 
 const footerLinks = {
+  // Absolute hash paths, not bare "#deals": this footer is shared with
+  // /merchants, where a bare fragment points at nothing and does nothing.
   Product: [
-    { label: "Deals", href: "#deals" },
-    { label: "Itinerary", href: "#itinerary" },
-    { label: "Getting Here", href: "#ferry" },
-    { label: "Ride Guide", href: "#ride-guide" },
-    { label: "How It Works", href: "#how-it-works" },
+    { label: "Deals", href: "/#deals" },
+    { label: "Itinerary", href: "/#itinerary" },
+    { label: "Getting Here", href: "/#ferry" },
+    { label: "Ride Guide", href: "/#ride-guide" },
+    { label: "How It Works", href: "/#how-it-works" },
   ],
   Legal: [
     { label: "Privacy Policy", href: "/legal/privacy" },
