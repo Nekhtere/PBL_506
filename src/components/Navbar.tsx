@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { ShoppingCart, Menu, X } from "lucide-react";
 
 // Absolute hash paths: the navbar is shared with /merchants, where a bare
@@ -79,11 +80,11 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
         }`}
       >
         {/* Logo */}
-        <a href="#home" className="flex items-center gap-2 shrink-0">
+        <Link href="/#home" className="flex items-center gap-2 shrink-0">
           <span className="text-[15px] font-semibold tracking-tight text-fg">
             Batam<span className="text-[var(--accent-ink)]">Smart</span>
           </span>
-        </a>
+        </Link>
 
         {/* Desktop Nav — centred absolutely so logo + actions balance independently */}
         <nav className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
@@ -174,7 +175,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
             onClick={() => onCartOpenChange(false)}
           >
             <motion.section
-              className="card-soft relative w-full max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-t-[28px] sm:rounded-[28px] bg-white"
+              className="card-soft relative w-full max-w-md max-h-full overflow-y-auto rounded-t-[28px] sm:rounded-[28px] bg-white"
               role="dialog"
               aria-modal="true"
               aria-label="Shopping cart"

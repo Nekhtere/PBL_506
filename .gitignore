@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code worktrees. Without this, `git add -A` in the main checkout picks
+# up the worktree directory as a bogus submodule (gitlink) — it is a nested
+# working tree, not a submodule, and committing it breaks the parent repo.
+.claude/worktrees/

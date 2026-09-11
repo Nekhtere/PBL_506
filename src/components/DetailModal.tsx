@@ -40,7 +40,7 @@ export default function DetailModal({ open, onClose, children }: DetailModalProp
           onClick={onClose}
         >
           <motion.section
-            className="card-soft scrollbar-hide relative max-h-[calc(100dvh-1.5rem)] w-full max-w-5xl overflow-y-auto rounded-t-[28px] sm:rounded-[28px] bg-white"
+            className="card-soft scrollbar-hide relative max-h-full w-full max-w-full sm:max-w-5xl overflow-y-auto rounded-none sm:rounded-[28px] bg-white"
             role="dialog"
             aria-modal="true"
             aria-label="Details"
