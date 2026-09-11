@@ -46,20 +46,20 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
   if (!doc) notFound();
 
   return (
-    <main className="min-h-screen bg-[#FBFBFD] px-6 py-24">
+    <main className="min-h-screen bg-bg px-6 py-24">
       <article className="max-w-2xl mx-auto">
-        <Link href="/" className="text-[13px] font-semibold text-[#0071E3] hover:underline">
+        <Link href="/" className="text-[13px] font-semibold text-accent-ink hover:underline">
           ← BatamSmart
         </Link>
-        <h1 className="text-4xl font-bold text-[#1D1D1F] tracking-tight mt-4 mb-6">
+        <h1 className="text-4xl font-bold text-fg tracking-tight mt-4 mb-6">
           {doc.title}
         </h1>
         <div className="space-y-4">
           {doc.body.map((p) => (
-            <p key={p} className="text-[15px] text-[#515154] leading-relaxed">{p}</p>
+            <p key={p} className="text-[15px] text-muted leading-relaxed">{p}</p>
           ))}
         </div>
-        <p className="text-[12px] text-[#515154] mt-10 pt-6 border-t border-[#E5E5EA]">
+        <p className="text-[12px] text-muted mt-10 pt-6 border-t border-line-soft">
           Questions? Email support@batamsmart.example.
         </p>
       </article>

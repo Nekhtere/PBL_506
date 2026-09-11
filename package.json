@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:tokens": "node scripts/verify-tokens.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.2.0",

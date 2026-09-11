@@ -64,7 +64,7 @@ export default function HowItWorksSection() {
                 className="px-2 py-8 md:px-8"
               >
                 <div className="mb-6 flex items-center justify-between">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D2D2D7] bg-[var(--surface)] text-[13px] font-semibold text-[var(--accent-ink)]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-line-strong bg-[var(--surface)] text-[13px] font-semibold text-[var(--accent-ink)]">
                     {step.step}
                   </span>
                   <Icon className="h-5 w-5 text-[var(--muted)]" strokeWidth={1.6} aria-hidden="true" />

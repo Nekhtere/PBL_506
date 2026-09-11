@@ -84,10 +84,13 @@ export default function NearbyMap({ points, user, onSelect }: {
       });
 
     // Location dot, not a category pin — a filled circle reads as "you" instantly.
+    // This markup is injected into the document, so it can read the CSS tokens
+    // directly. `--fg` for the dot, `--surface` for the ring that separates it
+    // from whatever the tile underneath happens to be.
     L.marker([user.lat, user.lng], {
       icon: L.divIcon({
         className: "",
-        html: `<div style="background:#1D1D1F;width:20px;height:20px;border-radius:9999px;border:3px solid #fff;box-shadow:0 0 0 3px rgba(29,29,31,.25),0 2px 8px rgba(0,0,0,.4)"></div>`,
+        html: `<div style="background:var(--fg);width:20px;height:20px;border-radius:9999px;border:3px solid var(--surface);box-shadow:0 0 0 3px rgba(29,29,31,.25),0 2px 8px rgba(0,0,0,.4)"></div>`,
         iconSize: [20, 20],
         iconAnchor: [10, 10],
       }),

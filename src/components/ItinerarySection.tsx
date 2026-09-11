@@ -80,7 +80,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
   };
 
   return (
-    <section id="itinerary" ref={sectionRef} className="py-24 px-6 bg-[#F5F5F7]">
+    <section id="itinerary" ref={sectionRef} className="py-24 px-6 bg-surface-sunken">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
@@ -90,14 +90,14 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <span className="text-[#0071E3] text-[12px] font-semibold tracking-widest uppercase">
+          <span className="text-accent-ink text-[12px] font-semibold tracking-widest uppercase">
             Flexible Itinerary
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-[#1D1D1F] mt-2 tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-bold text-fg mt-2 tracking-tight">
             1-Day Trip, Your Way
           </h2>
           {/* #515154 on #F5F5F7 = 4.9:1 ✓ WCAG AA */}
-          <p className="text-[#515154] mt-4 text-[15px] max-w-md mx-auto leading-relaxed">
+          <p className="text-muted mt-4 text-[15px] max-w-md mx-auto leading-relaxed">
             Curated routes you can mix-and-match. Add the whole bundle or cherry-pick only what you love.
           </p>
         </motion.div>
@@ -121,7 +121,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                 type="button"
                 onClick={() => setSelectedTrip(trip)}
                 aria-label={`View the ${trip.vibe} itinerary`}
-                className="absolute inset-0 z-[1] rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#0071E3] after:absolute after:inset-0 after:content-['']"
+                className="absolute inset-0 z-[1] rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-accent after:absolute after:inset-0 after:content-['']"
               />
 
               {/* Hero photo — taller for visual impact */}
@@ -166,19 +166,19 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                       initial={{ opacity: 0, x: -12 }}
                       animate={isInView ? { opacity: 1, x: 0 } : {}}
                       transition={{ duration: 0.4, delay: i * 0.15 + idx * 0.06 }}
-                      className="flex items-center gap-3 bg-[#F5F5F7] hover:bg-[#EBEBF0] rounded-2xl p-3 transition-colors duration-150 cursor-default"
+                      className="flex items-center gap-3 bg-surface-sunken hover:bg-surface-hover rounded-2xl p-3 transition-colors duration-150 cursor-default"
                     >
                       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xl shadow-sm shrink-0">
                         {m.emoji}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-[#1D1D1F] truncate">{m.name}</p>
+                        <p className="text-[13px] font-semibold text-fg truncate">{m.name}</p>
                         {/* #515154 on #F5F5F7 = 4.9:1 ✓ WCAG AA */}
-                        <p className="text-[11px] text-[#515154]">{m.type} · {m.time}</p>
+                        <p className="text-[11px] text-muted">{m.type} · {m.time}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-[13px] font-bold text-[#1D1D1F]">{m.price}</p>
-                        <p className="text-[11px] text-[#515154]">voucher</p>
+                        <p className="text-[13px] font-bold text-fg">{m.price}</p>
+                        <p className="text-[11px] text-muted">voucher</p>
                       </div>
                     </motion.div>
                   ))}
@@ -189,7 +189,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                     <Flame className="w-3.5 h-3.5" aria-hidden="true" />
                     {trip.bookedThisWeek} booked this week
                   </span>
-                  <span className="flex items-center gap-1 text-[#515154]">
+                  <span className="flex items-center gap-1 text-muted">
                     <CalendarCheck className="w-3.5 h-3.5" aria-hidden="true" />
                     {trip.validity}
                   </span>
@@ -197,22 +197,22 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setSelectedTrip(trip); }}
-                  className="relative z-10 self-start text-[12px] font-medium text-[#0071E3] mb-4 hover:underline"
+                  className="relative z-10 self-start text-[12px] font-medium text-accent-ink mb-4 hover:underline"
                 >
                   View itinerary
                 </button>
 
                 {/* Total + CTA */}
-                <div className="flex items-end justify-between pt-4 border-t border-[#E5E5EA] mt-auto">
+                <div className="flex items-end justify-between pt-4 border-t border-line-soft mt-auto">
                   <div>
-                    <p className="text-[20px] font-bold text-[#1D1D1F]">{trip.totalSGD}</p>
+                    <p className="text-[20px] font-bold text-fg">{trip.totalSGD}</p>
                     <p className={`text-[12px] font-semibold ${trip.savingsColor}`}>{trip.savings}</p>
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleAdd(trip); }}
                     disabled={addedId === trip.id}
                     aria-label={`Add the ${trip.vibe} itinerary to cart`}
-                    className="relative z-10 flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#333] disabled:bg-emerald-600 text-white text-[13px] font-semibold px-4 py-2.5 rounded-xl transition-colors duration-200"
+                    className="relative z-10 flex items-center gap-2 bg-fg hover:bg-fg-hover disabled:bg-emerald-600 text-white text-[13px] font-semibold px-4 py-2.5 rounded-xl transition-colors duration-200"
                   >
                     {addedId === trip.id ? <Check className="w-4 h-4" aria-hidden="true" /> : <ShoppingCart className="w-4 h-4" aria-hidden="true" />}
                     {addedId === trip.id ? "Added" : "Add Route to Cart"}
@@ -230,7 +230,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center mt-12"
         >
-          <button className="inline-flex items-center gap-2 text-[#0071E3] text-[13px] font-semibold hover:underline">
+          <button className="inline-flex items-center gap-2 text-accent-ink text-[13px] font-semibold hover:underline">
             <Plus className="w-4 h-4" aria-hidden="true" />
             Build your own custom itinerary
           </button>
@@ -270,12 +270,12 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
             {/* Scrollable body */}
             <div className="p-6 flex flex-1 min-h-0 min-w-0 flex-col">
               <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
-                <p className="text-[13px] text-[#515154] leading-relaxed mb-4">{selectedTrip.description}</p>
+                <p className="text-[13px] text-muted leading-relaxed mb-4">{selectedTrip.description}</p>
 
                 {/* Highlights */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {selectedTrip.highlights.map((h) => (
-                    <span key={h} className="flex items-center gap-1.5 bg-[#F5F5F7] text-[#1D1D1F] text-[11px] font-medium px-3 py-1.5 rounded-full">
+                    <span key={h} className="flex items-center gap-1.5 bg-surface-sunken text-fg text-[11px] font-medium px-3 py-1.5 rounded-full">
                       ✦ {h}
                     </span>
                   ))}
@@ -283,10 +283,10 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
 
                 {/* Includes */}
                 <div className="mb-4">
-                  <p className="text-[12px] font-semibold text-[#1D1D1F] mb-2">What&apos;s included</p>
+                  <p className="text-[12px] font-semibold text-fg mb-2">What&apos;s included</p>
                   <ul className="space-y-1.5">
                     {selectedTrip.includes.map((item) => (
-                      <li key={item} className="flex items-center gap-2 text-[12px] text-[#515154]">
+                      <li key={item} className="flex items-center gap-2 text-[12px] text-muted">
                         <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
                         {item}
                       </li>
@@ -296,7 +296,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
 
                 {/* Promo — --accent-ink clears AA on the 10% accent tint. */}
                 {selectedTrip.promo && (
-                  <div className="bg-[#0071E3]/10 text-[var(--accent-ink)] text-[12px] font-medium px-4 py-2.5 rounded-xl mb-4">
+                  <div className="bg-accent/10 text-[var(--accent-ink)] text-[12px] font-medium px-4 py-2.5 rounded-xl mb-4">
                     🎁 {selectedTrip.promo}
                   </div>
                 )}
@@ -305,50 +305,50 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] mb-4">
                   <span className="flex items-center gap-1.5">
                     <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
-                    <span className="font-semibold text-[#1D1D1F]">{selectedTrip.rating}</span>
-                    <span className="text-[#515154]">({selectedTrip.reviews} reviews)</span>
+                    <span className="font-semibold text-fg">{selectedTrip.rating}</span>
+                    <span className="text-muted">({selectedTrip.reviews} reviews)</span>
                   </span>
                   <span className="flex items-center gap-1.5 text-orange-600 font-medium">
                     <Flame className="w-3.5 h-3.5" aria-hidden="true" />
                     {selectedTrip.bookedThisWeek} booked this week
                   </span>
-                  <span className="flex items-center gap-1.5 text-[#515154]">
+                  <span className="flex items-center gap-1.5 text-muted">
                     <CalendarCheck className="w-3.5 h-3.5" aria-hidden="true" />
                     {selectedTrip.validity}
                   </span>
                 </div>
 
                 {/* Stops */}
-                <p className="text-[12px] font-semibold text-[#1D1D1F] mb-2">Stops on this route</p>
+                <p className="text-[12px] font-semibold text-fg mb-2">Stops on this route</p>
                 <div className="space-y-2">
                   {selectedTrip.merchants.map((m, idx) => (
-                    <div key={idx} className="flex items-center gap-3 bg-[#F5F5F7] rounded-2xl p-3">
+                    <div key={idx} className="flex items-center gap-3 bg-surface-sunken rounded-2xl p-3">
                       <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xl shadow-sm shrink-0">
                         {m.emoji}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-[#1D1D1F] truncate">{m.name}</p>
-                        <p className="text-[11px] text-[#515154]">{m.type} · {m.time}</p>
+                        <p className="text-[13px] font-semibold text-fg truncate">{m.name}</p>
+                        <p className="text-[11px] text-muted">{m.type} · {m.time}</p>
                       </div>
-                      <p className="text-[13px] font-bold text-[#1D1D1F] shrink-0">{m.price}</p>
+                      <p className="text-[13px] font-bold text-fg shrink-0">{m.price}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-4 pt-4 mt-4 border-t border-[#E5E5EA] shrink-0">
+              <div className="flex items-center justify-between gap-4 pt-4 mt-4 border-t border-line-soft shrink-0">
                 <div className="min-w-0">
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-bold text-[#1D1D1F]">{selectedTrip.totalSGD}</span>
-                    <span className="text-[11px] text-[#515154]">E-Cash</span>
+                    <span className="text-2xl font-bold text-fg">{selectedTrip.totalSGD}</span>
+                    <span className="text-[11px] text-muted">E-Cash</span>
                   </div>
                   <p className={`text-[12px] font-semibold ${selectedTrip.savingsColor}`}>{selectedTrip.savings}</p>
-                  <p className="text-[11px] text-[#515154] truncate mt-0.5">
+                  <p className="text-[11px] text-muted truncate mt-0.5">
                     {selectedTrip.from} · {selectedTrip.hours}
                   </p>
                 </div>
                 <button
-                  className="flex items-center gap-2 text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg bg-[#0071E3] hover:bg-[#005BBB] shadow-[#0071E3]/25"
+                  className="flex items-center gap-2 text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg bg-accent hover:bg-accent-hover shadow-accent/25"
                   onClick={() => { handleAdd(selectedTrip); setSelectedTrip(null); }}
                 >
                   <ShoppingCart className="w-4 h-4" aria-hidden="true" />

@@ -222,7 +222,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="text-[#0071E3] text-[12px] font-semibold tracking-widest uppercase"
+            className="text-accent-ink text-[12px] font-semibold tracking-widest uppercase"
           >
             Top Picks in Batam
           </motion.span>
@@ -230,7 +230,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1D1D1F] mt-2 tracking-tight"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-fg mt-2 tracking-tight"
           >
             Smart Merchant Deals
           </motion.h2>
@@ -239,7 +239,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-[#515154] mt-3 text-[15px] max-w-md leading-relaxed"
+            className="text-muted mt-3 text-[15px] max-w-md leading-relaxed"
           >
             The best-rated seafood, spa and shopping in Batam. Prices locked in SGD,
             vouchers redeemed by QR — valid 30 days.
@@ -255,13 +255,13 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
         >
           <div className="card-soft rounded-2xl p-1.5 flex items-center gap-1.5 sm:gap-2 max-w-2xl">
             <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3 px-2.5 sm:px-4">
-              <Search className="w-4 h-4 text-[#1D1D1F]/50 shrink-0" strokeWidth={2} aria-hidden="true" />
+              <Search className="w-4 h-4 text-fg/50 shrink-0" strokeWidth={2} aria-hidden="true" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => onQueryChange(e.target.value)}
                 placeholder="Search Batam — seafood, spa, shopping…"
-                className="flex-1 min-w-0 bg-transparent text-[13px] sm:text-[14px] text-[#1D1D1F] placeholder:text-[#1D1D1F]/45 py-2.5"
+                className="flex-1 min-w-0 bg-transparent text-[13px] sm:text-[14px] text-fg placeholder:text-fg/45 py-2.5"
                 aria-label="Search deals in Batam"
               />
               {query && (
@@ -269,9 +269,9 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
                   type="button"
                   onClick={() => onQueryChange("")}
                   aria-label="Clear search"
-                  className="shrink-0 w-5 h-5 rounded-full bg-[#1D1D1F]/10 flex items-center justify-center"
+                  className="shrink-0 w-5 h-5 rounded-full bg-fg/10 flex items-center justify-center"
                 >
-                  <X className="w-3 h-3 text-[#1D1D1F]/70" aria-hidden="true" />
+                  <X className="w-3 h-3 text-fg/70" aria-hidden="true" />
                 </button>
               )}
             </div>
@@ -282,7 +282,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
               aria-busy={locating}
               /* min-h-11 keeps the target at 44px on phones — at 12px type with
                  py-2.5 it fell just short of the minimum. */
-              className="flex min-h-11 items-center gap-1.5 bg-[#0071E3] hover:bg-[#005BBB] disabled:opacity-60 text-white text-[12px] sm:text-[13px] font-semibold px-3 sm:px-4 py-2.5 rounded-xl transition-colors duration-200 shrink-0"
+              className="flex min-h-11 items-center gap-1.5 bg-accent hover:bg-accent-hover disabled:opacity-60 text-white text-[12px] sm:text-[13px] font-semibold px-3 sm:px-4 py-2.5 rounded-xl transition-colors duration-200 shrink-0"
             >
               <Navigation className={`w-3.5 h-3.5 ${locating ? "animate-spin" : ""}`} aria-hidden="true" />
               {locating ? "Locating…" : "Near Me"}
@@ -291,7 +291,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
 
           {/* Popular tags */}
           <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <span className="text-[#515154] text-[11px] font-medium">Popular:</span>
+            <span className="text-muted text-[11px] font-medium">Popular:</span>
             {popularTags.map((tag) => (
               <button
                 key={tag}
@@ -301,7 +301,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
                 aria-label={`Filter deals by ${tag.replace(/^\S+\s/, "")}`}
                 aria-pressed={query === tag.replace(/^\S+\s/, "")}
                 onClick={() => onQueryChange(tag.replace(/^\S+\s/, ""))}
-                className="text-[12px] text-[#515154] hover:text-[#1D1D1F] px-2.5 py-1 rounded-full bg-[#F5F5F7] hover:bg-[#E8E8ED] border border-[#E5E5EA] transition-colors duration-150"
+                className="text-[12px] text-muted hover:text-fg px-2.5 py-1 rounded-full bg-surface-sunken hover:bg-line border border-line-soft transition-colors duration-150"
               >
                 {tag}
               </button>
@@ -309,7 +309,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
           </div>
 
           {geoMsg && (
-            <div className="flex items-center gap-3 text-[12px] text-[var(--danger)] bg-[#B3261E]/10 px-3 py-2 rounded-xl mt-3" role="alert">
+            <div className="flex items-center gap-3 text-[12px] text-[var(--danger)] bg-danger/10 px-3 py-2 rounded-xl mt-3" role="alert">
               <span className="flex-1">{geoMsg}</span>
               {/* A failed lookup used to be a dead end — no way to try again
                   without reloading the page. */}
@@ -332,7 +332,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             transition={{ duration: 0.4 }}
             className="mb-8"
           >
-            <div className="isolate h-64 sm:h-80 rounded-3xl overflow-hidden border border-[#E8E8ED] shadow-[var(--sh-2)]">
+            <div className="isolate h-64 sm:h-80 rounded-3xl overflow-hidden border border-line shadow-[var(--sh-2)]">
               <NearbyMap
                 points={mapPoints}
                 user={user}
@@ -349,10 +349,10 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             onClick={() => scroll("left")}
             disabled={!canScrollLeft}
             aria-label="Scroll left"
-            className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-11 h-11 rounded-full bg-white shadow-lg border border-[#E5E5EA] flex items-center justify-center transition-all duration-200
-              ${canScrollLeft ? "opacity-100 hover:bg-[#F5F5F7] hover:scale-105" : "opacity-0 pointer-events-none"}`}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-11 h-11 rounded-full bg-white shadow-lg border border-line-soft flex items-center justify-center transition-all duration-200
+              ${canScrollLeft ? "opacity-100 hover:bg-surface-sunken hover:scale-105" : "opacity-0 pointer-events-none"}`}
           >
-            <ChevronLeft className="w-5 h-5 text-[#1D1D1F]" strokeWidth={2} />
+            <ChevronLeft className="w-5 h-5 text-fg" strokeWidth={2} />
           </button>
 
           {/* Right arrow */}
@@ -360,15 +360,15 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             onClick={() => scroll("right")}
             disabled={!canScrollRight}
             aria-label="Scroll right"
-            className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-11 h-11 rounded-full bg-white shadow-lg border border-[#E5E5EA] flex items-center justify-center transition-all duration-200
-              ${canScrollRight ? "opacity-100 hover:bg-[#F5F5F7] hover:scale-105" : "opacity-0 pointer-events-none"}`}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-11 h-11 rounded-full bg-white shadow-lg border border-line-soft flex items-center justify-center transition-all duration-200
+              ${canScrollRight ? "opacity-100 hover:bg-surface-sunken hover:scale-105" : "opacity-0 pointer-events-none"}`}
           >
-            <ChevronRight className="w-5 h-5 text-[#1D1D1F]" strokeWidth={2} />
+            <ChevronRight className="w-5 h-5 text-fg" strokeWidth={2} />
           </button>
 
           {/* Fade edges */}
-          <div className={`absolute left-0 top-0 bottom-4 w-12 bg-gradient-to-r from-[#FBFBFD] to-transparent z-[5] pointer-events-none transition-opacity duration-200 ${canScrollLeft  ? "opacity-100" : "opacity-0"}`} />
-          <div className={`absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-[#FBFBFD] to-transparent z-[5] pointer-events-none transition-opacity duration-200 ${canScrollRight ? "opacity-100" : "opacity-0"}`} />
+          <div className={`absolute left-0 top-0 bottom-4 w-12 bg-gradient-to-r from-bg to-transparent z-[5] pointer-events-none transition-opacity duration-200 ${canScrollLeft  ? "opacity-100" : "opacity-0"}`} />
+          <div className={`absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-bg to-transparent z-[5] pointer-events-none transition-opacity duration-200 ${canScrollRight ? "opacity-100" : "opacity-0"}`} />
 
           {/* Carousel track */}
           <div
@@ -394,9 +394,9 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
               />
             ))}
             {near.length === 0 && (
-              <p className="text-[13px] text-[#515154] py-12 w-full text-center">
+              <p className="text-[13px] text-muted py-12 w-full text-center">
                 No deals match &ldquo;{query}&rdquo;.{" "}
-                <button onClick={() => onQueryChange("")} className="text-[#0071E3] font-medium hover:underline">
+                <button onClick={() => onQueryChange("")} className="text-accent-ink font-medium hover:underline">
                   Try another search
                 </button>
               </p>
@@ -421,7 +421,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
         >
           <Link
             href="/merchants"
-            className="inline-flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#000000] text-white text-[13px] font-semibold px-4 py-2 rounded-full transition-colors duration-200"
+            className="inline-flex items-center gap-2 bg-fg hover:bg-black text-white text-[13px] font-semibold px-4 py-2 rounded-full transition-colors duration-200"
           >
             <LayoutGrid className="w-3.5 h-3.5" aria-hidden="true" />
             All

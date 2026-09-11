@@ -80,7 +80,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
       >
         {/* Logo */}
         <a href="#home" className="flex items-center gap-2 shrink-0">
-          <span className="text-[15px] font-semibold tracking-tight text-[#1D1D1F]">
+          <span className="text-[15px] font-semibold tracking-tight text-fg">
             Batam<span className="text-[var(--accent-ink)]">Smart</span>
           </span>
         </a>
@@ -91,7 +91,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
             <a
               key={link.href}
               href={link.href}
-              className="px-3.5 py-1.5 text-[13px] font-medium text-[#1D1D1F] rounded-full hover:shadow-md hover:shadow-[#0071E3]/30 transition-shadow duration-200"
+              className="px-3.5 py-1.5 text-[13px] font-medium text-fg rounded-full hover:shadow-md hover:shadow-accent/30 transition-shadow duration-200"
             >
               {link.label}
             </a>
@@ -106,14 +106,14 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
             onClick={() => onCartOpenChange(true)}
             aria-label={`Cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}`}
           >
-            <ShoppingCart className="w-[18px] h-[18px] text-[#1D1D1F]" strokeWidth={1.8} aria-hidden="true" />
+            <ShoppingCart className="w-[18px] h-[18px] text-fg" strokeWidth={1.8} aria-hidden="true" />
             {cartCount > 0 && (
               <motion.span
                 key={cartCount}
                 initial={{ scale: 0.6 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 500, damping: 18 }}
-                className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#0071E3] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none"
+                className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none"
               >
                 {cartCount}
               </motion.span>
@@ -128,9 +128,9 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? (
-              <X className="w-4 h-4 text-[#1D1D1F]" aria-hidden="true" />
+              <X className="w-4 h-4 text-fg" aria-hidden="true" />
             ) : (
-              <Menu className="w-4 h-4 text-[#1D1D1F]" aria-hidden="true" />
+              <Menu className="w-4 h-4 text-fg" aria-hidden="true" />
             )}
           </button>
         </div>
@@ -153,7 +153,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                 href={link.href}
                 role="menuitem"
                 onClick={() => setMobileOpen(false)}
-                className="px-3 py-2.5 text-[14px] font-medium text-[#1D1D1F] rounded-xl hover:shadow-md hover:shadow-black/10 transition-shadow"
+                className="px-3 py-2.5 text-[14px] font-medium text-fg rounded-xl hover:shadow-md hover:shadow-black/10 transition-shadow"
               >
                 {link.label}
               </a>
@@ -185,7 +185,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
               onClick={(event) => event.stopPropagation()}
             >
               <button
-                className="glass absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-[#1D1D1F] transition-transform hover:scale-105"
+                className="glass absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-fg transition-transform hover:scale-105"
                 onClick={() => onCartOpenChange(false)}
                 aria-label="Close cart"
               >
@@ -194,21 +194,21 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
 
               <div className="p-6">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-xl font-bold text-[#1D1D1F]">Your Cart</h3>
+                  <h3 className="text-xl font-bold text-fg">Your Cart</h3>
                   {items.length > 0 && (
-                    <span className="text-[11px] font-semibold text-[#515154] bg-[#F5F5F7] px-2.5 py-1 rounded-full">
+                    <span className="text-[11px] font-semibold text-muted bg-surface-sunken px-2.5 py-1 rounded-full">
                       {items.length} {items.length === 1 ? "item" : "items"}
                     </span>
                   )}
                 </div>
-                <p className="text-[12px] text-[#515154] mb-5">E-Cash vouchers, redeemed via QR at the merchant.</p>
+                <p className="text-[12px] text-muted mb-5">E-Cash vouchers, redeemed via QR at the merchant.</p>
 
                 {items.length === 0 ? (
                   <div className="text-center py-10">
-                    <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#F5F5F7] flex items-center justify-center">
-                      <ShoppingCart className="w-6 h-6 text-[#C7C7CC]" aria-hidden="true" />
+                    <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-surface-sunken flex items-center justify-center">
+                      <ShoppingCart className="w-6 h-6 text-faint" aria-hidden="true" />
                     </div>
-                    <p className="text-[13px] text-[#515154] leading-relaxed">
+                    <p className="text-[13px] text-muted leading-relaxed">
                       Your cart is empty.<br />Add a deal or itinerary route to get started.
                     </p>
                   </div>
@@ -224,7 +224,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: -30 }}
                             transition={{ duration: 0.2 }}
-                            className="flex gap-3 bg-[#F5F5F7] rounded-2xl p-3"
+                            className="flex gap-3 bg-surface-sunken rounded-2xl p-3"
                           >
                             {/* Thumbnail */}
                             {item.image ? (
@@ -237,7 +237,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                               />
                             ) : (
                               <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0">
-                                <span className="text-[10px] font-bold text-[#0071E3] uppercase tracking-wide">
+                                <span className="text-[10px] font-bold text-accent-ink uppercase tracking-wide">
                                   {item.kind === "route" ? "Route" : "Deal"}
                                 </span>
                               </div>
@@ -245,23 +245,23 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <p className="text-[13px] font-semibold text-[#1D1D1F] leading-snug">{item.name}</p>
-                                <p className="text-[13px] font-bold text-[#1D1D1F] shrink-0">{item.price}</p>
+                                <p className="text-[13px] font-semibold text-fg leading-snug">{item.name}</p>
+                                <p className="text-[13px] font-bold text-fg shrink-0">{item.price}</p>
                               </div>
                               {item.subtitle && (
-                                <p className="text-[11px] text-[#515154] mt-0.5">{item.subtitle}</p>
+                                <p className="text-[11px] text-muted mt-0.5">{item.subtitle}</p>
                               )}
                               {item.items && item.items.length > 0 && (
-                                <p className="text-[11px] text-[#515154] mt-1.5 leading-relaxed line-clamp-2">
+                                <p className="text-[11px] text-muted mt-1.5 leading-relaxed line-clamp-2">
                                   {item.items.join(" · ")}
                                 </p>
                               )}
                               <div className="flex items-center justify-between mt-2">
-                                <span className="text-[10px] font-medium text-[#0071E3] bg-[#0071E3]/10 px-2 py-0.5 rounded-full">
+                                <span className="text-[10px] font-medium text-accent-ink bg-accent/10 px-2 py-0.5 rounded-full">
                                   QR Voucher
                                 </span>
                                 <button
-                                  className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-[#515154] hover:text-red-500 transition-colors shrink-0"
+                                  className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-muted hover:text-red-500 transition-colors shrink-0"
                                   onClick={() => onRemoveItem(item.id)}
                                   aria-label={`Remove ${item.name} from cart`}
                                 >
@@ -274,25 +274,25 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                       </AnimatePresence>
                     </ul>
 
-                    <div className="pt-4 mt-4 border-t border-[#E5E5EA] space-y-1.5">
-                      <div className="flex items-center justify-between text-[12px] text-[#515154]">
+                    <div className="pt-4 mt-4 border-t border-line-soft space-y-1.5">
+                      <div className="flex items-center justify-between text-[12px] text-muted">
                         <span>Subtotal</span>
                         <span>S$ {total.toFixed(2)}</span>
                       </div>
-                      <div className="flex items-center justify-between text-[12px] text-[#515154]">
+                      <div className="flex items-center justify-between text-[12px] text-muted">
                         <span>Booking fee</span>
                         <span className="text-emerald-600 font-medium">Free</span>
                       </div>
                       <div className="flex items-center justify-between pt-2">
                         <div>
-                          <p className="text-[13px] font-semibold text-[#1D1D1F]">Total</p>
-                          <p className="text-[11px] text-[#515154]">
+                          <p className="text-[13px] font-semibold text-fg">Total</p>
+                          <p className="text-[11px] text-muted">
                             ≈ Rp {totalIDR.toLocaleString("id-ID")} · charged in SGD
                           </p>
                         </div>
-                        <p className="text-xl font-bold text-[#1D1D1F]">S$ {total.toFixed(2)}</p>
+                        <p className="text-xl font-bold text-fg">S$ {total.toFixed(2)}</p>
                       </div>
-                      <button className="mt-3 w-full flex items-center justify-center gap-2 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25">
+                      <button className="mt-3 w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-accent/25">
                         <ShoppingCart className="w-4 h-4" aria-hidden="true" />
                         Checkout · S$ {total.toFixed(2)}
                       </button>

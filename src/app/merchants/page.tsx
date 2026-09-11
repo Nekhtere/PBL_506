@@ -27,7 +27,7 @@ export default function MerchantsPage() {
     setCartItems((items) => items.filter((item) => item.id !== id));
 
   return (
-    <main className="min-h-screen bg-[#FBFBFD]">
+    <main className="min-h-screen bg-bg">
       <Navbar
         items={cartItems}
         onRemoveItem={removeFromCart}

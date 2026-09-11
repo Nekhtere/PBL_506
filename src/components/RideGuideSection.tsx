@@ -33,12 +33,17 @@ export default function RideGuideSection() {
           >
             <div className="relative">
               {/* iPhone frame */}
-              <div className="relative w-64 h-[520px] bg-[#1D1D1F] rounded-[3rem] p-2 shadow-2xl shadow-black/30">
+              <div className="relative w-64 h-[520px] bg-fg rounded-[3rem] p-2 shadow-2xl shadow-black/30">
                 <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
                   {/* Status bar notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-7 bg-[#1D1D1F] rounded-b-2xl z-10" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-7 bg-fg rounded-b-2xl z-10" />
 
-                  {/* Map Background */}
+                  {/* Map Background.
+                      The pale blues and greys below are this illustration's own
+                      palette — they depict a map, they are not UI chrome, so they
+                      are deliberately not tokens. The route and start pin are the
+                      opposite case: they are the brand accent, and would be wrong
+                      if the accent moved, so they read the token. */}
                   <div
                     className="absolute inset-0"
                     style={{
@@ -57,16 +62,17 @@ export default function RideGuideSection() {
                       {/* Route line */}
                       <path
                         d="M 50 420 Q 80 320 160 280 Q 200 250 180 150"
-                        stroke="#0071E3"
+                        stroke="var(--accent)"
                         strokeWidth="4"
                         fill="none"
                         strokeLinecap="round"
                         strokeDasharray="8 4"
                       />
                       {/* Start pin */}
-                      <circle cx="50" cy="420" r="8" fill="#0071E3" />
-                      <circle cx="50" cy="420" r="14" fill="#0071E3" fillOpacity="0.2" />
-                      {/* End pin */}
+                      <circle cx="50" cy="420" r="8" fill="var(--accent)" />
+                      <circle cx="50" cy="420" r="14" fill="var(--accent)" fillOpacity="0.2" />
+                      {/* End pin — the destination, not an error state, so it keeps
+                          its own red rather than borrowing --danger. */}
                       <circle cx="180" cy="145" r="8" fill="#ef4444" />
                       <circle cx="180" cy="145" r="14" fill="#ef4444" fillOpacity="0.2" />
                     </svg>
@@ -74,15 +80,15 @@ export default function RideGuideSection() {
 
                   {/* Glass overlay card on map */}
                   <div className="absolute bottom-4 left-3 right-3 glass rounded-2xl p-3">
-                    <p className="text-xs font-semibold text-[#1D1D1F] mb-1">
+                    <p className="text-xs font-semibold text-fg mb-1">
                       🚗 GrabCar · 8 min away
                     </p>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-[#6E6E73]">Ferry Port → Golden Prawn</p>
-                        <p className="text-sm font-bold text-[#1D1D1F] mt-0.5">~S$ 4.50</p>
+                        <p className="text-xs text-subtle">Ferry Port → Golden Prawn</p>
+                        <p className="text-sm font-bold text-fg mt-0.5">~S$ 4.50</p>
                       </div>
-                      <button className="bg-[#0071E3] text-white text-xs font-semibold px-3 py-1.5 rounded-xl">
+                      <button className="bg-accent text-white text-xs font-semibold px-3 py-1.5 rounded-xl">
                         Book
                       </button>
                     </div>
@@ -96,8 +102,8 @@ export default function RideGuideSection() {
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute -right-6 top-20 glass rounded-2xl px-4 py-3 shadow-lg"
               >
-                <p className="text-xs font-semibold text-[#1D1D1F]">🎯 Pickup Confirmed</p>
-                <p className="text-[10px] text-[#6E6E73] mt-0.5">Driver is 2 min away</p>
+                <p className="text-xs font-semibold text-fg">🎯 Pickup Confirmed</p>
+                <p className="text-[10px] text-subtle mt-0.5">Driver is 2 min away</p>
               </motion.div>
             </div>
           </motion.div>
@@ -134,7 +140,7 @@ export default function RideGuideSection() {
               {fareData.map((row, i) => (
                 <div
                   key={i}
-                  className={`px-4 py-3 flex items-center justify-between hover:bg-[#FAFAFA] transition-colors ${
+                  className={`px-4 py-3 flex items-center justify-between hover:bg-surface-raised transition-colors ${
                     i < fareData.length - 1 ? "border-b border-[var(--line-soft)]" : ""
                   }`}
                 >
@@ -156,7 +162,7 @@ export default function RideGuideSection() {
               </h3>
               <div className="space-y-3">
                 {pickupPoints.map((p, i) => (
-                  <div key={i} className="flex items-start gap-3 bg-[var(--surface-sunken)] hover:bg-[#EBEBF0] rounded-2xl p-4 transition-colors duration-150">
+                  <div key={i} className="flex items-start gap-3 bg-[var(--surface-sunken)] hover:bg-surface-hover rounded-2xl p-4 transition-colors duration-150">
                     <span className="text-2xl shrink-0" aria-hidden="true">{p.emoji}</span>
                     <div>
                       <p className="text-[13px] font-semibold text-[var(--fg)]">{p.terminal}</p>

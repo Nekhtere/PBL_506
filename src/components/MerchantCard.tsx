@@ -50,7 +50,7 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
           tile reads as broken rather than loading. The pulse is killed by the
           global reduced-motion rule. */}
       <div
-        className={`absolute inset-0 animate-pulse bg-[#E8E8ED] transition-opacity duration-300 ${
+        className={`absolute inset-0 animate-pulse bg-line transition-opacity duration-300 ${
           loaded ? "opacity-0" : "opacity-100"
         }`}
         aria-hidden="true"
@@ -106,7 +106,7 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
         aria-pressed={liked}
       >
         <Heart
-          className={`w-4 h-4 transition-colors duration-200 ${liked ? "fill-red-500 text-red-500" : "text-[#1D1D1F]/60"}`}
+          className={`w-4 h-4 transition-colors duration-200 ${liked ? "fill-red-500 text-red-500" : "text-fg/60"}`}
         />
       </button>
 

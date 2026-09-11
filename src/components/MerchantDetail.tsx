@@ -22,7 +22,7 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
       <div className="relative h-44 sm:h-56 shrink-0">
         {/* The photo is normally cached from the card that opened this modal,
             but not when it is opened from a map pin. */}
-        <div className="absolute inset-0 animate-pulse bg-[#E8E8ED]" aria-hidden="true" />
+        <div className="absolute inset-0 animate-pulse bg-line" aria-hidden="true" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={merchant.photo}
@@ -57,13 +57,13 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
       {/* Body */}
       <div className="p-4 sm:p-6 flex flex-col">
         <div>
-          <p className="text-[13px] text-[#515154] leading-relaxed mb-4">{merchant.desc}</p>
+          <p className="text-[13px] text-muted leading-relaxed mb-4">{merchant.desc}</p>
 
           {/* Highlights */}
           {details && (
             <div className="flex flex-wrap gap-2 mb-4">
               {details.highlights.map((h) => (
-                <span key={h} className="flex items-center gap-1.5 bg-[#F5F5F7] text-[#1D1D1F] text-[11px] font-medium px-3 py-1.5 rounded-full">
+                <span key={h} className="flex items-center gap-1.5 bg-surface-sunken text-fg text-[11px] font-medium px-3 py-1.5 rounded-full">
                   ✦ {h}
                 </span>
               ))}
@@ -73,10 +73,10 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
           {/* Includes */}
           {details && (
             <div className="mb-4">
-              <p className="text-[12px] font-semibold text-[#1D1D1F] mb-2">What&apos;s included</p>
+              <p className="text-[12px] font-semibold text-fg mb-2">What&apos;s included</p>
               <ul className="space-y-1.5">
                 {details.includes.map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-[12px] text-[#515154]">
+                  <li key={item} className="flex items-center gap-2 text-[12px] text-muted">
                     <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
                     {item}
                   </li>
@@ -88,18 +88,18 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
           {/* Promo — --accent-ink, not --accent: the plain accent is only
               4.2:1 on its own 10% tint. */}
           {details?.promo && (
-            <div className="bg-[#0071E3]/10 text-[var(--accent-ink)] text-[12px] font-medium px-4 py-2.5 rounded-xl mb-4">
+            <div className="bg-accent/10 text-[var(--accent-ink)] text-[12px] font-medium px-4 py-2.5 rounded-xl mb-4">
               🎁 {details.promo}
             </div>
           )}
         </div>
 
         {/* Price */}
-        <div className="flex items-center justify-between bg-[#F5F5F7] rounded-2xl p-4 mb-4 shrink-0">
+        <div className="flex items-center justify-between bg-surface-sunken rounded-2xl p-4 mb-4 shrink-0">
           <div className="flex items-baseline flex-wrap gap-x-2">
-            <span className="text-[12px] text-[#515154] line-through">{merchant.originalPrice}</span>
-            <span className="text-2xl font-bold text-[#1D1D1F]">{merchant.salePrice}</span>
-            <span className="text-[11px] text-[#515154]">E-Cash</span>
+            <span className="text-[12px] text-muted line-through">{merchant.originalPrice}</span>
+            <span className="text-2xl font-bold text-fg">{merchant.salePrice}</span>
+            <span className="text-[11px] text-muted">E-Cash</span>
             {discount > 0 && (
               <span className="rounded-full bg-emerald-600 text-white text-[11px] font-bold px-2 py-0.5">
                 -{discount}%
@@ -108,13 +108,13 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mt-4 pt-4 border-t border-[#E5E5EA] shrink-0">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mt-4 pt-4 border-t border-line-soft shrink-0">
           <div>
-            <p className="text-[11px] text-[#515154]">Voucher can be redeemed at</p>
-            <p className="text-[13px] font-semibold text-[#1D1D1F]">{merchant.location}</p>
+            <p className="text-[11px] text-muted">Voucher can be redeemed at</p>
+            <p className="text-[13px] font-semibold text-fg">{merchant.location}</p>
           </div>
           <button
-            className="flex items-center justify-center sm:justify-normal gap-2 w-full sm:w-auto bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25"
+            className="flex items-center justify-center sm:justify-normal gap-2 w-full sm:w-auto bg-accent hover:bg-accent-hover text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-accent/25"
             onClick={() => {
               onAddToCart({
                 name: merchant.name,

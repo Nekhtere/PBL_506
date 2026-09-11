@@ -51,7 +51,7 @@ export default function DetailModal({ open, onClose, children }: DetailModalProp
             onClick={(event) => event.stopPropagation()}
           >
             <button
-              className="glass absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-[#1D1D1F] transition-transform hover:scale-105"
+              className="glass absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full text-fg transition-transform hover:scale-105"
               onClick={onClose}
               aria-label="Close details"
             >

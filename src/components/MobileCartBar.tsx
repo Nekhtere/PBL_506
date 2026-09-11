@@ -31,7 +31,7 @@ export default function MobileCartBar({ count, total, onCheckout }: {
             <button
               onClick={onCheckout}
               aria-label={`View cart, ${count} ${count === 1 ? "item" : "items"}, S$ ${total.toFixed(2)}`}
-              className="flex items-center gap-2 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold px-5 py-3 rounded-xl transition-colors duration-200 shrink-0"
+              className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold px-5 py-3 rounded-xl transition-colors duration-200 shrink-0"
             >
               <ShoppingCart className="w-4 h-4" aria-hidden="true" />
               <span aria-hidden="true">View Cart</span>

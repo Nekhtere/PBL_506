@@ -83,7 +83,7 @@ export default function FerrySection() {
               style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.05)" }}
             >
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-[#0071E3]/10 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
                   <Ship className="w-5 h-5 text-[var(--accent-ink)]" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
