@@ -39,19 +39,19 @@ export default function MerchantsPage() {
         <div className="max-w-6xl mx-auto">
           <Link
             href="/#deals"
-            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0071E3] hover:underline mb-6"
+            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--accent-ink)] hover:underline mb-6"
           >
             <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
             Back to deals
           </Link>
 
-          <span className="block text-[#0071E3] text-[12px] font-semibold tracking-widest uppercase">
+          <span className="block text-[var(--accent-ink)] text-[12px] font-semibold tracking-widest uppercase">
             All Partners
           </span>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#1D1D1F] mt-2 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--fg)] mt-2 tracking-tight">
             Merchant Partners
           </h1>
-          <p className="text-[#515154] mt-3 text-[15px] max-w-md leading-relaxed">
+          <p className="text-[var(--muted)] mt-3 text-[15px] max-w-md leading-relaxed">
             Every merchant working with BatamSmart — {merchants.length} places across seafood,
             spa, shopping, stays and attractions.
           </p>

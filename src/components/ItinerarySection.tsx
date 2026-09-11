@@ -110,28 +110,39 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
               initial={{ opacity: 0, y: 32 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: i * 0.15 }}
-              className="bg-white rounded-3xl overflow-hidden flex flex-col cursor-pointer"
+              className="group relative bg-white rounded-3xl overflow-hidden flex flex-col cursor-pointer"
               style={{ boxShadow: "var(--sh-2)" }}
               whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(0,0,0,0.14)" }}
-              onClick={() => setSelectedTrip(trip)}
             >
+              {/* Opens the itinerary. The wrapper was a plain div with onClick, so
+                  the card could not be opened from the keyboard at all. Stretched
+                  across the card; the two buttons below sit at z-10 to stay clickable. */}
+              <button
+                type="button"
+                onClick={() => setSelectedTrip(trip)}
+                aria-label={`View the ${trip.vibe} itinerary`}
+                className="absolute inset-0 z-[1] rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#0071E3] after:absolute after:inset-0 after:content-['']"
+              />
+
               {/* Hero photo — taller for visual impact */}
               <div className="relative h-56 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={trip.photo}
                   alt={trip.vibe}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
+                  className="media-zoom absolute inset-0 w-full h-full object-cover"
                   draggable={false}
                 />
                 {/* Layered gradient for readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 
                 {/* Text content over photo */}
-                <div className="relative z-10 h-full flex flex-col justify-end p-6 text-white">
+                <div className="relative z-10 h-full flex flex-col justify-end p-6 text-white text-shadow-photo">
                   <h3 className="text-[20px] font-bold mb-1.5 leading-tight">{trip.vibe}</h3>
                   <p className="text-white/80 text-[13px] leading-relaxed line-clamp-2">{trip.description}</p>
-                  <div className="flex items-center gap-4 mt-3 text-white/65 text-[12px]">
+                  <div className="flex items-center gap-4 mt-3 text-white/75 text-[12px]">
                     <span className="flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {trip.duration}
                     </span>
@@ -186,7 +197,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setSelectedTrip(trip); }}
-                  className="self-start text-[12px] font-medium text-[#0071E3] mb-4 hover:underline"
+                  className="relative z-10 self-start text-[12px] font-medium text-[#0071E3] mb-4 hover:underline"
                 >
                   View itinerary
                 </button>
@@ -200,7 +211,8 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                   <button
                     onClick={(e) => { e.stopPropagation(); handleAdd(trip); }}
                     disabled={addedId === trip.id}
-                    className="flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#333] disabled:bg-emerald-600 text-white text-[13px] font-semibold px-4 py-2.5 rounded-xl transition-colors duration-200"
+                    aria-label={`Add the ${trip.vibe} itinerary to cart`}
+                    className="relative z-10 flex items-center gap-2 bg-[#1D1D1F] hover:bg-[#333] disabled:bg-emerald-600 text-white text-[13px] font-semibold px-4 py-2.5 rounded-xl transition-colors duration-200"
                   >
                     {addedId === trip.id ? <Check className="w-4 h-4" aria-hidden="true" /> : <ShoppingCart className="w-4 h-4" aria-hidden="true" />}
                     {addedId === trip.id ? "Added" : "Add Route to Cart"}
@@ -240,7 +252,7 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-t-[28px] md:rounded-l-[28px] md:rounded-tr-none" />
               <div className="absolute bottom-4 left-6 right-6 text-white">
-                <span className="inline-block bg-[#0071E3] text-white text-[11px] font-semibold px-2.5 py-1 rounded-full mb-2">
+                <span className="inline-block bg-[var(--accent)] text-white text-[11px] font-semibold px-2.5 py-1 rounded-full mb-2">
                   Itinerary
                 </span>
                 <h3 className="text-2xl font-bold">{selectedTrip.vibe}</h3>
@@ -282,9 +294,9 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                   </ul>
                 </div>
 
-                {/* Promo */}
+                {/* Promo — --accent-ink clears AA on the 10% accent tint. */}
                 {selectedTrip.promo && (
-                  <div className="bg-[#0071E3]/10 text-[#0071E3] text-[12px] font-medium px-4 py-2.5 rounded-xl mb-4">
+                  <div className="bg-[#0071E3]/10 text-[var(--accent-ink)] text-[12px] font-medium px-4 py-2.5 rounded-xl mb-4">
                     🎁 {selectedTrip.promo}
                   </div>
                 )}

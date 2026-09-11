@@ -167,7 +167,7 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
             />
             <button
               type="submit"
-              className="flex shrink-0 items-center gap-1.5 rounded-xl sm:rounded-full bg-[#0071E3] hover:bg-[#005BBB] text-white text-[13px] font-semibold px-4 py-2.5 transition-colors duration-200"
+              className="flex shrink-0 items-center gap-1.5 rounded-xl sm:rounded-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-[13px] font-semibold px-4 py-2.5 transition-colors duration-200"
             >
               Search
               <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />

@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Menu, X } from "lucide-react";
 
+// Absolute hash paths: the navbar is shared with /merchants, where a bare
+// "#deals" points at nothing.
 const navLinks = [
-  { label: "Home", href: "#home" },
-  { label: "Deals", href: "#deals" },
-  { label: "Itinerary", href: "#itinerary" },
-  { label: "Ferry", href: "#ferry" },
-  { label: "Ride Guide", href: "#ride-guide" },
+  { label: "Home", href: "/#home" },
+  { label: "Deals", href: "/#deals" },
+  { label: "Itinerary", href: "/#itinerary" },
+  { label: "Ferry", href: "/#ferry" },
+  { label: "Ride Guide", href: "/#ride-guide" },
 ];
 
 export interface CartItem {
@@ -40,8 +42,16 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
     if (!cartOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previous; };
-  }, [cartOpen]);
+    // The cart overlay had no Escape handler, so the only way out was the mouse.
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onCartOpenChange(false);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previous;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [cartOpen, onCartOpenChange]);
 
   useEffect(() => {
     let rafId: number;
@@ -71,7 +81,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
         {/* Logo */}
         <a href="#home" className="flex items-center gap-2 shrink-0">
           <span className="text-[15px] font-semibold tracking-tight text-[#1D1D1F]">
-            Batam<span className="text-[#0071E3]">Smart</span>
+            Batam<span className="text-[var(--accent-ink)]">Smart</span>
           </span>
         </a>
 
@@ -94,7 +104,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
           <button
             className="relative p-2 rounded-full hover:bg-black/[0.06] transition-all duration-200"
             onClick={() => onCartOpenChange(true)}
-            aria-label={`Cart, ${cartCount} items`}
+            aria-label={`Cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}`}
           >
             <ShoppingCart className="w-[18px] h-[18px] text-[#1D1D1F]" strokeWidth={1.8} aria-hidden="true" />
             {cartCount > 0 && (

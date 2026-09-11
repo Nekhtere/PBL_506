@@ -1,12 +1,14 @@
-// Single source of truth for every partner merchant. The home carousel, the
-// "Top Wisata Batam" grid, and the /merchants directory all read from here.
+// Single source of truth for every partner merchant. The home carousel and the
+// /merchants directory both read from here.
 export type Merchant = {
   id: number;
   name: string;
   category: string;
   rating: number;
   reviews: number;
+  /** Struck-through list price, in the merchant's own currency (IDR). */
   originalPrice: string;
+  /** What the voucher actually costs, in SGD. */
   salePrice: string;
   tag: string;
   location: string;
@@ -15,6 +17,22 @@ export type Merchant = {
   desc: string;
   photo: string;
 };
+
+// "Rp 200.000" and "S$ 14" are two different currencies, so the pair cannot be
+// subtracted directly — the list price has to be converted before it means
+// anything. Derived rather than stored on each merchant so the badge can never
+// drift away from the two numbers printed beside it.
+// ponytail: swap the rate for a live one when pricing goes real.
+const IDR_PER_SGD = 11800;
+
+export function discountPercent(originalPrice: string, salePrice: string) {
+  const originalIDR = Number(originalPrice.replace(/[^0-9]/g, ""));
+  const saleSGD = Number(salePrice.replace(/[^0-9.]/g, ""));
+  if (!originalIDR || !saleSGD) return 0;
+  const originalSGD = originalIDR / IDR_PER_SGD;
+  if (saleSGD >= originalSGD) return 0;
+  return Math.round((1 - saleSGD / originalSGD) * 100);
+}
 
 export const merchants: Merchant[] = [
   {

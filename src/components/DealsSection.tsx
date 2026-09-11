@@ -213,7 +213,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
   }, []);
 
   return (
-    <section id="deals" ref={sectionRef} className="py-16 sm:py-24 px-4 sm:px-6 bg-[#FBFBFD]">
+    <section id="deals" ref={sectionRef} className="py-16 sm:py-24 px-4 sm:px-6 bg-[var(--bg)]">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
@@ -230,7 +230,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold text-[#1D1D1F] mt-2 tracking-tight"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1D1D1F] mt-2 tracking-tight"
           >
             Smart Merchant Deals
           </motion.h2>
@@ -262,7 +262,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
                 onChange={(e) => onQueryChange(e.target.value)}
                 placeholder="Search Batam — seafood, spa, shopping…"
                 className="flex-1 min-w-0 bg-transparent text-[13px] sm:text-[14px] text-[#1D1D1F] placeholder:text-[#1D1D1F]/45 py-2.5"
-                aria-label="Search destinations in Batam"
+                aria-label="Search deals in Batam"
               />
               {query && (
                 <button
@@ -280,7 +280,9 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
               onClick={locate}
               disabled={locating}
               aria-busy={locating}
-              className="flex items-center gap-1.5 bg-[#0071E3] hover:bg-[#005BBB] disabled:opacity-60 text-white text-[12px] sm:text-[13px] font-semibold px-3 sm:px-4 py-2.5 rounded-xl transition-colors duration-200 shrink-0"
+              /* min-h-11 keeps the target at 44px on phones — at 12px type with
+                 py-2.5 it fell just short of the minimum. */
+              className="flex min-h-11 items-center gap-1.5 bg-[#0071E3] hover:bg-[#005BBB] disabled:opacity-60 text-white text-[12px] sm:text-[13px] font-semibold px-3 sm:px-4 py-2.5 rounded-xl transition-colors duration-200 shrink-0"
             >
               <Navigation className={`w-3.5 h-3.5 ${locating ? "animate-spin" : ""}`} aria-hidden="true" />
               {locating ? "Locating…" : "Near Me"}
@@ -294,6 +296,10 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
               <button
                 key={tag}
                 type="button"
+                /* The chip is a filter, not a text field — say so, rather than
+                   leaving "🦐 Seafood" to be read out as a bare label. */
+                aria-label={`Filter deals by ${tag.replace(/^\S+\s/, "")}`}
+                aria-pressed={query === tag.replace(/^\S+\s/, "")}
                 onClick={() => onQueryChange(tag.replace(/^\S+\s/, ""))}
                 className="text-[12px] text-[#515154] hover:text-[#1D1D1F] px-2.5 py-1 rounded-full bg-[#F5F5F7] hover:bg-[#E8E8ED] border border-[#E5E5EA] transition-colors duration-150"
               >
@@ -303,9 +309,18 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
           </div>
 
           {geoMsg && (
-            <p className="text-[12px] text-[#B3261E] bg-[#B3261E]/10 px-3 py-2 rounded-xl mt-3" role="status">
-              {geoMsg}
-            </p>
+            <div className="flex items-center gap-3 text-[12px] text-[var(--danger)] bg-[#B3261E]/10 px-3 py-2 rounded-xl mt-3" role="alert">
+              <span className="flex-1">{geoMsg}</span>
+              {/* A failed lookup used to be a dead end — no way to try again
+                  without reloading the page. */}
+              <button
+                type="button"
+                onClick={locate}
+                className="shrink-0 font-semibold underline underline-offset-2"
+              >
+                Try again
+              </button>
+            </div>
           )}
         </motion.div>
 
@@ -387,6 +402,12 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
               </p>
             )}
           </div>
+
+          {/* Announces the result count when it changes — searching from the hero
+              otherwise updates the row with nothing said aloud. */}
+          <p aria-live="polite" className="sr-only">
+            {near.length} {near.length === 1 ? "deal" : "deals"} found
+          </p>
         </div>
 
         {/* Single "All" entry point — the full partner directory lives on its own page.

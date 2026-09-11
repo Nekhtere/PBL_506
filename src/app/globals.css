@@ -8,6 +8,11 @@
    lives here, not in a className.
    ───────────────────────────────────────────── */
 :root {
+  /* This app is light-only by design. Declaring it stops the UA from
+     darkening form controls, scrollbars and the canvas when the OS is in
+     dark mode — which otherwise paints a dark page behind our light UI. */
+  color-scheme: light;
+
   /* Surfaces */
   --surface:        #FFFFFF;
   --surface-sunken: #F5F5F7;
@@ -24,6 +29,12 @@
   --accent:       #0071E3;
   --accent-hover: #005BBB;
   --accent-soft:  rgba(0, 113, 227, 0.1);
+  /* Text sitting on --accent-soft. --accent itself is only 4.2:1 there, so
+     tinted panels need this darker ink to clear AA. 5.4:1 ✓ */
+  --accent-ink:   #005BBB;
+
+  /* Error / destructive text. 6.3:1 on --bg ✓ */
+  --danger:       #B3261E;
 
   /* Radius */
   --r-xs: 0.625rem;  /* 10px */
@@ -47,6 +58,12 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+/* The navbar is fixed, so an anchored section would otherwise scroll its
+   heading underneath it. Offset every jump target by the bar's height. */
+section[id] {
+  scroll-margin-top: 6rem;
 }
 
 body {
@@ -127,6 +144,39 @@ p { text-wrap: pretty; }
   .focus-on-dark:focus-visible {
     outline-color: #FFFFFF;
   }
+
+  /* ─── Photo tile ───
+     The zoom is driven by a custom property so the hover state lives here
+     instead of as a `group-hover:` variant on every consumer. */
+  .media-zoom {
+    transition: transform 700ms var(--ease-out);
+  }
+  .group:hover .media-zoom {
+    transform: scale(1.05);
+  }
+}
+
+@layer utilities {
+  /* Text sitting on a photo. Tailwind's shadow-sm/2xl are tuned for UI chrome
+     and vanish over a bright image; this is a tight dark halo that holds up on
+     any photo, which is what lets the caption gradients be lightened. */
+  .text-shadow-photo {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 1px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Announced by screen readers, invisible on screen. Used for live regions
+     that report a result count without adding visual noise. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -140,6 +190,11 @@ p { text-wrap: pretty; }
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  /* A 0.01ms transform is still a transform — pin the zoom so the reduced
+     -motion user gets a static photo rather than an instant jump. */
+  .group:hover .media-zoom {
+    transform: none;
   }
 }
 

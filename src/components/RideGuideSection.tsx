@@ -108,26 +108,26 @@ export default function RideGuideSection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           >
-            <span className="text-[#0071E3] text-[12px] font-semibold tracking-widest uppercase">
+            <span className="text-[var(--accent-ink)] text-[12px] font-semibold tracking-widest uppercase">
               Smart Ride Guide
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#1D1D1F] mt-2 mb-4 tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--fg)] mt-2 mb-4 tracking-tight leading-tight">
               No Shuttle?
               <br />
               No Problem.
               <br />
               {/* #515154 on #FBFBFD = 5.1:1 ✓ WCAG AA */}
-              <span className="text-[#515154]">Go Local.</span>
+              <span className="text-[var(--muted)]">Go Local.</span>
             </h2>
-            <p className="text-[#515154] text-[15px] leading-relaxed mb-8">
+            <p className="text-[var(--muted)] text-[15px] leading-relaxed mb-8">
               We integrated fare estimates so you can travel like a local. Just open Gojek or Grab — we show you exactly where to stand.
             </p>
 
             {/* Fare Table */}
-            <div className="rounded-2xl overflow-hidden border border-[#E5E5EA] mb-8">
-              <div className="bg-[#F5F5F7] px-4 py-2.5 flex items-center gap-2">
-                <Navigation className="w-4 h-4 text-[#515154]" aria-hidden="true" />
-                <span className="text-[11px] font-semibold text-[#515154] uppercase tracking-widest">
+            <div className="rounded-2xl overflow-hidden border border-[var(--line-soft)] mb-8">
+              <div className="bg-[var(--surface-sunken)] px-4 py-2.5 flex items-center gap-2">
+                <Navigation className="w-4 h-4 text-[var(--muted)]" aria-hidden="true" />
+                <span className="text-[11px] font-semibold text-[var(--muted)] uppercase tracking-widest">
                   Estimated Fares
                 </span>
               </div>
@@ -135,34 +135,34 @@ export default function RideGuideSection() {
                 <div
                   key={i}
                   className={`px-4 py-3 flex items-center justify-between hover:bg-[#FAFAFA] transition-colors ${
-                    i < fareData.length - 1 ? "border-b border-[#E5E5EA]" : ""
+                    i < fareData.length - 1 ? "border-b border-[var(--line-soft)]" : ""
                   }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[#1D1D1F] truncate">{row.route}</p>
+                    <p className="text-[13px] font-medium text-[var(--fg)] truncate">{row.route}</p>
                     {/* #515154 on white = 5.1:1 ✓ WCAG AA */}
-                    <p className="text-[11px] text-[#515154]">{row.app} · {row.time}</p>
+                    <p className="text-[11px] text-[var(--muted)]">{row.app} · {row.time}</p>
                   </div>
-                  <span className="text-[13px] font-bold text-[#1D1D1F] ml-4 shrink-0">{row.fare}</span>
+                  <span className="text-[13px] font-bold text-[var(--fg)] ml-4 shrink-0">{row.fare}</span>
                 </div>
               ))}
             </div>
 
             {/* Pickup Points */}
             <div>
-              <h3 className="text-[13px] font-semibold text-[#1D1D1F] mb-3 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#0071E3]" aria-hidden="true" />
+              <h3 className="text-[13px] font-semibold text-[var(--fg)] mb-3 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[var(--accent-ink)]" aria-hidden="true" />
                 Pick-up Point Guide
               </h3>
               <div className="space-y-3">
                 {pickupPoints.map((p, i) => (
-                  <div key={i} className="flex items-start gap-3 bg-[#F5F5F7] hover:bg-[#EBEBF0] rounded-2xl p-4 transition-colors duration-150">
+                  <div key={i} className="flex items-start gap-3 bg-[var(--surface-sunken)] hover:bg-[#EBEBF0] rounded-2xl p-4 transition-colors duration-150">
                     <span className="text-2xl shrink-0" aria-hidden="true">{p.emoji}</span>
                     <div>
-                      <p className="text-[13px] font-semibold text-[#1D1D1F]">{p.terminal}</p>
+                      <p className="text-[13px] font-semibold text-[var(--fg)]">{p.terminal}</p>
                       {/* #515154 on #F5F5F7 = 4.9:1 ✓ WCAG AA */}
-                      <p className="text-[12px] text-[#515154] mt-0.5">{p.location}</p>
-                      <p className="text-[12px] text-[#0071E3] mt-1 flex items-center gap-1">
+                      <p className="text-[12px] text-[var(--muted)] mt-0.5">{p.location}</p>
+                      <p className="text-[12px] text-[var(--accent-ink)] mt-1 flex items-center gap-1">
                         <Smartphone className="w-3 h-3" aria-hidden="true" /> {p.tip}
                       </p>
                     </div>
@@ -171,7 +171,7 @@ export default function RideGuideSection() {
               </div>
             </div>
 
-            <button className="mt-8 flex items-center gap-2 text-[#0071E3] text-[13px] font-semibold hover:gap-3 transition-all duration-200">
+            <button className="mt-8 flex items-center gap-2 text-[var(--accent-ink)] text-[13px] font-semibold hover:gap-3 transition-all duration-200">
               See full ride guide <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </motion.div>

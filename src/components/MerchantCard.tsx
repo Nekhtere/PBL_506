@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ShoppingCart, Heart, MapPin, CheckCircle } from "lucide-react";
-import { tagColors, type Merchant } from "@/lib/merchants";
+import { tagColors, discountPercent, type Merchant } from "@/lib/merchants";
 import type { CartItem } from "./Navbar";
 
-// Photo-forward tile: look at where you could go. Discount, validity and
-// inclusions all live in the detail modal, so the card stays a picture.
+// Photo-forward tile: look at where you could go. Validity and inclusions live
+// in the detail modal, so the card stays mostly a picture — but the saving is
+// the one number a shopper scans for, so it stays on the tile.
 export default function MerchantCard({ merchant, index, isInView, onSelect, onAddToCart, distanceKm, className = "shrink-0 w-64 sm:w-72" }: {
   merchant: Merchant;
   index: number;
@@ -19,6 +20,8 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
 }) {
   const [liked, setLiked] = useState(false);
   const [added, setAdded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const discount = discountPercent(merchant.originalPrice, merchant.salePrice);
 
   const handleAdd = () => {
     if (added) return;
@@ -43,6 +46,16 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
       whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(0,0,0,0.14)" }}
       whileTap={{ scale: 0.98 }}
     >
+      {/* Skeleton. These are remote photos on a phone connection, and an empty
+          tile reads as broken rather than loading. The pulse is killed by the
+          global reduced-motion rule. */}
+      <div
+        className={`absolute inset-0 animate-pulse bg-[#E8E8ED] transition-opacity duration-300 ${
+          loaded ? "opacity-0" : "opacity-100"
+        }`}
+        aria-hidden="true"
+      />
+
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={merchant.photo}
@@ -51,10 +64,14 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
            these keeps six 700px photos off the critical path. */
         loading="lazy"
         decoding="async"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        className="media-zoom absolute inset-0 w-full h-full object-cover"
         draggable={false}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5" />
+      {/* Lighter than it was: the caption now carries a text-shadow, so the
+          photo can show through instead of being buried under a scrim. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
 
       {/* Opens the detail modal. This is the card's real control: the wrapper is a
           plain div, so without an actual button the tile is unreachable by keyboard.
@@ -67,10 +84,19 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
         className="absolute inset-0 z-[1] rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-white after:absolute after:inset-0 after:content-['']"
       />
 
-      {/* Tag badge */}
+      {/* Tag badge. Top-left is the only free corner: the discount now takes
+          bottom-left and the wishlist keeps top-right. */}
       <span className={`absolute top-3 left-3 z-10 pointer-events-none ${tagColors[merchant.tag]} text-white text-[11px] font-semibold px-2.5 py-1 rounded-full`}>
         {merchant.tag}
       </span>
+
+      {/* Discount. Reads the saving at a glance — the Rp list price next to an
+          SGD sale price means nothing without it. */}
+      {discount > 0 && (
+        <span className="absolute bottom-3 left-3 z-10 pointer-events-none rounded-full bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1 text-shadow-photo">
+          -{discount}%
+        </span>
+      )}
 
       {/* Like button */}
       <button
@@ -84,9 +110,10 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
         />
       </button>
 
-      {/* Caption overlay — white/75+ on the /85 gradient ✓ */}
-      <div className="absolute inset-x-0 bottom-0 p-4 pointer-events-none">
-        <span className="flex items-center gap-1 text-white/75 text-[11px] font-medium mb-1.5">
+      {/* Caption overlay. Bottom padding clears the discount pill, and the
+          shadow is what keeps the type readable over a light photo. */}
+      <div className="absolute inset-x-0 bottom-0 p-4 pb-12 text-shadow-photo pointer-events-none">
+        <span className="flex items-center gap-1 text-white/80 text-[11px] font-medium mb-1.5">
           <MapPin className="w-2.5 h-2.5" aria-hidden="true" />
           {merchant.location}
           {distanceKm != null && <> · {distanceKm.toFixed(1)} km</>}
@@ -94,18 +121,18 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
 
         <h3 className="text-white text-[17px] font-bold leading-snug mb-1">{merchant.name}</h3>
 
-        <div className="flex items-center gap-1.5 mb-3 text-[11px] text-white/75">
+        <div className="flex items-center gap-1.5 mb-3 text-[11px] text-white/80">
           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" aria-hidden="true" />
           <span>{merchant.rating} ({merchant.reviews})</span>
-          <span className="text-white/40">·</span>
+          <span className="text-white/50">·</span>
           <span>{merchant.category}</span>
         </div>
 
         {/* Price row */}
         <div className="flex items-center justify-between">
           <span className="flex items-baseline min-w-0">
-            {/* /70 not /55: struck-through 12px over a photo gradient is the
-                smallest text on the card, so it needs the most headroom. */}
+            {/* /70 not /55: struck-through 12px over a photo is the smallest
+                text on the card, so it needs the most headroom. */}
             <span className="text-white/70 text-[12px] line-through mr-1.5 shrink-0">{merchant.originalPrice}</span>
             <span className="text-white text-[18px] font-bold">
               {merchant.salePrice}
@@ -114,7 +141,7 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
           </span>
           <motion.button
             whileTap={{ scale: 0.94 }}
-            className={`pointer-events-auto flex items-center justify-center gap-1.5 w-[86px] text-white text-[12px] font-semibold px-3 py-2 rounded-xl transition-colors duration-200 ${added ? "bg-emerald-600" : "bg-[#0071E3] hover:bg-[#005BBB]"}`}
+            className={`pointer-events-auto flex items-center justify-center gap-1.5 w-[86px] text-white text-[12px] font-semibold px-3 py-2 rounded-xl transition-colors duration-200 ${added ? "bg-emerald-600" : "bg-[var(--accent)] hover:bg-[var(--accent-hover)]"}`}
             onClick={handleAdd}
             aria-label={`Add ${merchant.name} to cart`}
           >
