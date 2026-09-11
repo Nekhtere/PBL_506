@@ -121,6 +121,8 @@ export default function ItinerarySection({ onAddToCart }: { onAddToCart: (item: 
                 <img
                   src={trip.photo}
                   alt={trip.vibe}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                   draggable={false}
                 />

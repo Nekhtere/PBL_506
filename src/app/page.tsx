@@ -44,7 +44,12 @@ export default function Home() {
       <FerrySection />
       <RideGuideSection />
       <HowItWorksSection />
-      <Footer />
+      {/* The fixed MobileCartBar overlays the bottom of the viewport on mobile.
+          Extra bottom padding (in the footer's own colour) gives the legal links
+          room to clear it instead of staying trapped underneath. */}
+      <div className={cartItems.length > 0 ? "bg-[#F5F5F7] pb-24 md:pb-0" : undefined}>
+        <Footer />
+      </div>
       <MobileCartBar
         count={cartItems.length}
         total={cartTotal}

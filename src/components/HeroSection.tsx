@@ -39,7 +39,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex flex-col justify-end overflow-hidden">
+    <section id="home" className="relative min-h-[100dvh] flex flex-col justify-end overflow-hidden">
 
       {/* ── Slideshow background ── */}
       <div className="absolute inset-0">
@@ -72,19 +72,19 @@ export default function HeroSection() {
       </motion.div>
 
       {/* ── Main content ── */}
-      <div className="relative z-10 px-6 pb-0 max-w-5xl mx-auto w-full">
+      <div className="relative z-10 px-4 sm:px-6 pb-0 max-w-5xl mx-auto w-full">
 
         {/* Location pill */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-dark text-white/90 text-[12px] font-medium mb-5"
+          className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 max-w-full px-3 py-1.5 rounded-full glass-dark text-white/90 text-[12px] font-medium mb-5"
         >
-          <MapPin className="w-3 h-3 text-sky-400" aria-hidden="true" />
-          Batam, Indonesia &nbsp;·&nbsp;
-          <Zap className="w-3 h-3 text-yellow-400 inline" aria-hidden="true" />
-          45 min ferry from Singapore
+          <MapPin className="w-3 h-3 text-sky-400 shrink-0" aria-hidden="true" />
+          <span>Batam, Indonesia ·</span>
+          <Zap className="w-3 h-3 text-yellow-400 shrink-0" aria-hidden="true" />
+          <span>45 min ferry from Singapore</span>
         </motion.div>
 
         {/* Headline */}
@@ -92,7 +92,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-4"
+          className="text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-4"
         >
           Unlock Batam&apos;s Best.
           <br />
@@ -114,10 +114,10 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="border-t border-white/10 pt-5 pb-8 grid grid-cols-4 gap-4"
+          className="border-t border-white/10 pt-5 pb-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
         >
           {stats.map((s) => (
-            <div key={s.label} className="text-center md:text-left">
+            <div key={s.label} className="text-left">
               <p className="text-xl md:text-2xl font-bold text-white">{s.value}</p>
               {/* white/60 on dark overlay = high contrast ✓ */}
               <p className="text-[11px] text-white/60 mt-0.5">{s.label}</p>

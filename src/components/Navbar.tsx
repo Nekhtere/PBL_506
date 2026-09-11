@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { ShoppingCart, Menu, X } from "lucide-react";
 
 const navLinks = [
-  { label: "Home", href: "#home" },
-  { label: "Deals", href: "#deals" },
-  { label: "Itinerary", href: "#itinerary" },
-  { label: "Ferry", href: "#ferry" },
-  { label: "Ride Guide", href: "#ride-guide" },
+  { label: "Home", href: "/#home" },
+  { label: "Deals", href: "/#deals" },
+  { label: "Itinerary", href: "/#itinerary" },
+  { label: "Ferry", href: "/#ferry" },
+  { label: "Ride Guide", href: "/#ride-guide" },
 ];
 
 export interface CartItem {
@@ -69,11 +70,11 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
         }`}
       >
         {/* Logo */}
-        <a href="#home" className="flex items-center gap-2 shrink-0">
+        <Link href="/#home" className="flex items-center gap-2 shrink-0">
           <span className="text-[15px] font-semibold tracking-tight text-[#1D1D1F]">
             Batam<span className="text-[#0071E3]">Smart</span>
           </span>
-        </a>
+        </Link>
 
         {/* Desktop Nav — centred absolutely so logo + actions balance independently */}
         <nav className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
@@ -164,7 +165,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
             onClick={() => onCartOpenChange(false)}
           >
             <motion.section
-              className="card-soft relative w-full max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-t-[28px] sm:rounded-[28px] bg-white"
+              className="card-soft relative w-full max-w-md max-h-full overflow-y-auto rounded-t-[28px] sm:rounded-[28px] bg-white"
               role="dialog"
               aria-modal="true"
               aria-label="Shopping cart"

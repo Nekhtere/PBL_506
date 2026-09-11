@@ -8,7 +8,7 @@ import type { CartItem } from "./Navbar";
 
 // Photo-forward tile: look at where you could go. Discount, validity and
 // inclusions all live in the detail modal, so the card stays a picture.
-export default function MerchantCard({ merchant, index, isInView, onSelect, onAddToCart, distanceKm, className = "shrink-0 w-72" }: {
+export default function MerchantCard({ merchant, index, isInView, onSelect, onAddToCart, distanceKm, className = "shrink-0 w-64 sm:w-72" }: {
   merchant: Merchant;
   index: number;
   isInView: boolean;
@@ -48,6 +48,10 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
       <img
         src={merchant.photo}
         alt={merchant.name}
+        /* Below the fold and often off to the right in the carousel — deferring
+           these keeps six 700px photos off the critical path. */
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         draggable={false}
       />

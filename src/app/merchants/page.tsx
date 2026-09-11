@@ -21,7 +21,10 @@ export default function MerchantsPage() {
   );
 
   const addToCart = (item: Omit<CartItem, "id">) =>
-    setCartItems((items) => [...items, { ...item, id: `${item.name}-${Date.now()}` }]);
+    setCartItems((items) => [
+      ...items,
+      { ...item, id: `${item.name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}` },
+    ]);
 
   const removeFromCart = (id: string) =>
     setCartItems((items) => items.filter((item) => item.id !== id));

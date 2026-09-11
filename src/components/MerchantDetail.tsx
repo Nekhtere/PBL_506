@@ -14,17 +14,17 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
   const details = merchantDetails[merchant.id];
 
   return (
-    <div className="flex flex-col h-[85dvh] sm:h-[80vh]">
+    <div className="flex flex-col">
       {/* Header image */}
-      <div className="relative h-56 shrink-0">
+      <div className="relative h-44 sm:h-56 shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={merchant.photo}
           alt={merchant.name}
-          className="w-full h-full object-cover rounded-t-[28px]"
+          className="w-full h-full object-cover rounded-none sm:rounded-t-[28px]"
           draggable={false}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-t-[28px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent rounded-none sm:rounded-t-[28px]" />
         <div className="absolute bottom-4 left-6 right-6 text-white">
           <span className={`inline-block ${tagColors[merchant.tag]} text-white text-[11px] font-semibold px-2.5 py-1 rounded-full mb-2`}>
             {merchant.tag}
@@ -43,8 +43,8 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
       </div>
 
       {/* Scrollable body */}
-      <div className="p-6 flex flex-1 min-h-0 flex-col">
-        <div className="flex-1 overflow-y-auto scrollbar-hide">
+      <div className="p-4 sm:p-6 flex flex-col">
+        <div>
           <p className="text-[13px] text-[#515154] leading-relaxed mb-4">{merchant.desc}</p>
 
           {/* Highlights */}
@@ -90,13 +90,13 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
           </div>
         </div>
 
-        <div className="flex items-end justify-between mt-auto pt-4 border-t border-[#E5E5EA] shrink-0">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mt-4 pt-4 border-t border-[#E5E5EA] shrink-0">
           <div>
             <p className="text-[11px] text-[#515154]">Voucher can be redeemed at</p>
             <p className="text-[13px] font-semibold text-[#1D1D1F]">{merchant.location}</p>
           </div>
           <button
-            className="flex items-center gap-2 bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25"
+            className="flex items-center justify-center sm:justify-normal gap-2 w-full sm:w-auto bg-[#0071E3] hover:bg-[#005BBB] text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-[#0071E3]/25"
             onClick={() => {
               onAddToCart({
                 name: merchant.name,

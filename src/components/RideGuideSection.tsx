@@ -31,9 +31,11 @@ export default function RideGuideSection() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="flex justify-center"
           >
-            <div className="relative">
-              {/* iPhone frame */}
-              <div className="relative w-64 h-[520px] bg-[#1D1D1F] rounded-[3rem] p-2 shadow-2xl shadow-black/30">
+            <div className="relative w-full max-w-64">
+              {/* iPhone frame. Width is capped rather than fixed so the mockup
+                  still fits a ~280px foldable cover; the aspect ratio keeps the
+                  frame's shape as it scales down. */}
+              <div className="relative w-full aspect-[256/520] bg-[#1D1D1F] rounded-[3rem] p-2 shadow-2xl shadow-black/30">
                 <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
                   {/* Status bar notch */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-7 bg-[#1D1D1F] rounded-b-2xl z-10" />
@@ -94,7 +96,10 @@ export default function RideGuideSection() {
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -right-6 top-20 glass rounded-2xl px-4 py-3 shadow-lg"
+                /* Sits inside the frame on narrow screens — the section clips
+                   overflow, so a -right-6 overhang was cut off on a foldable
+                   cover. It only floats outside once there is room at sm+. */
+                className="absolute right-0 sm:-right-6 top-20 glass rounded-2xl px-4 py-3 shadow-lg"
               >
                 <p className="text-xs font-semibold text-[#1D1D1F]">🎯 Pickup Confirmed</p>
                 <p className="text-[10px] text-[#6E6E73] mt-0.5">Driver is 2 min away</p>
