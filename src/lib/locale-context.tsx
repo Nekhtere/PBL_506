@@ -202,11 +202,13 @@ const translations: Record<string, Record<Locale, string>> = {
   "ferry.modal.fareSgFee":   { en: "Singapore departure fee",  id: "Biaya keberangkatan Singapura" },
   "ferry.modal.fareBatamFee":{ en: "Batam terminal fee",       id: "Biaya terminal Batam" },
   "ferry.modal.returnSaving":{ en: "Return-ticket saving",     id: "Hemat tiket pulang-pergi" },
-  // Bridge from a completed ferry booking to the bundle — the moment the buyer
-  // has a crossing and is most likely to want the wheels on the other side.
-  "ferry.upsell.title":      { en: "Add a city tour?",          id: "Tambahkan city tour?" },
-  "ferry.upsell.body":       { en: "Your ferry is booked — now the driver. Bundle it with a private car and save S$ 15 against booking separately.", id: "Feri Anda sudah dipesan — sekarang supirnya. Bundling dengan mobil pribadi dan hemat S$ 15 dibanding pesan terpisah." },
-  "ferry.upsell.cta":        { en: "See bundles",               id: "Lihat bundling" },
+  // Bridge from a completed ferry booking to a day tour — the buyer has a
+  // crossing but no wheels. Deliberately NOT the bundle: a bundle includes
+  // its own return ferry, so pointing there would sell the crossing twice.
+  // The tours are car-and-driver only, which is exactly the gap left open.
+  "ferry.upsell.title":      { en: "Add a driver for the day?", id: "Tambah supir untuk sehari?" },
+  "ferry.upsell.body":       { en: "Your crossing is booked. Our day tours are car and driver only — no second ferry ticket — so nothing you have paid for gets charged again.", id: "Tiket feri Anda sudah dipesan. Tour kami hanya mobil dan supir — tanpa tiket feri kedua — jadi tidak ada yang sudah Anda bayar tertagih lagi." },
+  "ferry.upsell.cta":        { en: "See day tours",             id: "Lihat tour harian" },
   "ferry.upsell.dismiss":    { en: "No thanks",                 id: "Tidak, terima kasih" },
   "ferry.modal.nameRequired":{ en: "Full name is required.",      id: "Nama lengkap wajib diisi." },
   "ferry.modal.passportRequired":{ en: "Passport number is required.", id: "Nomor paspor wajib diisi." },

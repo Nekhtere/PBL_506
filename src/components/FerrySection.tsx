@@ -118,7 +118,7 @@ function validatePassport(expiry: string, travelDate: string): { expiry: string;
   return null;
 }
 
-function BookingModal({ route, onClose, onConfirm, onSeeBundles }: { route: Route; onClose: () => void; onConfirm: (booking: BookingForm) => void; onSeeBundles: () => void }) {
+function BookingModal({ route, onClose, onConfirm, onSeeTours }: { route: Route; onClose: () => void; onConfirm: (booking: BookingForm) => void; onSeeTours: () => void }) {
   const { t } = useLocale();
   const today = new Date().toISOString().split("T")[0];
   const [form, setForm] = useState<BookingForm>({
@@ -189,9 +189,11 @@ function BookingModal({ route, onClose, onConfirm, onSeeBundles }: { route: Rout
           </div>
         </div>
 
-        {/* Cross-sell to the bundle — the crossing is booked, so the wheels are
-            the obvious next gap in the trip. Dismissible: it never blocks the
-            buyer from simply closing out the ferry they came here for. */}
+        {/* Cross-sell to the day tours — the crossing is booked, so the wheels
+            are the gap left in the trip. Points at Journey, not Bundle: a
+            bundle carries its own return ferry and would charge the crossing
+            twice. Dismissible, and it never blocks closing out the ferry the
+            buyer actually came here for. */}
         {showUpsell && (
           <div className="w-full text-left bg-surface-sunken border border-line-soft rounded-2xl p-4 mb-6">
             <div className="flex items-start gap-3">
@@ -206,7 +208,7 @@ function BookingModal({ route, onClose, onConfirm, onSeeBundles }: { route: Rout
             <div className="flex items-center gap-2 mt-3">
               <button
                 type="button"
-                onClick={onSeeBundles}
+                onClick={onSeeTours}
                 className="flex-1 bg-accent hover:bg-accent-hover text-white text-[12px] font-bold py-2.5 rounded-xl transition-colors"
               >
                 {t("ferry.upsell.cta")}
@@ -528,11 +530,11 @@ export default function FerrySection() {
                 route={selectedRoute}
                 onClose={() => setSelectedRoute(null)}
                 onConfirm={() => {}}
-                onSeeBundles={() => {
+                onSeeTours={() => {
                   // Close first, then scroll — a fixed overlay would swallow the
                   // smooth scroll if we left it up.
                   setSelectedRoute(null);
-                  document.getElementById("bundle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  document.getElementById("journey")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
               />
             </motion.div>
