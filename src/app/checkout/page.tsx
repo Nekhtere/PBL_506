@@ -13,12 +13,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import type { CartItem } from "@/components/Navbar";
-import {
-  buildOrder,
-  clearCheckoutCart,
-  loadCartForCheckout,
-  saveOrder,
-} from "@/lib/checkout";
+import { clearCheckoutCart, loadCartForCheckout } from "@/lib/checkout";
 
 // ── Demo payment flow ────────────────────────────────────────────────────────
 // This page SIMULATES the Stripe Payment Element + 3D Secure challenge so the
@@ -135,13 +130,46 @@ export default function CheckoutPage() {
     }
     setError("");
     setStep("processing");
-    // Real version: webhook confirms payment_intent.succeeded, then we issue
-    // vouchers. The demo issues them immediately on the client.
-    const order = buildOrder(items ?? [], name.trim(), email.trim(), "SGD");
-    saveOrder(order);
-    clearCheckoutCart();
-    setItems([]);
-    window.setTimeout(() => router.push("/checkout/success"), 900);
+    // Real version: the payment_intent.succeeded webhook issues the vouchers
+    // server-side. Here the client asks our own API to do it — which is what
+    // makes the ticket survive a new tab, a QR scan, or an emailed link.
+    void issueOrder();
+  }
+
+  async function issueOrder() {
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          items,
+          buyerName: name.trim(),
+          email: email.trim(),
+          currency: "SGD",
+        }),
+      });
+
+      if (!res.ok) {
+        const detail = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(detail?.error ?? `Order failed (${res.status})`);
+      }
+
+      const { orderId } = (await res.json()) as { orderId: string };
+      clearCheckoutCart();
+      setItems([]);
+      // The order now lives on the server, so this URL works from anywhere —
+      // the QR code, the email, or another device.
+      window.setTimeout(() => router.push(`/tickets/${orderId}?new=1`), 700);
+    } catch (err) {
+      // Send them back to the form with a reason rather than leaving the
+      // spinner turning forever.
+      setStep("details");
+      setError(
+        err instanceof Error
+          ? `${err.message} — your card was not charged.`
+          : "We couldn't issue your tickets. Your card was not charged.",
+      );
+    }
   }
 
   // Cart still loading from storage (first paint matches the server: nothing).

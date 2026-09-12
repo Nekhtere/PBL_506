@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Menu, X, AlertTriangle } from "lucide-react";
+import { ShoppingCart, Menu, X, AlertTriangle, Ticket } from "lucide-react";
 import { saveCartForCheckout } from "@/lib/checkout";
 import { findCoverageClashes, type Covered } from "@/lib/coverage";
 import { useLocale } from "@/lib/locale-context";
@@ -59,6 +59,8 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
   const { locale, setLocale, t } = useLocale();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // undefined = not asked yet; null would mean "asked, nobody signed in".
+  const [account, setAccount] = useState<{ signedIn: boolean } | null>(null);
   const router = useRouter();
   const cartCount = items.length;
   const total = items.reduce((sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"), 0);
@@ -84,6 +86,23 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
     onCartOpenChange(false);
     router.push("/checkout");
   };
+
+  useEffect(() => {
+    // Read the session once on mount. Kept to a single fetch: this navbar
+    // renders on every page, and re-polling would be pointless churn.
+    let cancelled = false;
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : { signedIn: false }))
+      .then((data) => {
+        if (!cancelled) setAccount({ signedIn: Boolean(data?.signedIn) });
+      })
+      .catch(() => {
+        if (!cancelled) setAccount({ signedIn: false });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!cartOpen) return;
@@ -160,6 +179,42 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
               ID
             </span>
           </button>
+
+          {/* Account — the session is read from an API route after mount, since
+              this navbar is a client component and the cookie is httpOnly. */}
+          {account === null ? (
+            <span className="w-7 h-7 rounded-full bg-black/[0.06] animate-pulse" aria-hidden="true" />
+          ) : account.signedIn ? (
+            <div className="flex items-center gap-1">
+              <Link
+                href="/tickets"
+                className="hidden sm:flex items-center gap-1.5 text-[12px] font-semibold text-fg hover:text-accent-ink transition-colors px-2 py-1.5 rounded-full hover:bg-black/[0.06]"
+              >
+                <Ticket className="w-3.5 h-3.5" aria-hidden="true" />
+                {t("nav.myTickets")}
+              </Link>
+              <Link
+                href="/tickets"
+                className="sm:hidden p-2 rounded-full hover:bg-black/[0.06] transition-all"
+                aria-label={t("nav.myTickets")}
+              >
+                <Ticket className="w-[18px] h-[18px] text-fg" strokeWidth={1.8} aria-hidden="true" />
+              </Link>
+              <a
+                href="/api/auth/signout"
+                className="hidden md:block text-[12px] font-medium text-muted hover:text-fg transition-colors px-2 py-1.5"
+              >
+                {t("nav.signout")}
+              </a>
+            </div>
+          ) : (
+            <Link
+              href="/signin"
+              className="flex items-center gap-1.5 text-[12px] font-semibold text-fg border border-line-strong hover:bg-black/[0.06] px-3 py-1.5 rounded-full transition-colors"
+            >
+              {t("nav.signin")}
+            </Link>
+          )}
 
           {/* Cart */}
           <button
