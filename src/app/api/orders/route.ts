@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { CartItem } from "@/components/Navbar";
 import { currentUserId } from "@/lib/session";
+import { hasDatabase } from "@/lib/db";
 import { newId, newTicketCode, createOrder, markOrderEmailed, type OrderTicket } from "@/lib/store";
 import { sendTicketEmail, mailConfigured } from "@/lib/email";
 import { siteOrigin } from "@/lib/google-oauth";
@@ -73,6 +74,16 @@ export async function POST(req: Request) {
 
   const origin = siteOrigin(req);
   const willEmail = mailConfigured();
+
+  // The in-memory store lives in ONE function instance. The buyer sees their
+  // ticket, but an emailed link or a second device can land on another
+  // instance and find nothing — so on a deployed host this is a real defect,
+  // not a fallback. Say so loudly instead of discovering it during a demo.
+  if (!hasDatabase()) {
+    console.warn(
+      `[db] order ${order.id} stored IN MEMORY — set DATABASE_URL or it will vanish on the next deploy/restart.`,
+    );
+  }
 
   // Fire-and-forget: the buyer gets their tickets on screen immediately, and a
   // slow or failing SMTP handshake cannot hold up or break the confirmation.
