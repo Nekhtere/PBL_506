@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { Ship, Clock, MapPin, ArrowRight, Info, X, Check, AlertCircle, Ticket } from "lucide-react";
+import { Ship, Clock, MapPin, ArrowRight, Info, X, Check, AlertCircle, Ticket, Car } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
 
 // Fares verified against batamfast.com published fare (Sep 2026):
@@ -118,7 +118,7 @@ function validatePassport(expiry: string, travelDate: string): { expiry: string;
   return null;
 }
 
-function BookingModal({ route, onClose, onConfirm }: { route: Route; onClose: () => void; onConfirm: (booking: BookingForm) => void }) {
+function BookingModal({ route, onClose, onConfirm, onSeeBundles }: { route: Route; onClose: () => void; onConfirm: (booking: BookingForm) => void; onSeeBundles: () => void }) {
   const { t } = useLocale();
   const today = new Date().toISOString().split("T")[0];
   const [form, setForm] = useState<BookingForm>({
@@ -132,6 +132,9 @@ function BookingModal({ route, onClose, onConfirm }: { route: Route; onClose: ()
   });
   const [touched, setTouched] = useState<Partial<Record<keyof BookingForm, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
+  // The bundle offer only appears after a booking lands and stays dismissible —
+  // it's a nudge toward the flagship product, not a gate on finishing here.
+  const [showUpsell, setShowUpsell] = useState(true);
   // Generated once when the ticket is issued — not during render, where an
   // impure value would change on every re-render (and trips react-hooks/purity).
   const [ticketCode, setTicketCode] = useState("");
@@ -185,6 +188,40 @@ function BookingModal({ route, onClose, onConfirm }: { route: Route; onClose: ()
             <p className="text-[11px] text-muted">{t("ferry.modal.eticket")}</p>
           </div>
         </div>
+
+        {/* Cross-sell to the bundle — the crossing is booked, so the wheels are
+            the obvious next gap in the trip. Dismissible: it never blocks the
+            buyer from simply closing out the ferry they came here for. */}
+        {showUpsell && (
+          <div className="w-full text-left bg-surface-sunken border border-line-soft rounded-2xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                <Car className="w-4 h-4 text-accent-ink" aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[13px] font-bold text-fg">{t("ferry.upsell.title")}</p>
+                <p className="text-[12px] text-muted leading-relaxed mt-1">{t("ferry.upsell.body")}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mt-3">
+              <button
+                type="button"
+                onClick={onSeeBundles}
+                className="flex-1 bg-accent hover:bg-accent-hover text-white text-[12px] font-bold py-2.5 rounded-xl transition-colors"
+              >
+                {t("ferry.upsell.cta")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowUpsell(false)}
+                className="shrink-0 text-[12px] font-medium text-muted hover:text-fg px-3 py-2.5 transition-colors"
+              >
+                {t("ferry.upsell.dismiss")}
+              </button>
+            </div>
+          </div>
+        )}
+
         <button onClick={onClose} className="w-full bg-accent hover:bg-accent-hover text-white font-bold py-3 rounded-xl transition-colors">
           {t("ferry.modal.done")}
         </button>
@@ -491,6 +528,12 @@ export default function FerrySection() {
                 route={selectedRoute}
                 onClose={() => setSelectedRoute(null)}
                 onConfirm={() => {}}
+                onSeeBundles={() => {
+                  // Close first, then scroll — a fixed overlay would swallow the
+                  // smooth scroll if we left it up.
+                  setSelectedRoute(null);
+                  document.getElementById("bundle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
               />
             </motion.div>
           </motion.div>

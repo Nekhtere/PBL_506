@@ -159,8 +159,8 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // Ferry section
   "ferry.label":         { en: "Getting Here",               id: "Cara Tiba" },
-  "ferry.heading":       { en: "Singapore to Batam",         id: "Singapura ke Batam" },
-  "ferry.sub":           { en: "Four terminals, three operators, under an hour on the water. Book your ticket directly — no redirects, no markups.", id: "Empat terminal, tiga operator, kurang dari satu jam di laut. Pesan tiket langsung — tanpa redirect, tanpa markup." },
+  "ferry.heading":       { en: "Got a plan for Batam?",      id: "Sudah punya rencana di Batam?" },
+  "ferry.sub":           { en: "Now the ticket to get there. Four terminals, three operators, under an hour on the water — booked directly, no redirects, no markups.", id: "Sekarang tiket untuk ke sana. Empat terminal, tiga operator, kurang dari satu jam di laut — dipesan langsung, tanpa redirect, tanpa markup." },
   "ferry.bookTicket":    { en: "Book Ticket",                id: "Pesan Tiket" },
   "ferry.beforeBoard":   { en: "Before you board",           id: "Sebelum naik kapal" },
   "ferry.disclaimer":    { en: "Fares and crossing times are indicative. Live inventory and confirmed pricing via BatamFast API integration on launch.", id: "Harga dan waktu penyeberangan bersifat indikatif. Inventaris live dan harga konfirmasi melalui integrasi API BatamFast saat peluncuran." },
@@ -202,6 +202,12 @@ const translations: Record<string, Record<Locale, string>> = {
   "ferry.modal.fareSgFee":   { en: "Singapore departure fee",  id: "Biaya keberangkatan Singapura" },
   "ferry.modal.fareBatamFee":{ en: "Batam terminal fee",       id: "Biaya terminal Batam" },
   "ferry.modal.returnSaving":{ en: "Return-ticket saving",     id: "Hemat tiket pulang-pergi" },
+  // Bridge from a completed ferry booking to the bundle — the moment the buyer
+  // has a crossing and is most likely to want the wheels on the other side.
+  "ferry.upsell.title":      { en: "Add a city tour?",          id: "Tambahkan city tour?" },
+  "ferry.upsell.body":       { en: "Your ferry is booked — now the driver. Bundle it with a private car and save S$ 15 against booking separately.", id: "Feri Anda sudah dipesan — sekarang supirnya. Bundling dengan mobil pribadi dan hemat S$ 15 dibanding pesan terpisah." },
+  "ferry.upsell.cta":        { en: "See bundles",               id: "Lihat bundling" },
+  "ferry.upsell.dismiss":    { en: "No thanks",                 id: "Tidak, terima kasih" },
   "ferry.modal.nameRequired":{ en: "Full name is required.",      id: "Nama lengkap wajib diisi." },
   "ferry.modal.passportRequired":{ en: "Passport number is required.", id: "Nomor paspor wajib diisi." },
   "ferry.modal.expiryRequired":{ en: "Expiry date is required.",   id: "Tanggal kedaluwarsa wajib diisi." },
