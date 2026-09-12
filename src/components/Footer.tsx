@@ -3,13 +3,12 @@
 import { useLocale } from "@/lib/locale-context";
 
 const footerLinks = {
-  // Absolute hash paths, not bare "#deals": this footer is shared with
-  // /merchants, where a bare fragment points at nothing and does nothing.
   Product: [
-    { labelKey: "nav.deals", href: "/#deals" },
-    { labelKey: "nav.itinerary", href: "/#itinerary" },
+    { labelKey: "nav.nearme", href: "/#near-me" },
+    { labelKey: "nav.journey", href: "/#journey" },
     { labelKey: "nav.ferry", href: "/#ferry" },
-    { labelKey: "nav.rideGuide", href: "/#ride-guide" },
+    { labelKey: "nav.bundle", href: "/#bundle" },
+    { labelKey: "nav.faq", href: "/#faq" },
     { labelKey: "how.label", href: "/#how-it-works" },
   ],
   Legal: [

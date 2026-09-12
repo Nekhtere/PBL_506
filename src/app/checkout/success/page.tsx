@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle2, Download, Mail, Ticket } from "lucide-react";
@@ -13,11 +13,19 @@ import QRCodePlaceholder from "@/components/QRCodePlaceholder";
 // link still works.
 
 export default function CheckoutSuccessPage() {
-  // Lazy initializer — same reasoning as the checkout page: sessionStorage is
-  // browser-only, and this interactive page is never what the prerender shows.
-  const [order] = useState<Order | null>(() =>
-    typeof window === "undefined" ? null : loadOrder(),
-  );
+  // Loads after mount, like the checkout page — sessionStorage doesn't exist
+  // in the server render, so reading it during the first client render would
+  // fail hydration. `undefined` = still loading.
+  const [order, setOrder] = useState<Order | null | undefined>(undefined);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setOrder(loadOrder());
+  }, []);
+
+  if (order === undefined) {
+    return <main className="min-h-screen bg-bg" />;
+  }
 
   if (order === null) {
     return (
@@ -31,10 +39,10 @@ export default function CheckoutSuccessPage() {
             Completed orders appear here right after payment. Start a new booking to see your e-tickets.
           </p>
           <Link
-            href="/#deals"
+            href="/#journey"
             className="inline-flex items-center gap-2 mt-6 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold px-5 py-3 rounded-xl transition-colors"
           >
-            Browse deals
+            Browse journeys
           </Link>
         </div>
       </main>
@@ -151,7 +159,7 @@ export default function CheckoutSuccessPage() {
             </p>
             <p className="text-[16px] font-bold text-fg">S$ {order.totalSGD.toFixed(2)}</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 print:hidden">
             <button
               onClick={() => window.print()}
               className="flex-1 flex items-center justify-center gap-2 border border-line-strong text-fg text-[13px] font-bold py-3 rounded-xl hover:bg-surface-sunken transition-colors"
@@ -170,6 +178,14 @@ export default function CheckoutSuccessPage() {
             Redemption: show the QR code at the merchant before ordering. Each voucher is
             single-use and non-refundable once scanned. Payment verified with 3-D Secure.
           </p>
+
+          {/* Print-only footer — replaces the buttons on the paper copy. */}
+          <div className="hidden print:block mt-4 pt-3 border-t border-line-soft text-[11px] text-muted">
+            <p className="font-semibold text-fg">BatamSmart — E-Ticket</p>
+            <p className="mt-1">
+              Order {order.orderId} · batamsmart.example · support@batamsmart.example
+            </p>
+          </div>
         </motion.div>
       </div>
     </main>

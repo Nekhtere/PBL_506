@@ -114,6 +114,16 @@ body {
 h1, h2, h3 { text-wrap: balance; }
 p { text-wrap: pretty; }
 
+/* Print — e-ticket PDF ("Save as PDF" on /checkout/success). Buttons and
+   other screen-only chrome would otherwise land on the paper copy. */
+@media print {
+  body { background: #fff; }
+  .print\:hidden { display: none !important; }
+  .print\:block { display: block !important; }
+  /* Keep cards on one page each where possible. */
+  article { break-inside: avoid; }
+}
+
 /* One focus ring for the whole app. Keyboard only.
    No border-radius here — outline already follows the element's own. */
 :focus-visible {

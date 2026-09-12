@@ -10,11 +10,15 @@ import type { CartItem } from "@/components/Navbar";
 export const CART_STORAGE_KEY = "bsd:checkout-cart";
 export const ORDER_STORAGE_KEY = "bsd:last-order";
 
+// The cart itself is persisted, not just the checkout snapshot: without this,
+// navigating to /checkout and back remounts the home page and its useState
+// cart comes back empty. Session-scoped (not localStorage) on purpose — a
+// stale cart surviving for weeks would surface dead prices.
 export function saveCartForCheckout(items: CartItem[]) {
   try {
     sessionStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   } catch {
-    // Private mode / storage blocked — checkout page shows its empty state.
+    // Private mode / storage blocked — cart lives in memory only.
   }
 }
 

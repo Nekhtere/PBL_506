@@ -12,11 +12,12 @@ import type { Locale } from "@/lib/locale-context";
 export type { Locale };
 
 const navLinks = [
-  { labelKey: "nav.home",      href: "/#home" },
-  { labelKey: "nav.deals",     href: "/#deals" },
-  { labelKey: "nav.itinerary", href: "/#itinerary" },
-  { labelKey: "nav.ferry",     href: "/#ferry" },
-  { labelKey: "nav.rideGuide", href: "/#ride-guide" },
+  { labelKey: "nav.home",    href: "/#home" },
+  { labelKey: "nav.nearme",  href: "/#near-me" },
+  { labelKey: "nav.journey", href: "/#journey" },
+  { labelKey: "nav.ferry",   href: "/#ferry" },
+  { labelKey: "nav.bundle",  href: "/#bundle" },
+  { labelKey: "nav.faq",     href: "/#faq" },
 ];
 
 export interface CartItem {

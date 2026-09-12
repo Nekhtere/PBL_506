@@ -5,6 +5,11 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { Ship, Clock, MapPin, ArrowRight, Info, X, Check, AlertCircle, Ticket } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
 
+// Fares verified against batamfast.com published fare (Sep 2026):
+// SGD 43 one-way SG→Batam, SGD 40 Batam→SG, SGD 76 return — all inclusive of
+// the S$10 Singapore and S$10 Batam passenger departure fees.
+// ponytail: live inventory + confirmed pricing via the BatamFast agent/eFast
+// channel once the partnership is signed.
 const routes = [
   {
     id: "harbourfront-batamcentre",
@@ -12,9 +17,9 @@ const routes = [
     to: "Batam Centre",
     operators: "BatamFast · Majestic Fast Ferry · Sindo Ferry",
     crossing: "~45 min",
-    price: "from S$ 20 one-way",
-    priceNum: 20,
-    note: "Largest terminal — best for Nagoya & city centre.",
+    priceNum: 43,
+    returnPriceNum: 76,
+    noteKey: "ferry.note.batamcentre",
     schedules: ["08:00", "09:30", "11:00", "13:00", "15:00", "17:00", "19:00"],
   },
   {
@@ -23,9 +28,9 @@ const routes = [
     to: "Harbour Bay",
     operators: "BatamFast · Majestic Fast Ferry",
     crossing: "~45 min",
-    price: "from S$ 23 one-way",
-    priceNum: 23,
-    note: "Closest to seafood, spa and duty-free shopping.",
+    priceNum: 43,
+    returnPriceNum: 76,
+    noteKey: "ferry.note.harbourbay",
     schedules: ["08:30", "10:00", "12:00", "14:00", "16:00", "18:00"],
   },
   {
@@ -34,9 +39,9 @@ const routes = [
     to: "Sekupang",
     operators: "BatamFast · Sindo Ferry",
     crossing: "~50 min",
-    price: "from S$ 20 one-way",
-    priceNum: 20,
-    note: "Quieter terminal, north-west Batam.",
+    priceNum: 43,
+    returnPriceNum: 76,
+    noteKey: "ferry.note.sekupang",
     schedules: ["09:00", "11:00", "14:00", "17:00"],
   },
   {
@@ -45,12 +50,16 @@ const routes = [
     to: "Nongsapura",
     operators: "BatamFast",
     crossing: "~35 min",
-    price: "from S$ 25 one-way",
-    priceNum: 25,
-    note: "Best for Nongsa resorts and Avani Spa.",
+    priceNum: 43,
+    returnPriceNum: 76,
+    noteKey: "ferry.note.nongsapura",
     schedules: ["08:00", "10:30", "13:00", "15:30", "18:00"],
   },
 ];
+
+// What the published fare already pays for — shown in the modal so the price
+// never reads as padded. Source: batamfast.com fare breakdown.
+const FARE_INCLUDES = { ticket: 23, sgDepartureFee: 10, batamDepartureFee: 10 };
 
 // Keys, not strings — the four tips read through the translation table.
 const tips = ["ferry.tip1", "ferry.tip2", "ferry.tip3", "ferry.tip4"];
@@ -61,10 +70,33 @@ interface BookingForm {
   fullName: string;
   passportNumber: string;
   passportExpiry: string;
+  nationality: string;
   travelDate: string;
   schedule: string;
   tripType: "one-way" | "return";
 }
+
+// Nationality drives the VOA notice — SG passports enter Indonesia visa-free
+// (30 days), most others pay Visa on Arrival at the terminal. Mirrors the
+// region selector in BatamFast's own booking form.
+const NATIONALITIES = [
+  "Singapore",
+  "Indonesia",
+  "Malaysia",
+  "India",
+  "China",
+  "Philippines",
+  "Vietnam",
+  "Thailand",
+  "Australia",
+  "United Kingdom",
+  "United States",
+  "Japan",
+  "South Korea",
+  "Other",
+] as const;
+
+const VOA_FREE = new Set(["Singapore"]);
 
 function addMonths(date: Date, months: number): Date {
   const d = new Date(date);
@@ -93,6 +125,7 @@ function BookingModal({ route, onClose, onConfirm }: { route: Route; onClose: ()
     fullName: "",
     passportNumber: "",
     passportExpiry: "",
+    nationality: "Singapore",
     travelDate: today,
     schedule: route.schedules[0],
     tripType: "one-way",
@@ -112,7 +145,8 @@ function BookingModal({ route, onClose, onConfirm }: { route: Route; onClose: ()
   const expiryError = touched.passportExpiry && !form.passportExpiry ? t("ferry.modal.expiryRequired") : passportError && touched.passportExpiry ? passportError : null;
 
   const isValid = form.fullName.trim() && form.passportNumber.trim() && form.passportExpiry && !passportError;
-  const price = form.tripType === "return" ? route.priceNum * 2 - 3 : route.priceNum;
+  const price = form.tripType === "return" ? route.returnPriceNum : route.priceNum;
+  const needsVoa = !VOA_FREE.has(form.nationality) && form.nationality !== "Indonesia";
 
   if (submitted) {
     return (
@@ -176,7 +210,7 @@ function BookingModal({ route, onClose, onConfirm }: { route: Route; onClose: ()
                 onClick={() => setForm(f => ({ ...f, tripType }))}
                 className={`py-2.5 rounded-xl text-[13px] font-semibold border transition-all ${form.tripType === tripType ? "bg-accent text-white border-accent" : "bg-surface-sunken text-fg border-transparent hover:border-line"}`}
               >
-                {tripType === "one-way" ? t("ferry.modal.oneWay") : t("ferry.modal.return")} · S$ {(tripType === "return" ? route.priceNum * 2 - 3 : route.priceNum).toFixed(2)}
+                {tripType === "one-way" ? t("ferry.modal.oneWay") : t("ferry.modal.return")} · S$ {(tripType === "return" ? route.returnPriceNum : route.priceNum).toFixed(2)}
               </button>
             ))}
           </div>
@@ -267,10 +301,52 @@ function BookingModal({ route, onClose, onConfirm }: { route: Route; onClose: ()
             </p>
           )}
         </div>
+        {/* Nationality — drives the VOA notice */}
+        <div>
+          <label className="text-[12px] font-semibold text-fg mb-1.5 block" htmlFor="nationality">{t("ferry.modal.nationality")}</label>
+          <select
+            id="nationality"
+            value={form.nationality}
+            onChange={e => setForm(f => ({ ...f, nationality: e.target.value }))}
+            className="w-full bg-surface-sunken rounded-xl px-4 py-2.5 text-[13px] text-fg border border-transparent focus:border-accent focus:outline-none"
+          >
+            {NATIONALITIES.map(n => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+          {needsVoa && (
+            <p className="text-[11px] text-amber-700 bg-amber-500/10 rounded-lg px-3 py-2 mt-2 flex items-start gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 mt-px shrink-0" aria-hidden="true" />
+              {t("ferry.modal.voaNotice")}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Footer */}
       <div className="p-6 border-t border-line-soft shrink-0 space-y-3">
+        {/* Fare breakdown — matches what the published fare already includes,
+            so the total never reads as padded with hidden fees. */}
+        <div className="bg-surface-sunken rounded-xl px-4 py-3 space-y-1 text-[12px] text-muted">
+          <div className="flex justify-between">
+            <span>{t("ferry.modal.fareTicket")}</span>
+            <span>S$ {FARE_INCLUDES.ticket.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>{t("ferry.modal.fareSgFee")}</span>
+            <span>S$ {FARE_INCLUDES.sgDepartureFee.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>{t("ferry.modal.fareBatamFee")}</span>
+            <span>S$ {FARE_INCLUDES.batamDepartureFee.toFixed(2)}</span>
+          </div>
+          {form.tripType === "return" && (
+            <div className="flex justify-between text-emerald-700 font-medium pt-1 border-t border-line-soft">
+              <span>{t("ferry.modal.returnSaving")}</span>
+              <span>-S$ {(route.priceNum * 2 - route.returnPriceNum).toFixed(2)}</span>
+            </div>
+          )}
+        </div>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[13px] text-muted">{t("ferry.modal.total")}</p>
@@ -347,9 +423,11 @@ export default function FerrySection() {
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {r.crossing}
                 </span>
-                <span className="font-semibold text-[var(--fg)]">{r.price}</span>
+                <span className="font-semibold text-[var(--fg)]">
+                  S$ {r.priceNum} {t("ferry.oneWay")} · S$ {r.returnPriceNum} {t("ferry.return")}
+                </span>
               </div>
-              <p className="text-[12px] text-[var(--accent-ink)]">{r.note}</p>
+              <p className="text-[12px] text-[var(--accent-ink)]">{t(r.noteKey)}</p>
               <button
                 onClick={() => setSelectedRoute(r)}
                 className="mt-auto w-full flex items-center justify-center gap-2 bg-fg hover:bg-fg-hover text-white text-[13px] font-semibold py-2.5 rounded-xl transition-colors"

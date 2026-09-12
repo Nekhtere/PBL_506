@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,14 +50,16 @@ const inputClass =
 
 export default function CheckoutPage() {
   const router = useRouter();
-  // Lazy initializer: sessionStorage only exists in the browser, so on the
-  // server render this yields [] and the client render reads the real cart.
-  // (Checkout is an interactive flow — the prerendered shell is never what the
-  // user interacts with.)
-  const [items, setItems] = useState<CartItem[]>(() =>
-    typeof window === "undefined" ? [] : loadCartForCheckout(),
-  );
+  // Cart loads after mount — reading sessionStorage in a lazy useState
+  // initializer would make the first client render differ from the server
+  // render (which has no storage) and fail hydration. `null` = still loading.
+  const [items, setItems] = useState<CartItem[] | null>(null);
   const [step, setStep] = useState<Step>("details");
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setItems(loadCartForCheckout());
+  }, []);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -69,7 +71,7 @@ export default function CheckoutPage() {
 
   const total = useMemo(
     () =>
-      items.reduce(
+      (items ?? []).reduce(
         (sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"),
         0,
       ),
@@ -84,9 +86,40 @@ export default function CheckoutPage() {
     expiry.replace(/\D/g, "").length === 4 &&
     cvc.length >= 3;
 
-  function simulatePaymentIntent(e: React.FormEvent) {
+  // Which requirement is still unmet — shown under the button so a locked
+  // button never has to be guessed at (autofill vs. state mismatch, etc.).
+  const missing: string[] = [];
+  if (name.trim().length <= 1) missing.push("name");
+  if (!/.+@.+\..+/.test(email)) missing.push("email");
+  if (card.replace(/\s/g, "").length !== 16) missing.push("16-digit card");
+  if (expiry.replace(/\D/g, "").length !== 4) missing.push("expiry (MM/YY)");
+  if (cvc.length < 3) missing.push("CVC");
+
+  function simulatePaymentIntent(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!detailsValid) return;
+    // Read straight from the form, not just React state: browser autofill can
+    // paint the inputs without firing onChange, which leaves state empty and
+    // the Pay button locked even though every field looks filled.
+    const data = new FormData(e.currentTarget);
+    const f = {
+      name: String(data.get("name") ?? "").trim(),
+      email: String(data.get("email") ?? "").trim(),
+      card: String(data.get("card") ?? "").replace(/\s/g, ""),
+      expiry: String(data.get("expiry") ?? "").replace(/\D/g, ""),
+      cvc: String(data.get("cvc") ?? "").replace(/\D/g, ""),
+    };
+    if (
+      f.name.length <= 1 ||
+      !/.+@.+\..+/.test(f.email) ||
+      f.card.length !== 16 ||
+      f.expiry.length !== 4 ||
+      f.cvc.length < 3
+    ) {
+      setError("Please complete all fields — name, email, 16-digit card, expiry and CVC.");
+      return;
+    }
+    setName(f.name);
+    setEmail(f.email);
     setError("");
     // Real version: stripe.confirmPayment(...) returns requires_action →
     // Stripe.js opens the 3DS modal. Here we render our own challenge screen.
@@ -104,11 +137,16 @@ export default function CheckoutPage() {
     setStep("processing");
     // Real version: webhook confirms payment_intent.succeeded, then we issue
     // vouchers. The demo issues them immediately on the client.
-    const order = buildOrder(items, name.trim(), email.trim(), "SGD");
+    const order = buildOrder(items ?? [], name.trim(), email.trim(), "SGD");
     saveOrder(order);
     clearCheckoutCart();
     setItems([]);
     window.setTimeout(() => router.push("/checkout/success"), 900);
+  }
+
+  // Cart still loading from storage (first paint matches the server: nothing).
+  if (items === null) {
+    return <main className="min-h-screen bg-bg" />;
   }
 
   if (items.length === 0 && step === "details") {
@@ -120,14 +158,14 @@ export default function CheckoutPage() {
           </div>
           <h1 className="text-xl font-bold text-fg">Your cart is empty</h1>
           <p className="text-[14px] text-muted mt-2">
-            Add a deal or itinerary route first, then come back to check out.
+            Add a tour, ferry ticket or bundle first, then come back to check out.
           </p>
           <Link
-            href="/#deals"
+            href="/#journey"
             className="inline-flex items-center gap-2 mt-6 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold px-5 py-3 rounded-xl transition-colors"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-            Browse deals
+            Browse journeys
           </Link>
         </div>
       </main>
@@ -175,6 +213,7 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         id="co-name"
+                        name="name"
                         className={inputClass}
                         placeholder="e.g. Rachel Tan"
                         value={name}
@@ -189,6 +228,7 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         id="co-email"
+                        name="email"
                         type="email"
                         className={inputClass}
                         placeholder="you@example.com"
@@ -204,6 +244,7 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         id="co-card"
+                        name="card"
                         inputMode="numeric"
                         className={inputClass}
                         placeholder="4242 4242 4242 4242"
@@ -220,6 +261,7 @@ export default function CheckoutPage() {
                         </label>
                         <input
                           id="co-exp"
+                          name="expiry"
                           inputMode="numeric"
                           className={inputClass}
                           placeholder="MM / YY"
@@ -235,6 +277,7 @@ export default function CheckoutPage() {
                         </label>
                         <input
                           id="co-cvc"
+                          name="cvc"
                           inputMode="numeric"
                           className={inputClass}
                           placeholder="123"
@@ -254,6 +297,14 @@ export default function CheckoutPage() {
                       <Lock className="w-4 h-4" aria-hidden="true" />
                       Pay S$ {total.toFixed(2)}
                     </button>
+                    {error && step === "details" && (
+                      <p className="text-[12px] text-danger text-center" role="alert">{error}</p>
+                    )}
+                    {!detailsValid && !error && (
+                      <p className="text-[11px] text-muted text-center">
+                        Still needed: {missing.join(" · ")}
+                      </p>
+                    )}
                     <p className="text-[11px] text-muted text-center">
                       Demo checkout — no real charge. Use any 16-digit number, e.g. 4242 4242 4242 4242.
                     </p>

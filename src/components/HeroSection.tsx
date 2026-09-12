@@ -3,7 +3,7 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Shield, Zap, Search, ArrowRight } from "lucide-react";
-import { merchants } from "@/lib/merchants";
+import { destinations } from "@/lib/destinations";
 import { useLocale } from "@/lib/locale-context";
 
 const bgSlides = [
@@ -25,23 +25,21 @@ const bgSlides = [
   },
 ];
 
-// Read off the catalogue, not typed by hand. The hero used to advertise
-// "120+ partners" and "4.9★" while /merchants listed 13 merchants at an
-// average of 4.7 — two different numbers for one fact, on the same page.
+// Read off the destination catalogue, not typed by hand.
 const avgRating = (
-  merchants.reduce((sum, m) => sum + m.rating, 0) / merchants.length
+  destinations.reduce((sum, d) => sum + d.rating, 0) / destinations.length
 ).toFixed(1);
 
-// Same words the deals row already searches on, so a tap here and a tap on the
-// chips down there land on the same result.
-const quickSearches = ["Seafood", "Spa", "Shopping", "Hotel"];
+// Same words the Near Me row already searches on, so a tap here and a tap on
+// the chips down there land on the same result.
+const quickSearches = ["Beach", "Temple", "Mall", "Spa"];
 
 export default function HeroSection({ onSearch }: { onSearch: (query: string) => void }) {
   const { t } = useLocale();
   // Keys read the translation table so the stats bar follows the toggle; the
   // numbers themselves stay read off the catalogue.
   const stats = [
-    { value: String(merchants.length), labelKey: "hero.stat.merchants" },
+    { value: String(destinations.length), labelKey: "hero.stat.destinations" },
     { value: `${avgRating}★`, labelKey: "hero.stat.rating" },
     { value: "SGD", labelKey: "hero.stat.currency" },
     { value: "< 1 hr", labelKey: "hero.stat.distance" },
@@ -54,14 +52,14 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
     return () => clearInterval(t);
   }, []);
 
-  // Hands the query to the deals row and takes the user to it. That row's own
-  // search box is bound to the same state, so it arrives already filled in
-  // rather than the user typing the same thing twice.
+  // Hands the query to the Near Me section and takes the user to it. That
+  // section's own search box is bound to the same state, so it arrives already
+  // filled in rather than the user typing the same thing twice.
   const run = (raw: string) => {
     const query = raw.trim();
     setValue(query);
     onSearch(query);
-    const target = document.getElementById("deals");
+    const target = document.getElementById("near-me");
     if (!target) return;
     // scroll-behavior: smooth in globals.css only covers CSS-driven scrolling;
     // this is a JS scroll, so it has to honour the preference itself.
@@ -164,7 +162,7 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder={t("hero.search.placeholder")}
-              aria-label="Search Batam deals"
+              aria-label="Search places in Batam"
               className="flex-1 min-w-0 bg-transparent py-2.5 text-[14px] text-white placeholder:text-white/65 focus-on-dark"
             />
             <button

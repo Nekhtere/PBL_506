@@ -17,15 +17,15 @@ export type MapPoint = {
   km?: number;
 };
 
-// Same glyphs as the Popular chips in DealsSection — one vocabulary for a category
-// across the whole page. Unknown categories fall back to a generic pin.
+// Same glyphs as the category chips across the page — one vocabulary for a
+// category wherever it appears. Unknown categories fall back to a generic pin.
 const CATEGORY_GLYPH: Record<string, string> = {
-  Seafood: "🦐",
-  Spa: "💆",
+  Nature: "🌿",
+  Culture: "🛕",
+  Family: "👨‍👩‍👧",
   Shopping: "🛍️",
-  "Street Food": "🍜",
-  Hotel: "🏨",
-  Attraction: "🗺️",
+  Souvenir: "🎁",
+  Wellness: "💆",
 };
 
 export default function NearbyMap({ points, user, onSelect }: {
