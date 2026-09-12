@@ -46,7 +46,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
   if (!doc) notFound();
 
   return (
-    <main className="min-h-screen bg-bg px-6 py-24">
+    <main className="min-h-screen bg-bg px-6 pt-28 pb-24">
       <article className="max-w-2xl mx-auto">
         <Link href="/" className="text-[13px] font-semibold text-accent-ink hover:underline">
           ← BatamSmart

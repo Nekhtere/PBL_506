@@ -197,6 +197,72 @@ p { text-wrap: pretty; }
   .group:hover .media-zoom {
     transform: scale(1.05);
   }
+
+  /* ─── Route loader: ferry crossing ───
+     Shown while the next route resolves (src/app/loading.tsx) and while the
+     lazy Leaflet chunk downloads. Pure CSS so it paints on the first frame. */
+  .loader-sea {
+    position: relative;
+    width: 132px;
+    height: 88px;
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgb(var(--accent-rgb) / 0.14), rgb(var(--accent-rgb) / 0.04));
+    border: 1px solid var(--line);
+    box-shadow: var(--sh-2);
+    overflow: hidden;
+  }
+  .loader-ship {
+    position: absolute;
+    left: 50%;
+    top: 14px;
+    width: 30px;
+    height: 30px;
+    margin-left: -15px;
+    color: var(--accent-ink);
+    animation: loader-bob 1.6s ease-in-out infinite;
+  }
+  .loader-wave {
+    position: absolute;
+    left: -25%;
+    width: 150%;
+    height: 14px;
+    border-radius: 9999px;
+    background: rgb(var(--accent-rgb) / 0.22);
+    animation: loader-slide 2.2s linear infinite;
+  }
+  .loader-wave--back {
+    bottom: 12px;
+    opacity: 0.55;
+  }
+  .loader-wave--front {
+    bottom: 4px;
+    animation-duration: 1.6s;
+    animation-direction: reverse;
+  }
+  .loader-dots i {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    margin-left: 3px;
+    border-radius: 9999px;
+    background: currentColor;
+    animation: loader-dot 1.2s ease-in-out infinite;
+  }
+  .loader-dots i:nth-child(2) { animation-delay: 0.15s; }
+  .loader-dots i:nth-child(3) { animation-delay: 0.3s; }
+}
+
+@keyframes loader-bob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%      { transform: translateY(-6px) rotate(4deg); }
+}
+@keyframes loader-slide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-36px); }
+}
+@keyframes loader-dot {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30%           { opacity: 1; transform: translateY(-3px); }
 }
 
 @layer utilities {

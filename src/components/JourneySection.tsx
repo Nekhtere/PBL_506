@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   MapPin,
@@ -14,12 +14,26 @@ import {
 } from "lucide-react";
 import DetailModal from "./DetailModal";
 import { useLocale } from "@/lib/locale-context";
-import { destinations } from "@/lib/destinations";
+import {
+  destinations,
+  TERMINALS,
+  DEFAULT_TERMINAL,
+  haversineKm,
+  type Terminal,
+  type TerminalInfo,
+} from "@/lib/destinations";
 import { tours, THEME_META, type Tour, type TourSlot, type JourneyTheme } from "@/lib/tours";
-import type { CartItem } from "./Navbar";
+import type { CartItem } from "@/lib/cart";
 
 // ponytail: FX pegged at 11800 — swap for a live rate endpoint at launch.
 const IDR_PER_SGD = 11800;
+
+// Average driving speed assumption for Batam urban/inter-town roads (km/h).
+const AVG_SPEED_KMH = 35;
+// Buffer added to each leg for parking, traffic, and small delays (minutes).
+const LEG_BUFFER_MIN = 10;
+// Time spent at a stop before the next leg can begin (minutes).
+const STOP_DURATION_MIN = 90;
 
 function priceDisplay(sgd: number, locale: string) {
   return locale === "id"
@@ -27,7 +41,7 @@ function priceDisplay(sgd: number, locale: string) {
     : `S$ ${sgd}`;
 }
 
-const THEMES: JourneyTheme[] = ["nature", "souvenir", "wellness", "shopping"];
+const THEMES: JourneyTheme[] = ["heritage", "nature-relax", "shop-treat", "island-explorer"];
 
 // Resolve a slot's display: prefer the referenced destination's real name,
 // fall back to the free-text stop (pickup, lunch, drop-off).
@@ -38,8 +52,64 @@ function slotDisplay(slot: TourSlot) {
   return { name: d?.name ?? slot.name ?? "", emoji: slot.emoji, travelNote: slot.travelNote, destination: d };
 }
 
+// Travel time in minutes between two lat/lng points, plus buffer.
+function travelMinutes(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const km = haversineKm(a, b);
+  return Math.ceil((km / AVG_SPEED_KMH) * 60) + LEG_BUFFER_MIN;
+}
+
+// Coordinates for a slot: real destination coords, or the terminal for pickup/drop-off.
+function slotCoords(slot: TourSlot, terminal: TerminalInfo) {
+  if (slot.destinationId != null) {
+    const d = destinations.find((x) => x.id === slot.destinationId);
+    if (d) return { lat: d.lat, lng: d.lng };
+  }
+  return { lat: terminal.lat, lng: terminal.lng };
+}
+
+// Format a time string like "09:30" from a Date object.
+function formatTime(date: Date) {
+  return date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
+
+// Recalculate slot times from the selected terminal. The first slot is always
+// the pickup, scheduled shortly after the typical ferry arrival + immigration.
+function computeTimeline(tour: Tour, terminal: TerminalInfo): { time: string; slot: TourSlot }[] {
+  // Typical ferry arrival + immigration + walk to meeting point ≈ 45 min.
+  const immigrationMin = 45;
+  const start = new Date();
+  start.setHours(8, 30, 0, 0);
+  start.setMinutes(start.getMinutes() + immigrationMin + travelMinutes(terminal, slotCoords(tour.slots[1], terminal)));
+
+  const result: { time: string; slot: TourSlot }[] = [];
+  let current = new Date(start);
+
+  tour.slots.forEach((slot, i) => {
+    result.push({ time: formatTime(current), slot });
+
+    const nextSlot = tour.slots[i + 1];
+    if (!nextSlot) return;
+
+    const from = slotCoords(slot, terminal);
+    const to = slotCoords(nextSlot, terminal);
+    const drive = travelMinutes(from, to);
+    const stopTime = slot.type.toLowerCase().includes("pickup") ? 0 : STOP_DURATION_MIN;
+    current = new Date(current.getTime() + (stopTime + drive) * 60000);
+  });
+
+  return result;
+}
+
 // ── TimelineRow ────────────────────────────────────────────────────────────────
-function TimelineRow({ slot, last }: { slot: TourSlot; last: boolean }) {
+function TimelineRow({
+  slot,
+  time,
+  last,
+}: {
+  slot: TourSlot;
+  time: string;
+  last: boolean;
+}) {
   const { name, emoji, travelNote, destination } = slotDisplay(slot);
   return (
     <div className="flex gap-3">
@@ -52,7 +122,7 @@ function TimelineRow({ slot, last }: { slot: TourSlot; last: boolean }) {
       </div>
       <div className={`min-w-0 ${last ? "" : "pb-4"}`}>
         <p className="text-[13px] font-semibold text-fg leading-snug">
-          <span className="text-accent-ink font-bold mr-1.5">{slot.time}</span>
+          <span className="text-accent-ink font-bold mr-1.5">{time}</span>
           {name}
         </p>
         <p className="text-[11px] text-muted flex items-center gap-1 mt-0.5">
@@ -70,12 +140,14 @@ function TimelineRow({ slot, last }: { slot: TourSlot; last: boolean }) {
 // ── TourCard ───────────────────────────────────────────────────────────────────
 function TourCard({
   tour,
+  terminal,
   isInView,
   index,
   onAddToCart,
   onOpenDetail,
 }: {
   tour: Tour;
+  terminal: Terminal;
   isInView: boolean;
   index: number;
   onAddToCart: (item: Omit<CartItem, "id">) => void;
@@ -84,6 +156,8 @@ function TourCard({
   const { t, locale } = useLocale();
   const [added, setAdded] = useState(false);
   const meta = THEME_META[tour.theme];
+  const terminalInfo = TERMINALS.find((x) => x.id === terminal) ?? TERMINALS[0];
+  const computed = useMemo(() => computeTimeline(tour, terminalInfo), [tour, terminalInfo]);
 
   const handleAdd = () => {
     if (added) return;
@@ -149,12 +223,17 @@ function TourCard({
 
         {/* Condensed timeline — first 3 slots + count */}
         <div className="mb-4 flex-1">
-          {tour.slots.slice(0, 3).map((slot, i) => (
-            <TimelineRow key={slot.time} slot={slot} last={i === Math.min(2, tour.slots.length - 1) && tour.slots.length <= 3} />
+          {computed.slice(0, 3).map(({ time, slot }, i) => (
+            <TimelineRow
+              key={slot.time}
+              slot={slot}
+              time={time}
+              last={i === Math.min(2, computed.length - 1) && computed.length <= 3}
+            />
           ))}
-          {tour.slots.length > 3 && (
+          {computed.length > 3 && (
             <p className="text-[11px] text-accent-ink font-semibold mt-1 pl-12">
-              {t("journey.moreStops").replace("{n}", String(tour.slots.length - 3))}
+              {t("journey.moreStops").replace("{n}", String(computed.length - 3))}
             </p>
           )}
         </div>
@@ -194,16 +273,20 @@ function TourCard({
 // ── TourModal ──────────────────────────────────────────────────────────────────
 function TourModal({
   tour,
+  terminal,
   onAddToCart,
   onClose,
 }: {
   tour: Tour;
+  terminal: Terminal;
   onAddToCart: (item: Omit<CartItem, "id">) => void;
   onClose: () => void;
 }) {
   const { t, locale } = useLocale();
   const [added, setAdded] = useState(false);
   const meta = THEME_META[tour.theme];
+  const terminalInfo = TERMINALS.find((x) => x.id === terminal) ?? TERMINALS[0];
+  const computed = useMemo(() => computeTimeline(tour, terminalInfo), [tour, terminalInfo]);
 
   const handleAdd = () => {
     if (added) return;
@@ -296,8 +379,13 @@ function TourModal({
           {/* Full timeline */}
           <div>
             <p className="text-[12px] font-semibold text-fg mb-3">{t("journey.schedule")}</p>
-            {tour.slots.map((slot, i) => (
-              <TimelineRow key={slot.time} slot={slot} last={i === tour.slots.length - 1} />
+            {computed.map(({ time, slot }, i) => (
+              <TimelineRow
+                key={slot.time}
+                slot={slot}
+                time={time}
+                last={i === computed.length - 1}
+              />
             ))}
           </div>
         </div>
@@ -339,7 +427,8 @@ export default function JourneySection({
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const { t } = useLocale();
-  const [theme, setTheme] = useState<JourneyTheme>("nature");
+  const [theme, setTheme] = useState<JourneyTheme>("heritage");
+  const [terminal, setTerminal] = useState<Terminal>(DEFAULT_TERMINAL);
   const [modalTour, setModalTour] = useState<Tour | null>(null);
 
   const visible = tours.filter((tour) => tour.theme === theme);
@@ -363,6 +452,30 @@ export default function JourneySection({
           <p className="text-muted mt-4 text-[15px] max-w-lg mx-auto leading-relaxed">
             {t("journey.sub")}
           </p>
+        </motion.div>
+
+        {/* Terminal selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.12 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6"
+        >
+          <label htmlFor="terminal" className="text-[13px] text-muted">
+            {t("journey.terminalLabel")}
+          </label>
+          <select
+            id="terminal"
+            value={terminal}
+            onChange={(e) => setTerminal(e.target.value as Terminal)}
+            className="w-full sm:w-auto min-w-[180px] bg-surface border border-line-soft rounded-xl px-4 py-2.5 text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+          >
+            {TERMINALS.map((term) => (
+              <option key={term.id} value={term.id}>
+                {term.name}
+              </option>
+            ))}
+          </select>
         </motion.div>
 
         {/* Theme tabs */}
@@ -410,6 +523,7 @@ export default function JourneySection({
               <TourCard
                 key={tour.id}
                 tour={tour}
+                terminal={terminal}
                 isInView
                 index={i}
                 onAddToCart={onAddToCart}
@@ -418,6 +532,16 @@ export default function JourneySection({
             ))}
           </motion.div>
         </AnimatePresence>
+
+        {/* Terminal note */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center text-[12px] text-muted mt-6 max-w-md mx-auto"
+        >
+          {t("journey.terminalNote").replace("{terminal}", TERMINALS.find((x) => x.id === terminal)?.name ?? "")}
+        </motion.p>
 
         {/* Distance-pricing note — honesty about why Alam costs more */}
         <motion.p
@@ -435,6 +559,7 @@ export default function JourneySection({
         {modalTour && (
           <TourModal
             tour={modalTour}
+            terminal={terminal}
             onAddToCart={onAddToCart}
             onClose={() => setModalTour(null)}
           />

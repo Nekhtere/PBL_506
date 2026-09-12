@@ -12,8 +12,9 @@ import {
   ShoppingCart,
   Smartphone,
 } from "lucide-react";
-import type { CartItem } from "@/components/Navbar";
-import { clearCheckoutCart, loadCartForCheckout } from "@/lib/checkout";
+import { useCart } from "@/lib/cart-context";
+import { useLocale } from "@/lib/locale-context";
+import RouteLoader from "@/components/RouteLoader";
 
 // ── Demo payment flow ────────────────────────────────────────────────────────
 // This page SIMULATES the Stripe Payment Element + 3D Secure challenge so the
@@ -45,16 +46,12 @@ const inputClass =
 
 export default function CheckoutPage() {
   const router = useRouter();
-  // Cart loads after mount — reading sessionStorage in a lazy useState
-  // initializer would make the first client render differ from the server
-  // render (which has no storage) and fail hydration. `null` = still loading.
-  const [items, setItems] = useState<CartItem[] | null>(null);
+  const { t, locale } = useLocale();
+  // The cart comes from CartProvider, which reads sessionStorage after mount.
+  // `loaded` is false until that read happens — rendering the empty-cart state
+  // before it would flash "your cart is empty" at someone who has a cart.
+  const { items, loaded, clear } = useCart();
   const [step, setStep] = useState<Step>("details");
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setItems(loadCartForCheckout());
-  }, []);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -63,16 +60,64 @@ export default function CheckoutPage() {
   const [cvc, setCvc] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  // null = auth status not known yet; the sign-in gate waits for it so a
+  // signed-in buyer never sees a login flash on the way to payment.
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  // Checkout requires an account: orders are tied to a user id, and an
+  // anonymous order would be unclaimable from /tickets. Unknown visitors are
+  // sent to sign-in with a way back here (cart survives in sessionStorage).
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : { signedIn: false }))
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.signedIn) {
+          setSignedIn(true);
+        } else {
+          router.replace("/signin?next=/checkout");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) router.replace("/signin?next=/checkout");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   const total = useMemo(
     () =>
-      (items ?? []).reduce(
+      items.reduce(
         (sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"),
         0,
       ),
     [items],
   );
   const totalIDR = Math.round(total * IDR_PER_SGD);
+
+  // Currency follows the locale, but the CHARGE does not: /api/orders is always
+  // called with currency: "SGD", so under `id` the rupiah is what is shown and
+  // the SGD figure is what is actually billed. Both are always on screen — a
+  // visitor who sees only "Rp 590.000" and then gets an SGD line on their card
+  // statement has been misled, which on this screen is the worst place for it.
+  const isID = locale === "id";
+  const sgd = `S$ ${total.toFixed(2)}`;
+  const idr = `Rp ${totalIDR.toLocaleString("id-ID")}`;
+  const money = (amount: number) =>
+    isID
+      ? `Rp ${Math.round(amount * IDR_PER_SGD).toLocaleString("id-ID")}`
+      : `S$ ${amount.toFixed(2)}`;
+  const mainTotal = isID ? idr : sgd;
+  // The line under the total: the other currency, plus which one is charged.
+  const totalNote = `≈ ${isID ? sgd : idr} · ${t("checkout.chargedSgd")}`;
+  // Cart line items are stored as SGD strings; show them in the locale's
+  // currency, the same way the cart drawer does.
+  const priceDisplay = (raw: string) => {
+    if (!isID) return raw;
+    return money(parseFloat(raw.replace(/[^0-9.]/g, "") || "0"));
+  };
 
   const detailsValid =
     name.trim().length > 1 &&
@@ -84,11 +129,11 @@ export default function CheckoutPage() {
   // Which requirement is still unmet — shown under the button so a locked
   // button never has to be guessed at (autofill vs. state mismatch, etc.).
   const missing: string[] = [];
-  if (name.trim().length <= 1) missing.push("name");
-  if (!/.+@.+\..+/.test(email)) missing.push("email");
-  if (card.replace(/\s/g, "").length !== 16) missing.push("16-digit card");
-  if (expiry.replace(/\D/g, "").length !== 4) missing.push("expiry (MM/YY)");
-  if (cvc.length < 3) missing.push("CVC");
+  if (name.trim().length <= 1) missing.push(t("checkout.need.name"));
+  if (!/.+@.+\..+/.test(email)) missing.push(t("checkout.need.email"));
+  if (card.replace(/\s/g, "").length !== 16) missing.push(t("checkout.need.card"));
+  if (expiry.replace(/\D/g, "").length !== 4) missing.push(t("checkout.need.expiry"));
+  if (cvc.length < 3) missing.push(t("checkout.need.cvc"));
 
   function simulatePaymentIntent(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -110,7 +155,7 @@ export default function CheckoutPage() {
       f.expiry.length !== 4 ||
       f.cvc.length < 3
     ) {
-      setError("Please complete all fields — name, email, 16-digit card, expiry and CVC.");
+      setError(t("checkout.errIncomplete"));
       return;
     }
     setName(f.name);
@@ -125,7 +170,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     // Demo accepts any 6-digit code; the field hint tells the presenter so.
     if (otp.replace(/\D/g, "").length !== 6) {
-      setError("Enter the 6-digit verification code.");
+      setError(t("checkout.errOtp"));
       return;
     }
     setError("");
@@ -155,45 +200,59 @@ export default function CheckoutPage() {
       }
 
       const { orderId } = (await res.json()) as { orderId: string };
-      clearCheckoutCart();
-      setItems([]);
+      clear();
       // The order now lives on the server, so this URL works from anywhere —
       // the QR code, the email, or another device.
       window.setTimeout(() => router.push(`/tickets/${orderId}?new=1`), 700);
     } catch (err) {
+      // A 401 means the session lapsed mid-payment (signed out in another tab,
+      // cookie expired). Send them to sign in with a way back — the cart
+      // survives in sessionStorage — rather than showing a cryptic order error.
+      if (err instanceof Error && err.message.includes("(401)")) {
+        router.replace("/signin?next=/checkout");
+        return;
+      }
       // Send them back to the form with a reason rather than leaving the
-      // spinner turning forever.
+      // spinner turning forever. The "not charged" reassurance is part of the
+      // message in both locales — a failed order must never leave the visitor
+      // wondering whether the money left their card.
       setStep("details");
       setError(
         err instanceof Error
-          ? `${err.message} — your card was not charged.`
-          : "We couldn't issue your tickets. Your card was not charged.",
+          ? t("checkout.errNotCharged").replace("{msg}", err.message)
+          : t("checkout.errIssue"),
       );
     }
   }
 
-  // Cart still loading from storage (first paint matches the server: nothing).
-  if (items === null) {
-    return <main className="min-h-screen bg-bg" />;
+  // Cart still loading from storage (first paint matches the server: nothing),
+  // or auth status still unknown — either way show the crossing loader rather
+  // than a blank page or a wrong empty-cart / login flash.
+  if (!loaded || signedIn === null) {
+    return (
+      <main className="min-h-screen bg-bg pt-24 pb-16 flex items-center justify-center px-6">
+        <RouteLoader />
+      </main>
+    );
   }
 
   if (items.length === 0 && step === "details") {
     return (
-      <main className="min-h-screen bg-bg flex items-center justify-center px-6">
+      <main className="min-h-screen bg-bg pt-24 pb-16 flex items-center justify-center px-6">
         <div className="text-center max-w-sm">
           <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-surface-sunken flex items-center justify-center">
             <ShoppingCart className="w-7 h-7 text-faint" aria-hidden="true" />
           </div>
-          <h1 className="text-xl font-bold text-fg">Your cart is empty</h1>
+          <h1 className="text-xl font-bold text-fg">{t("checkout.emptyTitle")}</h1>
           <p className="text-[14px] text-muted mt-2">
-            Add a tour, ferry ticket or bundle first, then come back to check out.
+            {t("checkout.emptyBody")}
           </p>
           <Link
             href="/#journey"
             className="inline-flex items-center gap-2 mt-6 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold px-5 py-3 rounded-xl transition-colors"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-            Browse journeys
+            {t("tickets.browse")}
           </Link>
         </div>
       </main>
@@ -201,16 +260,8 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-bg py-10 px-4 sm:px-6">
+    <main className="min-h-screen bg-bg pt-24 pb-10 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted hover:text-fg transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-          Back to BatamSmart
-        </Link>
-
         <div className="grid md:grid-cols-[1fr_360px] gap-6 items-start">
           {/* ── Payment column ─────────────────────────────── */}
           <section className="bg-surface border border-line rounded-3xl p-6 sm:p-8 shadow-[var(--sh-2)]">
@@ -227,23 +278,23 @@ export default function CheckoutPage() {
                     <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
                       <CreditCard className="w-5 h-5 text-accent-ink" aria-hidden="true" />
                     </div>
-                    <h1 className="text-2xl font-bold text-fg tracking-tight">Payment</h1>
+                    <h1 className="text-2xl font-bold text-fg tracking-tight">{t("checkout.title")}</h1>
                   </div>
                   <p className="text-[13px] text-muted mb-6 flex items-center gap-1.5">
                     <Lock className="w-3.5 h-3.5" aria-hidden="true" />
-                    Secured by Stripe · your bank will ask you to verify this purchase.
+                    {t("checkout.secured")}
                   </p>
 
                   <form onSubmit={simulatePaymentIntent} className="space-y-4">
                     <div>
                       <label htmlFor="co-name" className="block text-[12px] font-semibold text-fg mb-1.5">
-                        Name on booking
+                        {t("checkout.name")}
                       </label>
                       <input
                         id="co-name"
                         name="name"
                         className={inputClass}
-                        placeholder="e.g. Rachel Tan"
+                        placeholder={t("checkout.namePh")}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         autoComplete="name"
@@ -252,7 +303,7 @@ export default function CheckoutPage() {
                     </div>
                     <div>
                       <label htmlFor="co-email" className="block text-[12px] font-semibold text-fg mb-1.5">
-                        Email for e-tickets
+                        {t("checkout.email")}
                       </label>
                       <input
                         id="co-email"
@@ -268,7 +319,7 @@ export default function CheckoutPage() {
                     </div>
                     <div>
                       <label htmlFor="co-card" className="block text-[12px] font-semibold text-fg mb-1.5">
-                        Card number
+                        {t("checkout.card")}
                       </label>
                       <input
                         id="co-card"
@@ -285,7 +336,7 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="co-exp" className="block text-[12px] font-semibold text-fg mb-1.5">
-                          Expiry
+                          {t("checkout.expiry")}
                         </label>
                         <input
                           id="co-exp"
@@ -323,18 +374,25 @@ export default function CheckoutPage() {
                       className="w-full mt-2 flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed text-white text-[14px] font-bold py-3.5 rounded-xl transition-colors shadow-[var(--sh-accent)]"
                     >
                       <Lock className="w-4 h-4" aria-hidden="true" />
-                      Pay S$ {total.toFixed(2)}
+                      {t("checkout.pay").replace("{amount}", money(total))}
                     </button>
                     {error && step === "details" && (
                       <p className="text-[12px] text-danger text-center" role="alert">{error}</p>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => router.back()}
+                      className="w-full text-[13px] font-medium text-muted hover:text-fg transition-colors py-1"
+                    >
+                      ← {t("checkout.details.back")}
+                    </button>
                     {!detailsValid && !error && (
                       <p className="text-[11px] text-muted text-center">
-                        Still needed: {missing.join(" · ")}
+                        {t("checkout.stillNeeded").replace("{list}", missing.join(" · "))}
                       </p>
                     )}
                     <p className="text-[11px] text-muted text-center">
-                      Demo checkout — no real charge. Use any 16-digit number, e.g. 4242 4242 4242 4242.
+                      {t("checkout.demoNote")}
                     </p>
                   </form>
                 </motion.div>
@@ -352,10 +410,10 @@ export default function CheckoutPage() {
                     <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
                       <ShieldCheck className="w-5 h-5 text-accent-ink" aria-hidden="true" />
                     </div>
-                    <h1 className="text-2xl font-bold text-fg tracking-tight">Verify your payment</h1>
+                    <h1 className="text-2xl font-bold text-fg tracking-tight">{t("checkout.verify.title")}</h1>
                   </div>
                   <p className="text-[13px] text-muted mb-6">
-                    Your bank requires an extra check (3-D Secure) before this S$ {total.toFixed(2)} payment goes through.
+                    {t("checkout.verify.body").replace("{amount}", money(total))}
                   </p>
 
                   <div className="bg-surface-sunken rounded-2xl p-5 mb-5 flex items-center gap-4">
@@ -364,10 +422,10 @@ export default function CheckoutPage() {
                     </div>
                     <div>
                       <p className="text-[13px] font-semibold text-fg">
-                        Approve in your banking app, or enter the SMS code
+                        {t("checkout.verify.approve")}
                       </p>
                       <p className="text-[12px] text-muted mt-0.5">
-                        Sent to the mobile number linked to card •••• {card.replace(/\s/g, "").slice(-4)}
+                        {t("checkout.verify.sentTo").replace("{last4}", card.replace(/\s/g, "").slice(-4))}
                       </p>
                     </div>
                   </div>
@@ -375,7 +433,7 @@ export default function CheckoutPage() {
                   <form onSubmit={simulate3DSComplete} className="space-y-4">
                     <div>
                       <label htmlFor="co-otp" className="block text-[12px] font-semibold text-fg mb-1.5">
-                        6-digit verification code
+                        {t("checkout.verify.code")}
                       </label>
                       <input
                         id="co-otp"
@@ -394,17 +452,17 @@ export default function CheckoutPage() {
                       className="w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold py-3.5 rounded-xl transition-colors shadow-[var(--sh-accent)]"
                     >
                       <ShieldCheck className="w-4 h-4" aria-hidden="true" />
-                      Verify &amp; complete payment
+                      {t("checkout.verify.submit")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setStep("details")}
                       className="w-full text-[13px] font-medium text-muted hover:text-fg transition-colors py-1"
                     >
-                      ← Back to card details
+                      ← {t("checkout.verify.back")}
                     </button>
                     <p className="text-[11px] text-muted text-center">
-                      Demo: enter any 6 digits, e.g. 123456.
+                      {t("checkout.verify.demoNote")}
                     </p>
                   </form>
                 </motion.div>
@@ -420,10 +478,10 @@ export default function CheckoutPage() {
                   <div
                     className="w-12 h-12 mx-auto mb-5 rounded-full border-[3px] border-line border-t-accent animate-spin"
                     role="status"
-                    aria-label="Processing payment"
+                    aria-label={t("checkout.processing.aria")}
                   />
-                  <p className="text-[15px] font-semibold text-fg">Confirming with your bank…</p>
-                  <p className="text-[13px] text-muted mt-1">Issuing your e-tickets.</p>
+                  <p className="text-[15px] font-semibold text-fg">{t("checkout.processing.title")}</p>
+                  <p className="text-[13px] text-muted mt-1">{t("checkout.processing.body")}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -431,7 +489,7 @@ export default function CheckoutPage() {
 
           {/* ── Order summary column ───────────────────────── */}
           <aside className="bg-surface border border-line rounded-3xl p-6 shadow-[var(--sh-2)] md:sticky md:top-6">
-            <h2 className="text-[15px] font-bold text-fg mb-4">Order summary</h2>
+            <h2 className="text-[15px] font-bold text-fg mb-4">{t("checkout.summary")}</h2>
             <ul className="space-y-3 mb-4">
               {items.map((item) => (
                 <li key={item.id} className="flex gap-3">
@@ -456,30 +514,30 @@ export default function CheckoutPage() {
                       <p className="text-[11px] text-muted">{item.subtitle}</p>
                     )}
                   </div>
-                  <p className="text-[13px] font-semibold text-fg shrink-0">{item.price}</p>
+                  <p className="text-[13px] font-semibold text-fg shrink-0">{priceDisplay(item.price)}</p>
                 </li>
               ))}
             </ul>
             <div className="border-t border-line-soft pt-3 space-y-1.5">
               <div className="flex justify-between text-[12px] text-muted">
-                <span>Subtotal</span>
-                <span>S$ {total.toFixed(2)}</span>
+                <span>{t("cart.subtotal")}</span>
+                <span>{mainTotal}</span>
               </div>
               <div className="flex justify-between text-[12px] text-muted">
-                <span>Booking fee</span>
-                <span className="text-emerald-700 font-medium">Free</span>
+                <span>{t("cart.fee")}</span>
+                <span className="text-emerald-700 font-medium">{t("cart.free")}</span>
               </div>
               <div className="flex justify-between items-end pt-2">
                 <div>
-                  <p className="text-[13px] font-semibold text-fg">Total</p>
-                  <p className="text-[11px] text-muted">≈ Rp {totalIDR.toLocaleString("id-ID")}</p>
+                  <p className="text-[13px] font-semibold text-fg">{t("cart.total")}</p>
+                  <p className="text-[11px] text-muted">{totalNote}</p>
                 </div>
-                <p className="text-lg font-bold text-fg">S$ {total.toFixed(2)}</p>
+                <p className="text-lg font-bold text-fg">{mainTotal}</p>
               </div>
             </div>
             <p className="mt-4 flex items-start gap-1.5 text-[11px] text-muted">
               <ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-px text-accent-ink" aria-hidden="true" />
-              Every purchase is verified with your bank before vouchers are issued.
+              {t("checkout.verifiedNote")}
             </p>
           </aside>
         </div>

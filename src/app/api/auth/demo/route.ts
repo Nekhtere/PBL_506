@@ -35,7 +35,14 @@ export async function POST(req: Request) {
 
   let email = "";
   let password = "";
-  let next = "/tickets";
+  // Landing on the home page, not /tickets.
+  //
+  // /tickets is where a signed-in buyer eventually wants to be, but it is a bad
+  // first impression: a fresh demo account owns nothing, so the presenter signs
+  // in and arrives at an empty list. Home shows the product instead. A visitor
+  // who was headed somewhere specific still gets there — /signin passes their
+  // `next` through, and /tickets itself sends `next=/tickets`.
+  let next = "/";
 
   const contentType = req.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
@@ -72,7 +79,7 @@ export async function POST(req: Request) {
   await claimOrdersByEmail(demoEmail()!, user.id);
 
   // Same-site paths only — an absolute URL here would be an open redirect.
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/tickets";
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   const res = NextResponse.redirect(`${siteOrigin(req)}${safeNext}`);
   res.cookies.set(SESSION_COOKIE, createSessionToken(user.id), sessionCookieOptions());

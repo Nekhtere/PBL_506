@@ -1,18 +1,30 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/lib/cart-context";
 import { useLocale } from "@/lib/locale-context";
 
-// ponytail: bar only appears once the cart has items — an empty bar is dead weight.
-// Wire onCheckout to the real flow when payment lands.
-export default function MobileCartBar({ count, total, onCheckout }: {
-  count: number;
-  total: number;
-  onCheckout: () => void;
-}) {
+// The sticky checkout bar on phones. It reads the cart from context now that
+// the cart outlives any single page, so the layout can mount it once instead of
+// the home page threading count/total/onCheckout down as props.
+
+export default function MobileCartBar() {
+  const { count, total, setCartOpen } = useCart();
   const { t, locale } = useLocale();
-  const totalDisplay = locale === "id" ? `Rp ${Math.round(total * 11800).toLocaleString("id-ID")}` : `S$ ${total.toFixed(2)}`;
+  const pathname = usePathname();
+
+  // Hidden on /checkout: that page already IS the cart, so a bar offering to
+  // open the cart drawer on top of it is circular. It also has its own order
+  // summary, so nothing is lost.
+  if (pathname === "/checkout") return null;
+
+  const totalDisplay =
+    locale === "id"
+      ? `Rp ${Math.round(total * 11800).toLocaleString("id-ID")}`
+      : `S$ ${total.toFixed(2)}`;
+
   return (
     <AnimatePresence>
       {count > 0 && (
@@ -21,7 +33,7 @@ export default function MobileCartBar({ count, total, onCheckout }: {
           animate={{ y: 0 }}
           exit={{ y: 80 }}
           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t border-[var(--line-soft)] bg-white/95 backdrop-blur-md px-4 pt-3"
+          className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t border-[var(--line-soft)] bg-white/95 backdrop-blur-md px-4 pt-3 print:hidden"
           style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
         >
           <div className="flex items-center justify-between gap-3">
@@ -32,8 +44,8 @@ export default function MobileCartBar({ count, total, onCheckout }: {
               <p className="text-[17px] font-bold text-[var(--fg)]">{totalDisplay}</p>
             </div>
             <button
-              onClick={onCheckout}
-              aria-label={`View cart, ${count} ${count === 1 ? "item" : "items"}, S$ ${total.toFixed(2)}`}
+              onClick={() => setCartOpen(true)}
+              aria-label={`${t("footer.viewCart")}, ${count} ${count === 1 ? t("cart.item") : t("cart.items")}, ${totalDisplay}`}
               className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold px-5 py-3 rounded-xl transition-colors duration-200 shrink-0"
             >
               <ShoppingCart className="w-4 h-4" aria-hidden="true" />

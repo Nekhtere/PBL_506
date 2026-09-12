@@ -50,8 +50,10 @@ export async function GET(req: Request) {
 
   // Honour ?next= so a visitor sent here from a ticket link lands back on it,
   // but only for same-site paths — an absolute URL would be an open redirect.
+  // The fallback is home, matching the demo route: a fresh account owns no
+  // tickets, so /tickets would greet them with an empty list.
   const next = url.searchParams.get("next");
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/tickets";
+  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   const res = NextResponse.redirect(new URL(safeNext, req.url));
   res.cookies.set(SESSION_COOKIE, createSessionToken(userId), sessionCookieOptions());

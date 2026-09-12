@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { CartItem } from "@/components/Navbar";
+import type { CartItem } from "@/lib/cart";
 import { currentUserId } from "@/lib/session";
 import { hasDatabase } from "@/lib/db";
 import { newId, newTicketCode, createOrder, markOrderEmailed, type OrderTicket } from "@/lib/store";
@@ -75,6 +75,14 @@ export async function POST(req: Request) {
     ferry: item.ferry,
   }));
 
+  // Checkout is sign-in gated, so an order must carry its owner. Without this a
+  // tampered client (or a session that lapsed mid-payment) could still mint
+  // orders that appear in nobody's /tickets.
+  const userId = await currentUserId();
+  if (!userId) {
+    return NextResponse.json({ error: "Sign-in required" }, { status: 401 });
+  }
+
   const totalSgd = items.reduce(
     (sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"),
     0,
@@ -82,7 +90,7 @@ export async function POST(req: Request) {
 
   const order = await createOrder({
     id: newId("ORD"),
-    userId: await currentUserId(),
+    userId,
     buyerName,
     email,
     currency,

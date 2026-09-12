@@ -4,6 +4,10 @@
 // decision #1: no merchant vouchers, only two client scopes — ferry
 // terminals and travel companies).
 //
+// Packages are deliberately MIXED: tourists rarely want a whole day of only
+// nature or only shopping. Each day combines culture, nature, shopping or
+// wellness into a realistic route.
+//
 // Prices follow distance, matching how Batam operators quote: a base daily
 // car+driver rate (≈ Rp 650k all-in, ~S$55 for ≤4 pax) plus a surcharge for
 // far zones (Barelang, Nongsa: +Rp 100–150k). Per-pax retail = vehicle cost
@@ -49,25 +53,25 @@ export const THEME_META: Record<
   JourneyTheme,
   { emoji: string; labelKey: string; photo: string }
 > = {
-  nature: {
+  heritage: {
+    emoji: "🛕",
+    labelKey: "journey.theme.heritage",
+    photo: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=900&q=80&auto=format&fit=crop",
+  },
+  "nature-relax": {
     emoji: "🌿",
-    labelKey: "journey.theme.nature",
+    labelKey: "journey.theme.natureRelax",
     photo: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&q=80&auto=format&fit=crop",
   },
-  souvenir: {
-    emoji: "🎁",
-    labelKey: "journey.theme.souvenir",
-    photo: "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?w=900&q=80&auto=format&fit=crop",
-  },
-  wellness: {
-    emoji: "💆",
-    labelKey: "journey.theme.wellness",
-    photo: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=900&q=80&auto=format&fit=crop",
-  },
-  shopping: {
+  "shop-treat": {
     emoji: "🛍️",
-    labelKey: "journey.theme.shopping",
+    labelKey: "journey.theme.shopTreat",
     photo: "https://images.unsplash.com/photo-1481437156560-3205f6a55735?w=900&q=80&auto=format&fit=crop",
+  },
+  "island-explorer": {
+    emoji: "🏝️",
+    labelKey: "journey.theme.islandExplorer",
+    photo: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=900&q=80&auto=format&fit=crop",
   },
 };
 
@@ -78,111 +82,129 @@ const SHARED_INCLUDES = [
   "Flexible timing at every stop",
 ];
 
+// Default terminal for static pricing display. The actual pickup time is
+// recalculated in JourneySection based on the user's selected terminal.
+const DEFAULT_PICKUP: TourSlot = {
+  time: "09:30",
+  type: "Pickup",
+  destinationId: null,
+  name: "Hotel / ferry terminal pickup",
+  emoji: "🚗",
+  travelNote: "Meet & greet at arrival gate",
+};
+
 export const tours: Tour[] = [
-  // ── Center-zone day tours (S$ 45) ──────────────────────────────────────────
+  // ── Center-zone mixed day (S$ 48) ──────────────────────────────────────────
   {
-    id: "day-souvenir",
-    theme: "souvenir",
-    name: "1-Day Tour — Oleh-oleh Nagoya",
-    tagline: "Snacks, batik and dried seafood — Batam's classic gift run with a driver who knows the good shops.",
-    durationHours: 5,
+    id: "day-heritage",
+    theme: "heritage",
+    name: "1-Day Tour — Heritage & Chill",
+    tagline: "Temple calm in the morning, oleh-oleh hunting, then a slow spa afternoon — Batam's most popular first-timer route.",
+    durationHours: 6,
     days: 1,
-    priceSGD: 45,
-    savingsSGD: 8,
-    includes: SHARED_INCLUDES,
-    slots: [
-      { time: "09:00", type: "Pickup",  destinationId: null, name: "Hotel / ferry terminal pickup", emoji: "🚗", travelNote: "Meet & greet at arrival gate" },
-      { time: "09:30", type: "Morning", destinationId: 7, emoji: "🎁", travelNote: "~15 min from Batam Centre" },
-      { time: "12:30", type: "Lunch",   destinationId: null, name: "Nagoya food street", emoji: "🍜", travelNote: "Walk from Nagoya Hill", },
-      { time: "14:00", type: "Afternoon", destinationId: 9, emoji: "🏬", travelNote: "~10 min from Nagoya" },
-      { time: "16:00", type: "Return",  destinationId: null, name: "Drop-off hotel / terminal", emoji: "🚗", travelNote: "Timed to your ferry" },
-    ],
-    rating: 4.7,
-    reviews: 268,
-  },
-  {
-    id: "day-wellness",
-    theme: "wellness",
-    name: "1-Day Tour — Spa & Salon",
-    tagline: "A slow day of massage, reflexology and salon treatment around Nagoya — pay per treatment, we handle the wheels.",
-    durationHours: 5,
-    days: 1,
-    priceSGD: 45,
-    savingsSGD: 8,
-    includes: SHARED_INCLUDES,
-    slots: [
-      { time: "10:00", type: "Pickup",  destinationId: null, name: "Hotel / ferry terminal pickup", emoji: "🚗", travelNote: "Meet & greet at arrival gate" },
-      { time: "10:30", type: "Morning", destinationId: 12, emoji: "💆", travelNote: "~15 min from Batam Centre" },
-      { time: "13:00", type: "Lunch",   destinationId: null, name: "Lunch near Nagoya", emoji: "🍜", travelNote: "~5 min from previous stop" },
-      { time: "14:30", type: "Afternoon", destinationId: 12, emoji: "🌸", travelNote: "Second treatment or salon" },
-      { time: "16:30", type: "Return",  destinationId: null, name: "Drop-off hotel / terminal", emoji: "🚗", travelNote: "Timed to your ferry" },
-    ],
-    rating: 4.8,
-    reviews: 194,
-  },
-  {
-    id: "day-shopping",
-    theme: "shopping",
-    name: "1-Day Tour — Mall Hopping",
-    tagline: "Mega Mall, Grand Batam and BCS in one sweep — with a car for the bags and a driver who waits.",
-    durationHours: 5,
-    days: 1,
-    priceSGD: 45,
+    priceSGD: 48,
     savingsSGD: 10,
     includes: SHARED_INCLUDES,
     slots: [
-      { time: "10:00", type: "Pickup",  destinationId: null, name: "Hotel / ferry terminal pickup", emoji: "🚗", travelNote: "Meet & greet at arrival gate" },
-      { time: "10:15", type: "Morning", destinationId: 8, emoji: "🛍️", travelNote: "~5 min from Batam Centre terminal" },
-      { time: "12:30", type: "Lunch",   destinationId: null, name: "Food hall at Grand Batam", emoji: "🍜", travelNote: "~10 min from Mega Mall" },
-      { time: "14:00", type: "Afternoon", destinationId: 10, emoji: "🏬", travelNote: "~5 min from Grand Batam" },
-      { time: "16:30", type: "Return",  destinationId: null, name: "Drop-off hotel / terminal", emoji: "🚗", travelNote: "Timed to your ferry" },
+      DEFAULT_PICKUP,
+      { time: "10:00", type: "Morning", destinationId: 5, emoji: "🛕", travelNote: "Maha Vihara Duta Maitreya" },
+      { time: "12:00", type: "Lunch", destinationId: null, name: "Nagoya food street", emoji: "🍜", travelNote: "Walk from Nagoya Hill" },
+      { time: "13:30", type: "Afternoon", destinationId: 7, emoji: "🎁", travelNote: "Snacks, batik & dried seafood" },
+      { time: "15:30", type: "Late afternoon", destinationId: 12, emoji: "💆", travelNote: "Massage or salon treatment" },
+      { time: "17:30", type: "Return", destinationId: null, name: "Drop-off hotel / terminal", emoji: "🚗", travelNote: "Timed to your ferry" },
     ],
-    rating: 4.6,
-    reviews: 221,
+    rating: 4.8,
+    reviews: 312,
   },
-  // ── Far-zone day tour (S$ 65) — Barelang & Nongsa carry the distance
-  // surcharge operators actually charge. ─────────────────────────────────────
   {
-    id: "day-nature",
-    theme: "nature",
-    name: "1-Day Tour — Alam Batam",
-    tagline: "Mangrove boardwalk, Nongsa's quiet beach and sunset at Barelang Bridge — the far corners, handled.",
-    durationHours: 8,
+    id: "day-shop-treat",
+    theme: "shop-treat",
+    name: "1-Day Tour — Shop & Treat",
+    tagline: "Mall hop in the morning, oleh-oleh run, then surrender the afternoon to a spa — a classic girlfriends' day out.",
+    durationHours: 6,
     days: 1,
-    priceSGD: 65,
-    savingsSGD: 18,
+    priceSGD: 48,
+    savingsSGD: 10,
     includes: SHARED_INCLUDES,
     slots: [
-      { time: "09:00", type: "Pickup",   destinationId: null, name: "Hotel / ferry terminal pickup", emoji: "🚗", travelNote: "Meet & greet at arrival gate" },
-      { time: "09:30", type: "Morning",  destinationId: 3, emoji: "🌿", travelNote: "~25 min from Batam Centre" },
-      { time: "12:00", type: "Lunch",    destinationId: null, name: "Seafood shack near Nongsa", emoji: "🦐", travelNote: "~30 min from mangrove" },
-      { time: "13:30", type: "Afternoon", destinationId: 2, emoji: "🏖️", travelNote: "~10 min from lunch" },
-      { time: "16:30", type: "Sunset",   destinationId: 1, emoji: "🌉", travelNote: "~45 min cross-island — the long leg" },
-      { time: "18:30", type: "Return",   destinationId: null, name: "Drop-off hotel / terminal", emoji: "🚗", travelNote: "~40 min back to town" },
+      DEFAULT_PICKUP,
+      { time: "10:00", type: "Morning", destinationId: 8, emoji: "🛍️", travelNote: "Mega Mall Batam Centre" },
+      { time: "12:30", type: "Lunch", destinationId: null, name: "Food hall", emoji: "🍜", travelNote: "Quick bite between stops" },
+      { time: "14:00", type: "Afternoon", destinationId: 7, emoji: "🎁", travelNote: "Local snacks & batik" },
+      { time: "16:00", type: "Late afternoon", destinationId: 12, emoji: "💆", travelNote: "Spa afternoon" },
+      { time: "18:00", type: "Return", destinationId: null, name: "Drop-off hotel / terminal", emoji: "🚗", travelNote: "Timed to your ferry" },
+    ],
+    rating: 4.7,
+    reviews: 286,
+  },
+  // ── Mid/far + center mixed day (S$ 58) ─────────────────────────────────────
+  {
+    id: "day-nature-relax",
+    theme: "nature-relax",
+    name: "1-Day Tour — Nature & Relax",
+    tagline: "Mangrove boardwalk in the morning, Nongsa's quiet beach for lunch, then back to town for a spa reset.",
+    durationHours: 7,
+    days: 1,
+    priceSGD: 58,
+    savingsSGD: 14,
+    includes: SHARED_INCLUDES,
+    slots: [
+      DEFAULT_PICKUP,
+      { time: "10:00", type: "Morning", destinationId: 3, emoji: "🌿", travelNote: "Mangrove Reserve Sei Beduk" },
+      { time: "12:30", type: "Lunch", destinationId: null, name: "Beachside seafood shack", emoji: "🦐", travelNote: "Pay at the restaurant" },
+      { time: "13:30", type: "Afternoon", destinationId: 2, emoji: "🏖️", travelNote: "Nongsa Beach" },
+      { time: "16:00", type: "Late afternoon", destinationId: 12, emoji: "💆", travelNote: "Spa reset back in town" },
+      { time: "18:00", type: "Return", destinationId: null, name: "Drop-off hotel / terminal", emoji: "🚗", travelNote: "Timed to your ferry" },
+    ],
+    rating: 4.8,
+    reviews: 198,
+  },
+  // ── Far-zone full day (S$ 72) ──────────────────────────────────────────────
+  {
+    id: "day-island-explorer",
+    theme: "island-explorer",
+    name: "1-Day Tour — Island Explorer",
+    tagline: "The full cross-island loop: Barelang Bridge, Nongsa Beach, grand mosque and a culture stop — for travellers who want it all.",
+    durationHours: 9,
+    days: 1,
+    priceSGD: 72,
+    savingsSGD: 20,
+    includes: SHARED_INCLUDES,
+    slots: [
+      DEFAULT_PICKUP,
+      { time: "09:30", type: "Morning", destinationId: 3, emoji: "🌿", travelNote: "Mangrove boardwalk, first light" },
+      { time: "11:30", type: "Late morning", destinationId: 2, emoji: "🏖️", travelNote: "Nongsa Beach" },
+      { time: "13:30", type: "Lunch", destinationId: null, name: "Seafood shack near Nongsa", emoji: "🦐", travelNote: "Pay at the restaurant" },
+      { time: "15:00", type: "Afternoon", destinationId: 6, emoji: "🕌", travelNote: "Masjid Raya Batam" },
+      { time: "16:30", type: "Late afternoon", destinationId: 5, emoji: "🛕", travelNote: "Maha Vihara Duta Maitreya" },
+      { time: "17:30", type: "Sunset", destinationId: 1, emoji: "🌉", travelNote: "Barelang Bridge sunset" },
+      { time: "19:00", type: "Return", destinationId: null, name: "Drop-off hotel / terminal", emoji: "🚗", travelNote: "Timed to your ferry" },
     ],
     rating: 4.9,
-    reviews: 342,
+    reviews: 156,
   },
-  // ── Two-day combination (S$ 110) ───────────────────────────────────────────
+  // ── Two-day complete (S$ 115) ─────────────────────────────────────────────
   {
     id: "2day-complete",
-    theme: "nature",
+    theme: "island-explorer",
     name: "2-Day Tour — Batam Complete",
-    tagline: "Day one: nature and the far coast. Day two: oleh-oleh, spa and the malls. Two full days, one driver.",
+    tagline: "Day one: far corners and sunset. Day two: culture, shopping and spa. Two full days with the same driver.",
     durationHours: 16,
     days: 2,
-    priceSGD: 110,
-    savingsSGD: 25,
+    priceSGD: 115,
+    savingsSGD: 28,
     includes: [...SHARED_INCLUDES, "Same driver both days", "Overnight coordination with your hotel"],
     slots: [
-      { time: "D1 09:00", type: "Day 1", destinationId: 3, emoji: "🌿", travelNote: "Mangrove boardwalk, morning" },
-      { time: "D1 13:30", type: "Day 1", destinationId: 2, emoji: "🏖️", travelNote: "Nongsa Beach, afternoon" },
-      { time: "D1 16:30", type: "Day 1", destinationId: 1, emoji: "🌉", travelNote: "Barelang sunset" },
-      { time: "D2 10:00", type: "Day 2", destinationId: 7, emoji: "🎁", travelNote: "Oleh-oleh at Nagoya Hill" },
-      { time: "D2 13:30", type: "Day 2", destinationId: 12, emoji: "💆", travelNote: "Spa afternoon" },
-      { time: "D2 16:00", type: "Day 2", destinationId: 8, emoji: "🛍️", travelNote: "Last-stop mall, then terminal" },
+      { time: "D1 09:30", type: "Day 1", destinationId: 3, emoji: "🌿", travelNote: "Mangrove boardwalk" },
+      { time: "D1 12:30", type: "Day 1", destinationId: null, name: "Nongsa seafood lunch", emoji: "🦐", travelNote: "Pay at the restaurant" },
+      { time: "D1 14:00", type: "Day 1", destinationId: 2, emoji: "🏖️", travelNote: "Nongsa Beach" },
+      { time: "D1 17:30", type: "Day 1", destinationId: 1, emoji: "🌉", travelNote: "Barelang Bridge sunset" },
+      { time: "D2 10:00", type: "Day 2", destinationId: 5, emoji: "🛕", travelNote: "Maha Vihara Duta Maitreya" },
+      { time: "D2 12:30", type: "Day 2", destinationId: null, name: "Nagoya lunch", emoji: "🍜", travelNote: "Food street" },
+      { time: "D2 14:00", type: "Day 2", destinationId: 7, emoji: "🎁", travelNote: "Oleh-oleh at Nagoya Hill" },
+      { time: "D2 16:00", type: "Day 2", destinationId: 12, emoji: "💆", travelNote: "Spa before departure" },
     ],
     rating: 4.9,
-    reviews: 128,
+    reviews: 98,
   },
 ];

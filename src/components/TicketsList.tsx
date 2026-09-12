@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Ticket, ArrowRight, Download, Ship, CalendarDays, ShoppingCart } from "lucide-react";
+import { Ticket, ArrowLeft, ArrowRight, Download, Ship, CalendarDays, ShoppingCart } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
 import type { StoredOrder } from "@/lib/store";
 
@@ -16,8 +16,19 @@ export default function TicketsList({ orders }: { orders: StoredOrder[] }) {
   };
 
   return (
-    <main className="min-h-screen bg-bg py-10 px-4 sm:px-6">
+    <main className="min-h-screen bg-bg pt-24 pb-10 px-4 sm:px-6">
       <div className="max-w-3xl mx-auto">
+        {/* The navbar's logo is the primary way home now that this page has
+            chrome, but a back link here matches the ticket detail page and
+            costs nothing — it is the first thing a thumb reaches for. */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted hover:text-fg transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+          {t("tickets.backHome")}
+        </Link>
+
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

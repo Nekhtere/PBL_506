@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Shield, Zap, Search, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MapPin, Shield, Zap, Search, ArrowRight, Pause, Play } from "lucide-react";
 import { destinations } from "@/lib/destinations";
 import { useLocale } from "@/lib/locale-context";
+import { useRotator } from "@/lib/use-rotator";
 
 const bgSlides = [
   {
@@ -34,8 +36,9 @@ const avgRating = (
 // the chips down there land on the same result.
 const quickSearches = ["Beach", "Temple", "Mall", "Spa"];
 
-export default function HeroSection({ onSearch }: { onSearch: (query: string) => void }) {
+export default function HeroSection() {
   const { t } = useLocale();
+  const router = useRouter();
   // Keys read the translation table so the stats bar follows the toggle; the
   // numbers themselves stay read off the catalogue.
   const stats = [
@@ -44,27 +47,19 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
     { value: "SGD", labelKey: "hero.stat.currency" },
     { value: "< 1 hr", labelKey: "hero.stat.distance" },
   ];
-  const [current, setCurrent] = useState(0);
+  // WCAG 2.2.2: the background rotator is decorative motion, so it must be
+  // pausable and must not run for reduced-motion users — the hook handles both.
+  const { index, paused, setPaused, reduced } = useRotator(bgSlides.length, 5000);
   const [value, setValue] = useState("");
 
-  useEffect(() => {
-    const t = setInterval(() => setCurrent((c) => (c + 1) % bgSlides.length), 5000);
-    return () => clearInterval(t);
-  }, []);
-
-  // Hands the query to the Near Me section and takes the user to it. That
-  // section's own search box is bound to the same state, so it arrives already
-  // filled in rather than the user typing the same thing twice.
+  // Navigate to /destinations?q=... so the search lands on a real page
+  // with its own URL, bookmarkable and shareable.
   const run = (raw: string) => {
     const query = raw.trim();
     setValue(query);
-    onSearch(query);
-    const target = document.getElementById("near-me");
-    if (!target) return;
-    // scroll-behavior: smooth in globals.css only covers CSS-driven scrolling;
-    // this is a JS scroll, so it has to honour the preference itself.
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    router.push(`/destinations?${params.toString()}`);
   };
 
   const submit = (event: FormEvent) => {
@@ -79,20 +74,40 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
       <div className="absolute inset-0">
         <AnimatePresence initial={false}>
           <motion.img
-            key={bgSlides[current].url}
-            src={bgSlides[current].url}
-            alt={bgSlides[current].label}
-            initial={{ opacity: 0, scale: 1.04 }}
+            key={bgSlides[index].url}
+            src={bgSlides[index].url}
+            alt={bgSlides[index].label}
+            initial={{ opacity: 0, scale: reduced ? 1 : 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
+            // Reduced motion: an instant swap, no 1.2s fade. The background is
+            // decorative, so an abrupt change is kinder than any movement.
+            transition={{ duration: reduced ? 0 : 1.2, ease: "easeInOut" }}
             className="absolute inset-0 w-full h-full object-cover object-center"
+            // The first slide is above the fold: let the browser fetch it eagerly
+            // so the hero never paints empty. The rest stay lazy via the rotator.
+            fetchPriority={index === 0 ? "high" : "auto"}
           />
         </AnimatePresence>
         {/* Gradient overlays. The mid stop stays light so the photo reads; the
             separate top scrim is what keeps the glass navbar legible. */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/15" />
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/50 to-transparent" />
+        {/* Pause/play for the rotator — WCAG 2.2.2 needs a control, not just
+            hover. Sits bottom-right over the photo, outside the content flow. */}
+        <button
+          type="button"
+          onClick={() => setPaused(!paused)}
+          aria-pressed={paused}
+          aria-label={paused ? t("hero.slide.play") : t("hero.slide.pause")}
+          className="absolute bottom-4 right-4 z-10 glass-dark rounded-full w-10 h-10 flex items-center justify-center text-white/85 hover:text-white transition-colors focus-on-dark"
+        >
+          {paused ? (
+            <Play className="w-4 h-4" aria-hidden="true" />
+          ) : (
+            <Pause className="w-4 h-4" aria-hidden="true" />
+          )}
+        </button>
       </div>
 
       {/* ── Main content ── */}

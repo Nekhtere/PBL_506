@@ -6,7 +6,7 @@ import { Ticket } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen bg-bg flex items-center justify-center px-6">
+    <main className="min-h-screen bg-bg pt-24 pb-16 flex items-center justify-center px-6">
       <div className="text-center max-w-sm">
         <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-surface-sunken flex items-center justify-center">
           <Ticket className="w-7 h-7 text-faint" aria-hidden="true" />

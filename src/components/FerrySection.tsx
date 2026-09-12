@@ -4,68 +4,18 @@ import { useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { Ship, Clock, MapPin, ArrowRight, Info, X, Check, AlertCircle, Ticket, Car, ShoppingCart } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
-import type { CartItem } from "./Navbar";
-
-// Fares verified against batamfast.com published fare (Sep 2026):
-// SGD 43 one-way SG→Batam, SGD 40 Batam→SG, SGD 76 return — all inclusive of
-// the S$10 Singapore and S$10 Batam passenger departure fees.
-// ponytail: live inventory + confirmed pricing via the BatamFast agent/eFast
-// channel once the partnership is signed.
-const routes = [
-  {
-    id: "harbourfront-batamcentre",
-    from: "HarbourFront Centre, Singapore",
-    to: "Batam Centre",
-    operators: "BatamFast · Majestic Fast Ferry · Sindo Ferry",
-    crossing: "~45 min",
-    priceNum: 43,
-    returnPriceNum: 76,
-    noteKey: "ferry.note.batamcentre",
-    schedules: ["08:00", "09:30", "11:00", "13:00", "15:00", "17:00", "19:00"],
-  },
-  {
-    id: "harbourfront-harbourbay",
-    from: "HarbourFront Centre, Singapore",
-    to: "Harbour Bay",
-    operators: "BatamFast · Majestic Fast Ferry",
-    crossing: "~45 min",
-    priceNum: 43,
-    returnPriceNum: 76,
-    noteKey: "ferry.note.harbourbay",
-    schedules: ["08:30", "10:00", "12:00", "14:00", "16:00", "18:00"],
-  },
-  {
-    id: "harbourfront-sekupang",
-    from: "HarbourFront Centre, Singapore",
-    to: "Sekupang",
-    operators: "BatamFast · Sindo Ferry",
-    crossing: "~50 min",
-    priceNum: 43,
-    returnPriceNum: 76,
-    noteKey: "ferry.note.sekupang",
-    schedules: ["09:00", "11:00", "14:00", "17:00"],
-  },
-  {
-    id: "tanahmera-nongsapura",
-    from: "Tanah Merah Ferry Terminal, Singapore",
-    to: "Nongsapura",
-    operators: "BatamFast",
-    crossing: "~35 min",
-    priceNum: 43,
-    returnPriceNum: 76,
-    noteKey: "ferry.note.nongsapura",
-    schedules: ["08:00", "10:30", "13:00", "15:30", "18:00"],
-  },
-];
-
-// What the published fare already pays for — shown in the modal so the price
-// never reads as padded. Source: batamfast.com fare breakdown.
-const FARE_INCLUDES = { ticket: 23, sgDepartureFee: 10, batamDepartureFee: 10 };
+import type { CartItem } from "@/lib/cart";
+import {
+  FERRY_ROUTES as routes,
+  FARE_INCLUDES,
+  NATIONALITIES,
+  VOA_FREE,
+  ROUTE_THEMES,
+  type FerryRoute as Route,
+} from "@/lib/ferry-routes";
 
 // Keys, not strings — the four tips read through the translation table.
 const tips = ["ferry.tip1", "ferry.tip2", "ferry.tip3", "ferry.tip4"];
-
-type Route = typeof routes[0];
 
 interface BookingForm {
   fullName: string;
@@ -76,28 +26,6 @@ interface BookingForm {
   schedule: string;
   tripType: "one-way" | "return";
 }
-
-// Nationality drives the VOA notice — SG passports enter Indonesia visa-free
-// (30 days), most others pay Visa on Arrival at the terminal. Mirrors the
-// region selector in BatamFast's own booking form.
-const NATIONALITIES = [
-  "Singapore",
-  "Indonesia",
-  "Malaysia",
-  "India",
-  "China",
-  "Philippines",
-  "Vietnam",
-  "Thailand",
-  "Australia",
-  "United Kingdom",
-  "United States",
-  "Japan",
-  "South Korea",
-  "Other",
-] as const;
-
-const VOA_FREE = new Set(["Singapore"]);
 
 function addMonths(date: Date, months: number): Date {
   const d = new Date(date);
@@ -474,46 +402,94 @@ export default function FerrySection({ onAddToCart, onOpenCart }: {
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-4 mb-8">
-          {routes.map((r, i) => (
-            <motion.article
-              key={r.to}
-              initial={{ opacity: 0, y: 24 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-5 flex flex-col gap-4"
-              style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.05)" }}
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <Ship className="w-5 h-5 text-[var(--accent-ink)]" aria-hidden="true" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] text-[var(--muted)] flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3 shrink-0" aria-hidden="true" />
-                    <span className="truncate">{r.from}</span>
-                  </p>
-                  <p className="text-[15px] font-semibold text-[var(--fg)] mt-0.5">→ {r.to}</p>
-                </div>
-              </div>
-              <p className="text-[12px] text-[var(--muted)]">{r.operators}</p>
-              <div className="flex items-center gap-4 text-[12px] text-[var(--muted)]">
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {r.crossing}
-                </span>
-                <span className="font-semibold text-[var(--fg)]">
-                  S$ {r.priceNum} {t("ferry.oneWay")} · S$ {r.returnPriceNum} {t("ferry.return")}
-                </span>
-              </div>
-              <p className="text-[12px] text-[var(--accent-ink)]">{t(r.noteKey)}</p>
-              <button
-                onClick={() => setSelectedRoute(r)}
-                className="mt-auto w-full flex items-center justify-center gap-2 bg-fg hover:bg-fg-hover text-white text-[13px] font-semibold py-2.5 rounded-xl transition-colors"
+          {routes.map((r, i) => {
+            const theme = ROUTE_THEMES[r.id];
+            return (
+              <motion.article
+                key={r.to}
+                initial={{ opacity: 0, y: 24 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                whileHover={{ y: -4, boxShadow: "0 16px 48px rgba(0,0,0,0.10)" }}
+                className="group relative bg-[var(--surface)] border border-[var(--line)] rounded-3xl overflow-hidden flex flex-col"
+                style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.05)" }}
               >
-                <Ticket className="w-4 h-4" aria-hidden="true" />
-                {t("ferry.bookTicket")}
-              </button>
-            </motion.article>
-          ))}
+                {/* Coloured header strip + badge */}
+                <div className={`relative h-20 bg-gradient-to-r ${theme.gradient} p-5 overflow-hidden`}>
+                  <div className="absolute -right-4 -top-6 w-24 h-24 rounded-full bg-white/30 blur-2xl" />
+                  <span className={`relative inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-white/50 ${theme.accent}`}>
+                    <Ship className="w-3 h-3" aria-hidden="true" />
+                    {t(theme.badgeKey)}
+                  </span>
+                </div>
+
+                <div className="p-5 flex flex-col gap-4 flex-1">
+                  {/* Visual route bar */}
+                  <div className="flex items-center gap-2 text-[13px]">
+                    <div className="text-center min-w-[4.5rem]">
+                      <p className="font-bold text-[var(--fg)]">{theme.shortFrom}</p>
+                      <p className="text-[10px] text-[var(--muted)]">SG</p>
+                    </div>
+                    <div className="flex-1 relative h-8 flex items-center px-1">
+                      <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 h-0.5 bg-[var(--line-soft)]" />
+                      <motion.div
+                        className={`absolute top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white border-2 border-[var(--line)] flex items-center justify-center shadow-sm ${theme.accent}`}
+                        initial={{ left: "0%", x: "-50%" }}
+                        whileInView={{ left: "100%", x: "-50%" }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.2, delay: 0.2 + i * 0.1, ease: "easeInOut" }}
+                      >
+                        <Ship className="w-3.5 h-3.5" />
+                      </motion.div>
+                    </div>
+                    <div className="text-center min-w-[4.5rem]">
+                      <p className="font-bold text-[var(--fg)]">{r.to}</p>
+                      <p className="text-[10px] text-[var(--muted)]">ID</p>
+                    </div>
+                  </div>
+
+                  {/* Operator & meta */}
+                  <div className="space-y-2">
+                    <p className="text-[12px] text-[var(--muted)]">{r.operators}</p>
+                    <div className="flex flex-wrap items-center gap-3 text-[12px] text-[var(--muted)]">
+                      <span className="flex items-center gap-1.5 bg-surface-sunken px-2 py-1 rounded-lg">
+                        <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {r.crossing}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-[var(--fg)] font-semibold">
+                        <MapPin className="w-3.5 h-3.5" aria-hidden="true" /> {t(r.noteKey)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Ticket-style footer with price */}
+                  <div className="mt-auto pt-4 border-t-2 border-dashed border-[var(--line-soft)] relative">
+                    {/* Ticket holes */}
+                    <div className="absolute -left-6 top-0 -translate-y-1/2 w-4 h-4 rounded-full bg-[var(--bg)] border border-[var(--line)]" />
+                    <div className="absolute -right-6 top-0 -translate-y-1/2 w-4 h-4 rounded-full bg-[var(--bg)] border border-[var(--line)]" />
+
+                    <div className="flex items-end justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] text-[var(--muted)] mb-0.5">
+                          S$ {r.priceNum} {t("ferry.oneWay")}
+                        </p>
+                        <p className="text-xl font-bold text-[var(--fg)]">
+                          S$ {r.returnPriceNum}
+                          <span className="text-[12px] font-normal text-[var(--muted)] ml-1">{t("ferry.return")}</span>
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setSelectedRoute(r)}
+                        className="flex items-center gap-2 bg-fg hover:bg-fg-hover text-white text-[13px] font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                      >
+                        <Ticket className="w-4 h-4" aria-hidden="true" />
+                        {t("ferry.bookTicket")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.article>
+            );
+          })}
         </div>
 
         <motion.div

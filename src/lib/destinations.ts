@@ -220,14 +220,42 @@ export const destinations: Destination[] = [
   },
 ];
 
-// Journey themes reference destinations by id — no duplicated names or photos.
-export type JourneyTheme = "nature" | "souvenir" | "wellness" | "shopping";
+// Journey packages reference destinations by id. Each package is a realistic
+// mixed day — tourists rarely want a whole day of only one thing.
+export type JourneyTheme =
+  | "heritage"
+  | "nature-relax"
+  | "shop-treat"
+  | "island-explorer";
+
+export type Terminal =
+  | "batam-centre"
+  | "harbour-bay"
+  | "sekupang"
+  | "nongsapura";
+
+export interface TerminalInfo {
+  id: Terminal;
+  name: string;
+  lat: number;
+  lng: number;
+  area: string;
+}
+
+export const TERMINALS: TerminalInfo[] = [
+  { id: "batam-centre", name: "Batam Centre", lat: 1.1205, lng: 104.0525, area: "Batam Centre" },
+  { id: "harbour-bay",  name: "Harbour Bay",  lat: 1.1466, lng: 104.0150, area: "Harbour Bay" },
+  { id: "sekupang",     name: "Sekupang",     lat: 1.1350, lng: 103.9400, area: "Sekupang" },
+  { id: "nongsapura",   name: "Nongsapura",   lat: 1.2050, lng: 104.0950, area: "Nongsapura" },
+];
+
+export const DEFAULT_TERMINAL: Terminal = "batam-centre";
 
 export const THEME_DESTINATIONS: Record<JourneyTheme, number[]> = {
-  nature:   [1, 2, 3, 4], // Barelang, Nongsa, Mangrove, Miniature Park
-  souvenir: [7],          // Nagoya Hill
-  wellness: [12],         // Nagoya Wellness District
-  shopping: [8, 9, 10, 11], // Mega Mall, Grand Batam, BCS, Harbour Bay
+  heritage:        [5, 7, 12],       // Vihara + Nagoya Hill + Spa
+  "nature-relax":  [3, 2, 12],       // Mangrove + Nongsa Beach + Spa
+  "shop-treat":    [8, 7, 12],       // Mega Mall + Nagoya Hill + Spa
+  "island-explorer": [1, 2, 5, 6],   // Barelang + Nongsa + Vihara + Mosque
 };
 
 // Great-circle distance, km. Batam-scale, so a sphere is accurate enough.

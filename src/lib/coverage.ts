@@ -14,7 +14,7 @@
 //   tour + ferry    → neither is a superset → no clash (a sensible pairing)
 //   tour + tour     → equal coverage → no clash (two different days)
 
-import type { CartItem } from "@/components/Navbar";
+import type { CartItem } from "@/lib/cart";
 
 export type Covered = "ferry" | "driver";
 

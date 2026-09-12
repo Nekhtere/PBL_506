@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useLocale } from "@/lib/locale-context";
+import { useCart } from "@/lib/cart-context";
 
 const footerLinks = {
   Product: [
@@ -20,8 +22,18 @@ const footerLinks = {
 
 export default function Footer() {
   const { t } = useLocale();
+  const { count } = useCart();
+
   return (
-    <footer className="bg-[var(--surface-sunken)] border-t border-[var(--line-soft)] pt-8 pb-6 px-6">
+    <footer
+      className={`bg-[var(--surface-sunken)] border-t border-[var(--line-soft)] pt-8 pb-6 px-6 print:hidden ${
+        // The mobile cart bar is fixed to the bottom of the viewport, so the
+        // last line of the footer would sit underneath it. The home page used
+        // to handle this with a wrapper div; now that the footer is shared, it
+        // makes room for the bar itself.
+        count > 0 ? "pb-28 md:pb-6" : ""
+      }`}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Brand + primary links */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
@@ -33,11 +45,11 @@ export default function Footer() {
               {t("footer.tagline")}
             </p>
           </div>
-          <nav className="flex flex-wrap gap-4 justify-center md:justify-end text-sm">
+          <nav aria-label={t("nav.primary")} className="flex flex-wrap gap-4 justify-center md:justify-end text-sm">
             {footerLinks.Product.map(({ labelKey, href }) => (
-              <a key={href} href={href} className="text-[var(--muted)] hover:text-[var(--fg)] transition-colors">
+              <Link key={href} href={href} className="text-[var(--muted)] hover:text-[var(--fg)] transition-colors">
                 {t(labelKey)}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>
@@ -49,7 +61,7 @@ export default function Footer() {
           <div className="flex gap-2">
             {footerLinks.Legal.map(({ labelKey, href }, i) => (
               <span key={href} className="flex items-center">
-                <a href={href} className="hover:underline">{t(labelKey)}</a>
+                <Link href={href} className="hover:underline">{t(labelKey)}</Link>
                 {i < footerLinks.Legal.length - 1 && <span className="mx-1 text-[var(--faint)]">|</span>}
               </span>
             ))}

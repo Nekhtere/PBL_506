@@ -19,12 +19,16 @@ export default async function SignInPage({
 }) {
   // Already signed in — no reason to show the form again.
   if (await currentUserId()) {
-    redirect(searchParams.next?.startsWith("/") ? searchParams.next : "/tickets");
+    redirect(searchParams.next?.startsWith("/") ? searchParams.next : "/");
   }
 
+  // Where to land after signing in. Defaults to home rather than /tickets: a
+  // fresh demo account owns no tickets, so /tickets would be an empty room. A
+  // page that needs the visitor signed in passes its own `next` (/tickets does
+  // exactly that), and that always wins.
   const next = searchParams.next?.startsWith("/") && !searchParams.next.startsWith("//")
     ? searchParams.next
-    : "/tickets";
+    : "/";
 
   return (
     <main className="min-h-screen bg-bg flex items-center justify-center px-4 sm:px-6 py-12">

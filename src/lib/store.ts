@@ -7,7 +7,7 @@
 // hasDatabase() is surfaced to the UI.
 
 import { randomBytes } from "node:crypto";
-import type { CartItem } from "@/components/Navbar";
+import type { CartItem } from "@/lib/cart";
 import { hasDatabase, query } from "./db";
 
 // Crockford-ish alphabet: no I, L, O, 0 or 1, so a code read aloud or typed

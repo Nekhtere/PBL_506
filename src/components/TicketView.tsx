@@ -32,7 +32,7 @@ export default function TicketView({
   };
 
   return (
-    <main className="min-h-screen bg-bg py-10 px-4 sm:px-6">
+    <main className="min-h-screen bg-bg pt-24 pb-10 px-4 sm:px-6 print:pt-0">
       <div className="max-w-2xl mx-auto">
         <Link
           href="/"
@@ -219,7 +219,7 @@ export default function TicketView({
           </p>
 
           <div className="hidden print:block mt-4 pt-3 border-t border-line-soft text-[11px] text-muted">
-            <p className="font-semibold text-fg">BatamSmart — E-Ticket</p>
+            <p className="font-semibold text-fg">BatamSmart — {t("cart.qrVoucher")}</p>
             <p className="mt-1">
               {t("tickets.order")} {order.id} · batamsmart.example · support@batamsmart.example
             </p>

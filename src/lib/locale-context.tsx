@@ -14,6 +14,7 @@ interface LocaleContextValue {
 const translations: Record<string, Record<Locale, string>> = {
   // Nav
   "nav.home":        { en: "Home",       id: "Beranda" },
+  "nav.destinations": { en: "Destinations", id: "Destinasi" },
   "nav.nearme":      { en: "Near Me",    id: "Dekat Saya" },
   "nav.journey":     { en: "Journey",    id: "Journey" },
   "nav.ferry":       { en: "Ferry",      id: "Feri" },
@@ -35,6 +36,8 @@ const translations: Record<string, Record<Locale, string>> = {
   "hero.popular":           { en: "Popular:",                    id: "Populer:" },
   "hero.badge.ferry":       { en: "45 min ferry from Singapore", id: "45 menit feri dari Singapura" },
   "hero.badge.verified":    { en: "Verified Partners Only",      id: "Hanya mitra terverifikasi" },
+  "hero.slide.pause":       { en: "Pause background slideshow",  id: "Jeda slideshow latar" },
+  "hero.slide.play":        { en: "Play background slideshow",   id: "Putar slideshow latar" },
 
   // Near Me section — free destination info, nothing for sale here
   "nearby.label":            { en: "Explore Batam",            id: "Jelajahi Batam" },
@@ -48,7 +51,9 @@ const translations: Record<string, Record<Locale, string>> = {
   "nearby.geoError":         { en: "Couldn't get your location just now. Try again.", id: "Lokasi Anda tidak dapat diambil saat ini. Coba lagi." },
   "nearby.tryAgain":         { en: "Try again",                id: "Coba lagi" },
   "nearby.noMatch":          { en: "No places match “{q}”.",   id: "Tidak ada tempat yang cocok dengan “{q}”." },
-  "nearby.tryAnother":       { en: "Try another search",       id: "Coba pencarian lain" },
+  "nearby.tryAnother":       { en: "Back",                     id: "Kembali" },
+  "nearby.loadMore":         { en: "Load more",                id: "Muat lebih banyak" },
+  "nearby.left":             { en: "left",                     id: "lagi" },
   "nearby.found":            { en: "{n} places found",         id: "{n} tempat ditemukan" },
   "nearby.reviews":          { en: "reviews",                  id: "ulasan" },
   "nearby.entryFee":         { en: "Entry fee",                id: "Tiket masuk" },
@@ -73,15 +78,24 @@ const translations: Record<string, Record<Locale, string>> = {
   "nearby.zone.center":      { en: "City zone",                id: "Zona kota" },
   "nearby.zone.mid":         { en: "Mid zone",                 id: "Zona tengah" },
   "nearby.zone.far":         { en: "Far zone",                 id: "Zona jauh" },
+  // Spotlight strip (Batch 2 restructure): the featured rotator + card row.
+  "nearby.viewDetails":      { en: "View details",             id: "Lihat detail" },
+  "nearby.showAll":          { en: "All {n} places",           id: "Semua {n} tempat" },
+  "nearby.spotlight.pause":  { en: "Pause featured rotation",  id: "Jeda rotasi unggulan" },
+  "nearby.spotlight.play":   { en: "Play featured rotation",   id: "Putar rotasi unggulan" },
+  "nearby.spotlight.goTo":   { en: "Show {name}",              id: "Tampilkan {name}" },
+  "nearby.spotlight.region": { en: "Featured places in Batam", id: "Tempat unggulan di Batam" },
+  "nearby.spotlight.prev":   { en: "Previous featured places", id: "Tempat unggulan sebelumnya" },
+  "nearby.spotlight.next":   { en: "More featured places",     id: "Tempat unggulan berikutnya" },
 
   // Journey section — themed tours, the travel/taxi revenue line
   "journey.label":       { en: "Curated Journeys",           id: "Journey Terkurasi" },
   "journey.heading":     { en: "Pick a Theme, We Drive",     id: "Pilih Tema, Kami yang Menyetir" },
   "journey.sub":         { en: "Private car and driver by the day, priced by distance — the further the theme, the higher the fare. Stops are paid at the gate; the ride is what you buy.", id: "Mobil dan supir pribadi harian, harga berdasar jarak — semakin jauh temanya, semakin tinggi tarifnya. Tiket lokasi dibayar di tempat; yang Anda beli adalah perjalanannya." },
-  "journey.theme.nature":   { en: "Alam",       id: "Alam" },
-  "journey.theme.souvenir": { en: "Oleh-oleh",  id: "Oleh-oleh" },
-  "journey.theme.wellness": { en: "Perawatan",  id: "Perawatan" },
-  "journey.theme.shopping": { en: "Shopping",   id: "Belanja" },
+  "journey.theme.heritage":        { en: "Heritage & Chill", id: "Heritage & Santai" },
+  "journey.theme.natureRelax":     { en: "Nature & Relax",   id: "Alam & Santai" },
+  "journey.theme.shopTreat":       { en: "Shop & Treat",     id: "Belanja & Perawatan" },
+  "journey.theme.islandExplorer":  { en: "Island Explorer",  id: "Jelajah Pulau" },
   "journey.transport":   { en: "Transport & driver included", id: "Transport & supir termasuk" },
   "journey.included":    { en: "What's included",            id: "Yang sudah termasuk" },
   "journey.notIncluded": { en: "Not included: meals, attraction tickets and treatments — paid by you at each stop.", id: "Belum termasuk: makan, tiket wisata dan perawatan — dibayar sendiri di tiap pemberhentian." },
@@ -97,7 +111,9 @@ const translations: Record<string, Record<Locale, string>> = {
   "journey.validity":    { en: "Valid 90 days — pick your date later", id: "Berlaku 90 hari — pilih tanggal belakangan" },
   "journey.savings":     { en: "Save {s} vs separate taxis", id: "Hemat {s} dibanding taksi terpisah" },
   "journey.moreStops":   { en: "+{n} more stops — tap for the full schedule", id: "+{n} pemberhentian lagi — ketuk untuk jadwal lengkap" },
-  "journey.zoneNote":    { en: "Alam costs more because Barelang & Nongsa are 30–45 min further — the same distance surcharge Batam drivers charge.", id: "Alam lebih mahal karena Barelang & Nongsa 30–45 menit lebih jauh — surcharge jarak yang sama seperti tarif supir Batam." },
+  "journey.terminalLabel": { en: "Arrival terminal", id: "Terminal kedatangan" },
+  "journey.terminalNote":  { en: "Times are calculated from {terminal} terminal. Driver meets you after immigration.", id: "Waktu dihitung dari terminal {terminal}. Supir menunggu setelah imigrasi." },
+  "journey.zoneNote":    { en: "Island Explorer costs more because Barelang & Nongsa are 30–45 min further — the same distance surcharge Batam drivers charge.", id: "Island Explorer lebih mahal karena Barelang & Nongsa 30–45 menit lebih jauh — surcharge jarak yang sama seperti tarif supir Batam." },
 
   // Bundle section — ferry + city tour, the flagship
   "bundle.label":        { en: "Best Value",                 id: "Paling Hemat" },
@@ -114,6 +130,12 @@ const translations: Record<string, Record<Locale, string>> = {
   "bundle.moreTimeline": { en: "+{n} more — tap for the full timeline", id: "+{n} lagi — ketuk untuk timeline lengkap" },
   "bundle.themeNote":    { en: "Pick {n} theme(s) at checkout: {themes}", id: "Pilih {n} tema saat checkout: {themes}" },
   "bundle.paxNote":      { en: "Prices are per pax, minimum 2 pax. Solo travellers welcome with a small surcharge — ask us at checkout.", id: "Harga per orang, minimal 2 orang. Turis solo tetap bisa dengan sedikit surcharge — tanyakan saat checkout." },
+  "bundle.routeLabel":   { en: "Ferry route", id: "Rute feri" },
+  "bundle.outbound":     { en: "Outbound", id: "Berangkat" },
+  "bundle.return":       { en: "Return", id: "Pulang" },
+  "bundle.passengerTitle": { en: "Passenger details", id: "Detail penumpang" },
+  "bundle.priceNote":    { en: "Ferry return fare included", id: "Harga feri pulang-pergi sudah termasuk" },
+  "bundle.configure":    { en: "Configure & Add", id: "Atur & Tambah" },
 
   // FAQ
   "faq.label":         { en: "Good to Know",                 id: "Perlu Diketahui" },
@@ -199,6 +221,10 @@ const translations: Record<string, Record<Locale, string>> = {
   "ferry.note.harbourbay":   { en: "Closest to seafood, spa and duty-free shopping.", id: "Paling dekat ke seafood, spa, dan belanja bebas bea." },
   "ferry.note.sekupang":     { en: "Quieter terminal, north-west Batam.", id: "Terminal lebih sepi, Batam barat laut." },
   "ferry.note.nongsapura":   { en: "Best for Nongsa resorts and Avani Spa.", id: "Paling pas untuk resort Nongsa dan Avani Spa." },
+  "ferry.badge.fastest":     { en: "Fastest crossing",           id: "Penyeberangan tercepat" },
+  "ferry.badge.most":        { en: "Most departures",            id: "Keberangkatan terbanyak" },
+  "ferry.badge.quiet":       { en: "Quieter crossing",           id: "Penyeberangan lebih sepi" },
+  "ferry.badge.resort":      { en: "Resort gateway",             id: "Pintu gerbang resort" },
   "ferry.modal.nationality": { en: "Nationality (as in passport)", id: "Kewarganegaraan (sesuai paspor)" },
   "ferry.modal.voaNotice":   { en: "Visa on Arrival required on landing in Batam: US$ 15 (≤7 days) or US$ 35 (≤30 days), payable in cash at the terminal.", id: "Visa on Arrival diperlukan saat tiba di Batam: US$ 15 (≤7 hari) atau US$ 35 (≤30 hari), dibayar tunai di terminal." },
   "ferry.modal.fareTicket":  { en: "Ticket fare + surcharge",  id: "Harga tiket + surcharge" },
@@ -222,6 +248,15 @@ const translations: Record<string, Record<Locale, string>> = {
   // Cart
   "cart.title":      { en: "Your Cart",                         id: "Keranjang" },
   "cart.subtitle":   { en: "Tours, ferry tickets & bundles, confirmed instantly.", id: "Tour, tiket feri & bundling, dikonfirmasi langsung." },
+  "cart.close":      { en: "Close cart",                        id: "Tutup keranjang" },
+  "cart.open":       { en: "Open cart",                         id: "Buka keranjang" },
+  "cart.remove":     { en: "Remove",                            id: "Hapus" },
+  // The small print under the cart total. The two lines carry different notes
+  // because the main figure flips currency with the locale: in English the
+  // total is in SGD and the IDR is the approximation, and in Indonesian it is
+  // the other way round.
+  "cart.noteIdr":    { en: "paid in IDR",                       id: "dibayar dalam IDR" },
+  "cart.noteSgd":    { en: "charged in SGD",                    id: "dibayar dalam SGD" },
   "cart.empty":      { en: "Your cart is empty.",               id: "Keranjang kosong." },
   "cart.emptyBody":  { en: "Add a tour, ferry ticket or bundle to get started.", id: "Tambahkan tour, tiket feri atau bundling untuk mulai." },
   "cart.subtotal":   { en: "Subtotal",                          id: "Subtotal" },
@@ -240,6 +275,63 @@ const translations: Record<string, Record<Locale, string>> = {
   "cart.badgeDeal":  { en: "Tour",                             id: "Tour" },
   "cart.items":      { en: "items",                             id: "item" },
   "cart.item":       { en: "item",                              id: "item" },
+
+  // ── Checkout — the card + 3-D Secure flow ──────────────────────────────────
+  // Localised last, on purpose. This is the most trust-sensitive screen in the
+  // product: it is where someone types a card number, and the one place a
+  // half-translated sentence — or a currency that disagrees with the charge —
+  // turns into an abandoned sale.
+  //
+  // The currency rule here is the same one the e-tickets use: the card is ALWAYS
+  // charged in SGD (the order API is called with currency: "SGD"), so the locale
+  // only changes what is displayed. Under `id` the rupiah becomes the main
+  // figure and the SGD charge is stated in the note beneath it — never the other
+  // way round, which would read as "you are being charged rupiah".
+  "checkout.title":        { en: "Payment",                        id: "Pembayaran" },
+  "checkout.secured":      { en: "Secured by Stripe · your bank will ask you to verify this purchase.", id: "Diamankan Stripe · bank Anda akan meminta verifikasi atas pembelian ini." },
+  "checkout.name":         { en: "Name on booking",                id: "Nama pada pemesanan" },
+  "checkout.namePh":       { en: "e.g. Rachel Tan",                id: "cth. Rachel Tan" },
+  "checkout.email":        { en: "Email for e-tickets",            id: "Email untuk e-tiket" },
+  "checkout.card":         { en: "Card number",                    id: "Nomor kartu" },
+  "checkout.expiry":       { en: "Expiry",                         id: "Kedaluwarsa" },
+  "checkout.pay":          { en: "Pay {amount}",                   id: "Bayar {amount}" },
+  "checkout.details.back": { en: "Back to cart",                  id: "Kembali ke keranjang" },
+  "checkout.errIncomplete":{ en: "Please complete all fields — name, email, 16-digit card, expiry and CVC.", id: "Mohon lengkapi semua kolom — nama, email, kartu 16 digit, tanggal kedaluwarsa dan CVC." },
+  // The locked Pay button says exactly which field is missing rather than
+  // leaving the visitor to guess (autofill paints the input without firing
+  // onChange, so "it looks filled" is not the same as "it is filled").
+  "checkout.stillNeeded":  { en: "Still needed: {list}",           id: "Masih diperlukan: {list}" },
+  "checkout.need.name":    { en: "name",                           id: "nama" },
+  "checkout.need.email":   { en: "email",                          id: "email" },
+  "checkout.need.card":    { en: "16-digit card",                  id: "kartu 16 digit" },
+  "checkout.need.expiry":  { en: "expiry (MM/YY)",                 id: "kedaluwarsa (BB/TT)" },
+  "checkout.need.cvc":     { en: "CVC",                            id: "CVC" },
+  "checkout.demoNote":     { en: "Demo checkout — no real charge. Use any 16-digit number, e.g. 4242 4242 4242 4242.", id: "Checkout demo — tidak ada tagihan nyata. Pakai nomor 16 digit apa pun, cth. 4242 4242 4242 4242." },
+
+  "checkout.verify.title":   { en: "Verify your payment",          id: "Verifikasi pembayaran Anda" },
+  "checkout.verify.body":    { en: "Your bank requires an extra check (3-D Secure) before this {amount} payment goes through.", id: "Bank Anda memerlukan pemeriksaan tambahan (3-D Secure) sebelum pembayaran {amount} ini diproses." },
+  "checkout.verify.approve": { en: "Approve in your banking app, or enter the SMS code", id: "Setujui di aplikasi bank Anda, atau masukkan kode SMS" },
+  "checkout.verify.sentTo":  { en: "Sent to the mobile number linked to card •••• {last4}", id: "Dikirim ke nomor HP yang terhubung ke kartu •••• {last4}" },
+  "checkout.verify.code":    { en: "6-digit verification code",    id: "Kode verifikasi 6 digit" },
+  "checkout.verify.submit":  { en: "Verify & complete payment",    id: "Verifikasi & selesaikan pembayaran" },
+  "checkout.verify.back":    { en: "Back to card details",         id: "Kembali ke data kartu" },
+  "checkout.verify.demoNote":{ en: "Demo: enter any 6 digits, e.g. 123456.", id: "Demo: masukkan 6 digit apa pun, cth. 123456." },
+  "checkout.errOtp":         { en: "Enter the 6-digit verification code.", id: "Masukkan kode verifikasi 6 digit." },
+
+  "checkout.processing.title":{ en: "Confirming with your bank…",  id: "Mengonfirmasi ke bank Anda…" },
+  "checkout.processing.body": { en: "Issuing your e-tickets.",     id: "Menerbitkan e-tiket Anda." },
+  "checkout.processing.aria": { en: "Processing payment",          id: "Memproses pembayaran" },
+
+  "checkout.emptyTitle":   { en: "Your cart is empty",             id: "Keranjang Anda kosong" },
+  "checkout.emptyBody":    { en: "Add a tour, ferry ticket or bundle first, then come back to check out.", id: "Tambahkan tour, tiket feri atau bundling dulu, lalu kembali ke checkout." },
+
+  "checkout.summary":      { en: "Order summary",                  id: "Ringkasan pesanan" },
+  "checkout.chargedSgd":   { en: "charged in SGD",                 id: "ditagih dalam SGD" },
+  "checkout.verifiedNote": { en: "Every purchase is verified with your bank before vouchers are issued.", id: "Setiap pembelian diverifikasi dengan bank Anda sebelum voucher diterbitkan." },
+  // A failed order must never leave the visitor wondering whether they were
+  // billed — so the reassurance is part of the message, not a separate line.
+  "checkout.errNotCharged":{ en: "{msg} — your card was not charged.", id: "{msg} — kartu Anda tidak ditagih." },
+  "checkout.errIssue":     { en: "We couldn't issue your tickets. Your card was not charged.", id: "Kami tidak dapat menerbitkan tiket Anda. Kartu Anda tidak ditagih." },
 
   // How it works — three steps, then the FAQ answers in the same section
   "how.label":      { en: "How It Works",   id: "Cara Kerja" },
@@ -267,6 +359,11 @@ const translations: Record<string, Record<Locale, string>> = {
   "nav.signin":     { en: "Sign in",       id: "Masuk" },
   "nav.myTickets":  { en: "My Tickets",    id: "Tiket Saya" },
   "nav.signout":    { en: "Sign out",      id: "Keluar" },
+  "nav.account":    { en: "Account menu",  id: "Menu akun" },
+  "nav.primary":    { en: "Main sections", id: "Seksi utama" },
+  "nav.openMenu":   { en: "Open menu",     id: "Buka menu" },
+  "nav.closeMenu":  { en: "Close menu",    id: "Tutup menu" },
+  "loading.sea":     { en: "Crossing to Batam", id: "Menyeberang ke Batam" },
 
   "signin.title":   { en: "Sign in",       id: "Masuk" },
   "signin.sub":     { en: "Sign in to keep every ticket in one place — ferry, tours and bundles.", id: "Masuk agar semua tiket tersimpan di satu tempat — feri, tour dan bundling." },
