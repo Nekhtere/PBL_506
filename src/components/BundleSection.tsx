@@ -130,7 +130,7 @@ function BundleCard({
               <p className="text-[22px] font-bold text-fg">{priceDisplay(b.priceSGD, locale)}</p>
               <p className="text-[12px] text-muted line-through">{priceDisplay(b.separateSGD, locale)}</p>
             </div>
-            <p className="text-[12px] font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
+            <p className="text-[12px] font-semibold text-emerald-700 flex items-center gap-1 mt-0.5">
               <BadgePercent className="w-3.5 h-3.5" aria-hidden="true" />
               {t("bundle.saving").replace("{s}", `S$ ${saving}`)}
             </p>
@@ -238,7 +238,7 @@ function BundleModal({
             <ul className="space-y-1.5">
               {b.includes.map((item) => (
                 <li key={item} className="flex items-center gap-2 text-[12px] text-muted">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" aria-hidden="true" />
                   {item}
                 </li>
               ))}
@@ -272,7 +272,7 @@ function BundleModal({
               <span className="text-2xl font-bold text-fg">{priceDisplay(b.priceSGD, locale)}</span>
               <span className="text-[12px] text-muted line-through">{priceDisplay(b.separateSGD, locale)}</span>
             </div>
-            <p className="text-[12px] font-semibold text-emerald-600">
+            <p className="text-[12px] font-semibold text-emerald-700">
               {t("bundle.saving").replace("{s}", `S$ ${saving}`)}
             </p>
           </div>

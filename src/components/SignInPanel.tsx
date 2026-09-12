@@ -48,7 +48,7 @@ const ERRORS: Record<string, { en: string; id: string }> = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-line bg-white pl-10 pr-3.5 py-2.5 text-[14px] text-fg placeholder:text-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition";
+  "w-full rounded-xl border border-line bg-white pl-10 pr-3.5 py-2.5 text-[14px] text-fg placeholder:text-subtle focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition";
 
 export default function SignInPanel({
   next,
@@ -146,7 +146,7 @@ export default function SignInPanel({
             </label>
             <div className="relative">
               <Mail
-                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-faint pointer-events-none"
+                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-subtle pointer-events-none"
                 aria-hidden="true"
               />
               <input
@@ -168,7 +168,7 @@ export default function SignInPanel({
             </label>
             <div className="relative">
               <Lock
-                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-faint pointer-events-none"
+                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-subtle pointer-events-none"
                 aria-hidden="true"
               />
               <input
@@ -186,7 +186,7 @@ export default function SignInPanel({
 
           <button
             type="submit"
-            className="w-full bg-accent text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] text-[14px] font-semibold py-3 rounded-xl transition-colors"
+            className="w-full bg-accent text-white hover:bg-accent-hover text-[14px] font-semibold py-3 rounded-xl transition-colors"
           >
             {t("signin.submit")}
           </button>
@@ -208,19 +208,19 @@ export default function SignInPanel({
           <div className="space-y-2">
             {(
               [
-                ["email", demo.email, t("signin.email")],
-                ["password", demo.password, t("signin.password")],
+                ["email", demo.email, t("signin.email"), t("signin.demoCopyLabel")],
+                ["password", demo.password, t("signin.password"), t("signin.demoCopyPass")],
               ] as const
-            ).map(([kind, value, label]) => (
+            ).map(([kind, value, label, copyLabel]) => (
               <div key={kind} className="flex items-center gap-2">
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] text-faint mb-0.5">{label}</div>
-                  <div className="font-mono text-[12px] text-fg truncate">{value}</div>
+                  <div className="text-[11px] text-subtle mb-0.5">{label}</div>
+                  <div className="font-mono text-[13px] text-fg truncate">{value}</div>
                 </div>
                 <button
                   type="button"
                   onClick={() => copy(kind, value)}
-                  aria-label={`${t("signin.demoCopy")} ${label}`}
+                  aria-label={copyLabel}
                   className="shrink-0 inline-flex items-center gap-1 text-[11px] font-semibold text-accent-ink bg-accent/10 hover:bg-accent/20 rounded-lg px-2.5 py-1.5 transition-colors"
                 >
                   {copied === kind ? (
@@ -238,6 +238,13 @@ export default function SignInPanel({
               </div>
             ))}
           </div>
+
+          {/* The copy buttons carry an aria-label, which overrides their visible
+              text — so the swap to "Copied" is silent to a screen reader. This
+              live region is what actually announces the result. */}
+          <p aria-live="polite" className="sr-only">
+            {copied ? `${t("signin.demoCopied")} ${copied === "email" ? t("signin.email") : t("signin.password")}` : ""}
+          </p>
 
           <button
             type="button"

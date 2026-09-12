@@ -172,10 +172,10 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
             aria-label={locale === "en" ? "Switch to Indonesian / IDR" : "Switch to English / SGD"}
             className="flex items-center gap-0 rounded-full bg-black/[0.06] hover:bg-black/[0.10] transition-colors duration-200 overflow-hidden text-[11px] font-semibold h-7"
           >
-            <span className={`px-2.5 h-full flex items-center transition-colors duration-200 rounded-full ${locale === "en" ? "bg-accent text-white" : "text-fg/50"}`}>
+            <span className={`px-2.5 h-full flex items-center transition-colors duration-200 rounded-full ${locale === "en" ? "bg-accent text-white" : "text-muted"}`}>
               EN
             </span>
-            <span className={`px-2.5 h-full flex items-center transition-colors duration-200 rounded-full ${locale === "id" ? "bg-accent text-white" : "text-fg/50"}`}>
+            <span className={`px-2.5 h-full flex items-center transition-colors duration-200 rounded-full ${locale === "id" ? "bg-accent text-white" : "text-muted"}`}>
               ID
             </span>
           </button>
@@ -420,7 +420,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                       </div>
                       <div className="flex items-center justify-between text-[12px] text-muted">
                         <span>{t("cart.fee")}</span>
-                        <span className="text-emerald-600 font-medium">{t("cart.free")}</span>
+                        <span className="text-emerald-700 font-medium">{t("cart.free")}</span>
                       </div>
                       <div className="flex items-center justify-between pt-2">
                         <div>

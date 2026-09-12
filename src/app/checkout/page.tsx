@@ -467,7 +467,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-[12px] text-muted">
                 <span>Booking fee</span>
-                <span className="text-emerald-600 font-medium">Free</span>
+                <span className="text-emerald-700 font-medium">Free</span>
               </div>
               <div className="flex justify-between items-end pt-2">
                 <div>

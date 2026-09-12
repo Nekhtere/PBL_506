@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type Locale = "en" | "id";
 
@@ -277,6 +277,8 @@ const translations: Record<string, Record<Locale, string>> = {
   "signin.demoCopy":{ en: "Copy",          id: "Salin" },
   "signin.demoCopied":{ en: "Copied",      id: "Tersalin" },
   "signin.demoUse": { en: "Use these",     id: "Pakai ini" },
+  "signin.demoCopyLabel":{ en: "Copy demo email", id: "Salin email demo" },
+  "signin.demoCopyPass":{ en: "Copy demo password", id: "Salin password demo" },
   "signin.privacy": { en: "We store only your name and email, and use them to show your tickets. Nothing is sold or shared.", id: "Kami hanya menyimpan nama dan email Anda, dan memakainya untuk menampilkan tiket. Tidak dijual atau dibagikan." },
   "signin.setupHint":{ en: "Add the missing variables to .env.local (locally) or Vercel → Settings → Environment Variables, then restart. See .env.example for the full list.", id: "Tambahkan variabel yang kurang ke .env.local (lokal) atau Vercel → Settings → Environment Variables, lalu restart. Lihat .env.example untuk daftar lengkapnya." },
   "signin.needDemo":{ en: "Demo sign-in needs DEMO_EMAIL and DEMO_PASSWORD.", id: "Login demo butuh DEMO_EMAIL dan DEMO_PASSWORD." },
@@ -328,6 +330,16 @@ const LocaleContext = createContext<LocaleContextValue>({
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>("en");
   const t = (key: string) => translations[key]?.[locale] ?? translations[key]?.en ?? key;
+
+  // Keep <html lang> in step with the chosen language. Without this the page
+  // claims to be English while showing Indonesian, and a screen reader
+  // pronounces the Indonesian text with English phonetics — WCAG 3.1.1. The
+  // attribute is set post-mount rather than during render because the server
+  // always renders "en"; changing it during render would mismatch hydration.
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   return (
     <LocaleContext.Provider value={{ locale, setLocale, t }}>
       {children}

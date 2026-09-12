@@ -59,7 +59,7 @@ function TimelineRow({ slot, last }: { slot: TourSlot; last: boolean }) {
           <Car className="w-3 h-3 shrink-0" aria-hidden="true" />
           {travelNote}
           {destination && (
-            <span className="text-muted/70">· {destination.area}</span>
+            <span className="text-muted">· {destination.area}</span>
           )}
         </p>
       </div>
@@ -169,7 +169,7 @@ function TourCard({
               {priceDisplay(tour.priceSGD, locale)}
               <span className="text-[11px] font-normal text-muted"> {t("journey.perPax")}</span>
             </p>
-            <p className="text-[12px] font-semibold text-emerald-600">
+            <p className="text-[12px] font-semibold text-emerald-700">
               {t("journey.savings").replace("{s}", `S$ ${tour.savingsSGD}`)}
             </p>
           </div>
@@ -268,7 +268,7 @@ function TourModal({
             <ul className="space-y-1.5">
               {tour.includes.map((item) => (
                 <li key={item} className="flex items-center gap-2 text-[12px] text-muted">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
+                  <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" aria-hidden="true" />
                   {item}
                 </li>
               ))}
@@ -312,7 +312,7 @@ function TourModal({
               <span className="text-2xl font-bold text-fg">{priceDisplay(tour.priceSGD, locale)}</span>
               <span className="text-[11px] text-muted">{t("journey.perPax")}</span>
             </div>
-            <p className="text-[12px] font-semibold text-emerald-600">
+            <p className="text-[12px] font-semibold text-emerald-700">
               {t("journey.savings").replace("{s}", `S$ ${tour.savingsSGD}`)}
             </p>
           </div>

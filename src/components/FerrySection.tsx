@@ -159,7 +159,7 @@ function BookingModal({ route, onClose, onAddToCart, onViewCart, onSeeTours }: {
     return (
       <div className="p-8 flex flex-col items-center text-center">
         <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
-          <Check className="w-8 h-8 text-emerald-600" />
+          <Check className="w-8 h-8 text-emerald-700" />
         </div>
         <h3 className="text-xl font-bold text-fg mb-1">{t("ferry.modal.addedTitle")}</h3>
         <p className="text-[13px] text-muted mb-4">{t("ferry.modal.addedBody")}</p>
@@ -342,7 +342,7 @@ function BookingModal({ route, onClose, onAddToCart, onViewCart, onSeeTours }: {
             </p>
           )}
           {form.passportExpiry && !expiryError && (
-            <p className="text-[11px] text-emerald-600 mt-1 flex items-center gap-1">
+            <p className="text-[11px] text-emerald-700 mt-1 flex items-center gap-1">
               <Check className="w-3 h-3" /> {t("ferry.modal.verified")}
             </p>
           )}

@@ -55,7 +55,7 @@ export default function TicketView({
             transition={{ type: "spring", stiffness: 300, damping: 18, delay: 0.1 }}
             className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-500/10 flex items-center justify-center"
           >
-            <CheckCircle2 className="w-9 h-9 text-emerald-600" aria-hidden="true" />
+            <CheckCircle2 className="w-9 h-9 text-emerald-700" aria-hidden="true" />
           </motion.div>
           <h1 className="text-2xl sm:text-3xl font-bold text-fg tracking-tight">
             {justPaid ? t("tickets.paid") : t("tickets.title")}
