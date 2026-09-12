@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, Menu, X, AlertTriangle } from "lucide-react";
 import { saveCartForCheckout } from "@/lib/checkout";
+import { findCoverageClashes, type Covered } from "@/lib/coverage";
 import { useLocale } from "@/lib/locale-context";
 import type { Locale } from "@/lib/locale-context";
 
@@ -20,6 +21,20 @@ const navLinks = [
   { labelKey: "nav.faq",     href: "/#faq" },
 ];
 
+/** Passenger details captured by the ferry booking form. Carried through the
+    cart to checkout so the issued e-ticket can print the real crossing. */
+export interface FerryBooking {
+  passenger: string;
+  passportNumber: string;
+  passportExpiry: string;
+  nationality: string;
+  routeFrom: string;
+  routeTo: string;
+  travelDate: string;
+  schedule: string;
+  tripType: "one-way" | "return";
+}
+
 export interface CartItem {
   id: string;
   name: string;
@@ -28,6 +43,11 @@ export interface CartItem {
   image?: string;
   items?: string[];
   kind: "deal" | "route";
+  /** What this purchase already includes — drives the double-booking warning
+      in the cart. Set by the section that adds the item; see lib/coverage.ts. */
+  covers?: Covered[];
+  /** Present only on a ferry line — the details the e-ticket needs. */
+  ferry?: FerryBooking;
 }
 
 export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange }: {
@@ -44,6 +64,11 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
   const total = items.reduce((sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"), 0);
   const totalIDR = Math.round(total * 11800);
   const isID = locale === "id";
+  // Warns when the cart holds a bundle plus something the bundle already
+  // includes. Advisory only — the buyer may have a real reason, so this never
+  // blocks checkout. See lib/coverage.ts for the rule.
+  const clashes = findCoverageClashes(items);
+  const coveredLabel = (c: Covered) => t(`cart.covers.${c}`);
 
   const priceDisplay = (raw: string) => {
     if (!isID) return raw;
@@ -309,6 +334,29 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                         ))}
                       </AnimatePresence>
                     </ul>
+
+                    {/* Double-booking warning. Advisory: it explains the
+                        overlap and lets the buyer remove the redundant line
+                        themselves, rather than silently altering their cart. */}
+                    {clashes.length > 0 && (
+                      <div
+                        role="status"
+                        className="mt-3 rounded-2xl bg-amber-500/10 px-3.5 py-3 text-[11.5px] leading-relaxed text-amber-800"
+                      >
+                        <p className="font-bold mb-1 flex items-center gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                          {t("cart.clash.title")}
+                        </p>
+                        {clashes.map((c) => (
+                          <p key={`${c.includes}|${c.redundant}|${c.covered}`}>
+                            {t("cart.clash.body")
+                              .replace("{includes}", c.includes)
+                              .replace("{covered}", coveredLabel(c.covered))
+                              .replace("{redundant}", c.redundant)}
+                          </p>
+                        ))}
+                      </div>
+                    )}
 
                     <div className="pt-4 mt-4 border-t border-line-soft space-y-1.5">
                       <div className="flex items-center justify-between text-[12px] text-muted">

@@ -16,6 +16,7 @@ import DetailModal from "./DetailModal";
 import { useLocale } from "@/lib/locale-context";
 import { destinations } from "@/lib/destinations";
 import { tours, THEME_META, type Tour, type TourSlot, type JourneyTheme } from "@/lib/tours";
+import type { CartItem } from "./Navbar";
 
 // ponytail: FX pegged at 11800 — swap for a live rate endpoint at launch.
 const IDR_PER_SGD = 11800;
@@ -77,14 +78,7 @@ function TourCard({
   tour: Tour;
   isInView: boolean;
   index: number;
-  onAddToCart: (item: {
-    name: string;
-    price: string;
-    subtitle?: string;
-    image?: string;
-    items?: string[];
-    kind: "deal" | "route";
-  }) => void;
+  onAddToCart: (item: Omit<CartItem, "id">) => void;
   onOpenDetail: () => void;
 }) {
   const { t, locale } = useLocale();
@@ -104,6 +98,9 @@ function TourCard({
         return `${d.emoji} ${d.name} (${s.time})`;
       }),
       kind: "route",
+      // A tour is car + driver only — no ferry. Lets the cart spot a bundle
+      // that already covers the driver.
+      covers: ["driver"],
     });
     setTimeout(() => setAdded(false), 1400);
   };
@@ -201,14 +198,7 @@ function TourModal({
   onClose,
 }: {
   tour: Tour;
-  onAddToCart: (item: {
-    name: string;
-    price: string;
-    subtitle?: string;
-    image?: string;
-    items?: string[];
-    kind: "deal" | "route";
-  }) => void;
+  onAddToCart: (item: Omit<CartItem, "id">) => void;
   onClose: () => void;
 }) {
   const { t, locale } = useLocale();
@@ -228,6 +218,9 @@ function TourModal({
         return `${d.emoji} ${d.name} (${s.time})`;
       }),
       kind: "route",
+      // A tour is car + driver only — no ferry. Lets the cart spot a bundle
+      // that already covers the driver.
+      covers: ["driver"],
     });
     setTimeout(() => {
       setAdded(false);
@@ -341,14 +334,7 @@ function TourModal({
 export default function JourneySection({
   onAddToCart,
 }: {
-  onAddToCart: (item: {
-    name: string;
-    price: string;
-    subtitle?: string;
-    image?: string;
-    items?: string[];
-    kind: "deal" | "route";
-  }) => void;
+  onAddToCart: (item: Omit<CartItem, "id">) => void;
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });

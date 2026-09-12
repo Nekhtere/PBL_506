@@ -14,6 +14,7 @@ import {
 import DetailModal from "./DetailModal";
 import { useLocale } from "@/lib/locale-context";
 import { bundles, type Bundle } from "@/lib/bundles";
+import type { Covered } from "@/lib/coverage";
 
 // ponytail: FX pegged at 11800 — swap for a live rate endpoint at launch.
 const IDR_PER_SGD = 11800;
@@ -32,6 +33,9 @@ function cartItemFor(b: Bundle, t: (k: string) => string) {
     image: b.photo,
     items: b.includes,
     kind: "route" as const,
+    // A bundle is the all-in-one: its own return ferry AND a car+driver. This
+    // is the superset the cart's duplicate warning keys off.
+    covers: ["ferry", "driver"] satisfies Covered[],
   };
 }
 

@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the template is the one file that MUST be committed: it is the list of
+# variables Vercel needs, and it carries no secrets.
+!.env.example
 
 # vercel
 .vercel

@@ -63,7 +63,10 @@ export default function Home() {
       <HeroSection onSearch={setDealQuery} />
       <NearMeSection query={dealQuery} onQueryChange={setDealQuery} />
       <JourneySection onAddToCart={(item) => addToCart(item)} />
-      <FerrySection />
+      {/* The ferry form is a multi-step booking, so the cart drawer is opened
+          only when the buyer asks for it — popping it open on add would hide
+          the confirmation panel they just earned. */}
+      <FerrySection onAddToCart={(item) => addToCart(item)} onOpenCart={() => setCartOpen(true)} />
       <BundleSection onAddToCart={(item) => addToCart(item)} />
       <FaqSection />
       <div className={cartItems.length > 0 ? "bg-surface-sunken pb-24 md:pb-0" : undefined}>

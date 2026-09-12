@@ -2,8 +2,9 @@
 
 import { useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import { Ship, Clock, MapPin, ArrowRight, Info, X, Check, AlertCircle, Ticket, Car } from "lucide-react";
+import { Ship, Clock, MapPin, ArrowRight, Info, X, Check, AlertCircle, Ticket, Car, ShoppingCart } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
+import type { CartItem } from "./Navbar";
 
 // Fares verified against batamfast.com published fare (Sep 2026):
 // SGD 43 one-way SG→Batam, SGD 40 Batam→SG, SGD 76 return — all inclusive of
@@ -118,7 +119,13 @@ function validatePassport(expiry: string, travelDate: string): { expiry: string;
   return null;
 }
 
-function BookingModal({ route, onClose, onConfirm, onSeeTours }: { route: Route; onClose: () => void; onConfirm: (booking: BookingForm) => void; onSeeTours: () => void }) {
+function BookingModal({ route, onClose, onAddToCart, onViewCart, onSeeTours }: {
+  route: Route;
+  onClose: () => void;
+  onAddToCart: (item: Omit<CartItem, "id">) => void;
+  onViewCart: () => void;
+  onSeeTours: () => void;
+}) {
   const { t } = useLocale();
   const today = new Date().toISOString().split("T")[0];
   const [form, setForm] = useState<BookingForm>({
@@ -131,13 +138,10 @@ function BookingModal({ route, onClose, onConfirm, onSeeTours }: { route: Route;
     tripType: "one-way",
   });
   const [touched, setTouched] = useState<Partial<Record<keyof BookingForm, boolean>>>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [added, setAdded] = useState(false);
   // The bundle offer only appears after a booking lands and stays dismissible —
   // it's a nudge toward the flagship product, not a gate on finishing here.
   const [showUpsell, setShowUpsell] = useState(true);
-  // Generated once when the ticket is issued — not during render, where an
-  // impure value would change on every re-render (and trips react-hooks/purity).
-  const [ticketCode, setTicketCode] = useState("");
 
   const passportInvalid = validatePassport(form.passportExpiry, form.travelDate);
   const passportError = passportInvalid
@@ -151,14 +155,14 @@ function BookingModal({ route, onClose, onConfirm, onSeeTours }: { route: Route;
   const price = form.tripType === "return" ? route.returnPriceNum : route.priceNum;
   const needsVoa = !VOA_FREE.has(form.nationality) && form.nationality !== "Indonesia";
 
-  if (submitted) {
+  if (added) {
     return (
       <div className="p-8 flex flex-col items-center text-center">
         <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
           <Check className="w-8 h-8 text-emerald-600" />
         </div>
-        <h3 className="text-xl font-bold text-fg mb-1">{t("ferry.modal.confirmed")}</h3>
-        <p className="text-[13px] text-muted mb-4">{t("ferry.modal.emailSent")}</p>
+        <h3 className="text-xl font-bold text-fg mb-1">{t("ferry.modal.addedTitle")}</h3>
+        <p className="text-[13px] text-muted mb-4">{t("ferry.modal.addedBody")}</p>
         <div className="w-full bg-surface-sunken rounded-2xl p-4 text-left space-y-2 mb-6">
           <div className="flex justify-between text-[13px]">
             <span className="text-muted">{t("ferry.modal.passenger")}</span>
@@ -177,25 +181,32 @@ function BookingModal({ route, onClose, onConfirm, onSeeTours }: { route: Route;
             <span className="font-semibold text-fg capitalize">{form.tripType === "one-way" ? t("ferry.modal.oneWay") : t("ferry.modal.return")}</span>
           </div>
           <div className="flex justify-between text-[13px] pt-2 border-t border-line-soft">
-            <span className="text-muted">{t("ferry.modal.paid")}</span>
+            <span className="text-muted">{t("ferry.modal.price")}</span>
             <span className="font-bold text-fg">S$ {price.toFixed(2)}</span>
           </div>
         </div>
-        <div className="w-full bg-accent/10 rounded-2xl p-4 mb-6 flex items-center gap-3">
-          <Ticket className="w-8 h-8 text-accent-ink shrink-0" />
-          <div className="text-left">
-            <p className="text-[12px] font-semibold text-fg">E-Ticket #BSM-{ticketCode}</p>
-            <p className="text-[11px] text-muted">{t("ferry.modal.eticket")}</p>
-          </div>
-        </div>
 
-        {/* Cross-sell to the day tours — the crossing is booked, so the wheels
-            are the gap left in the trip. Points at Journey, not Bundle: a
-            bundle carries its own return ferry and would charge the crossing
+        <button
+          onClick={onViewCart}
+          className="w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white font-bold py-3 rounded-xl transition-colors"
+        >
+          <ShoppingCart className="w-4 h-4" aria-hidden="true" />
+          {t("ferry.modal.viewCart")}
+        </button>
+        <button
+          onClick={onClose}
+          className="mt-2 w-full text-[13px] font-medium text-muted hover:text-fg transition-colors py-2"
+        >
+          {t("ferry.modal.keepBrowsing")}
+        </button>
+
+        {/* Cross-sell to the day tours — the crossing is in the cart, so the
+            wheels are the gap left in the trip. Points at Journey, not Bundle:
+            a bundle carries its own return ferry and would charge the crossing
             twice. Dismissible, and it never blocks closing out the ferry the
             buyer actually came here for. */}
         {showUpsell && (
-          <div className="w-full text-left bg-surface-sunken border border-line-soft rounded-2xl p-4 mb-6">
+          <div className="w-full text-left bg-surface-sunken border border-line-soft rounded-2xl p-4 mt-6">
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
                 <Car className="w-4 h-4 text-accent-ink" aria-hidden="true" />
@@ -223,10 +234,6 @@ function BookingModal({ route, onClose, onConfirm, onSeeTours }: { route: Route;
             </div>
           </div>
         )}
-
-        <button onClick={onClose} className="w-full bg-accent hover:bg-accent-hover text-white font-bold py-3 rounded-xl transition-colors">
-          {t("ferry.modal.done")}
-        </button>
       </div>
     );
   }
@@ -394,13 +401,40 @@ function BookingModal({ route, onClose, onConfirm, onSeeTours }: { route: Route;
           <button
             disabled={!isValid}
             onClick={() => {
-              setTicketCode(Math.random().toString(36).slice(2, 8).toUpperCase());
-              onConfirm(form);
-              setSubmitted(true);
+              const dateLabel = new Date(form.travelDate).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
+              const tripLabel = form.tripType === "one-way" ? t("ferry.modal.oneWay") : t("ferry.modal.return");
+              onAddToCart({
+                name: `${t("ferry.ticketName")} · ${route.to}`,
+                price: `S$ ${price.toFixed(2)}`,
+                subtitle: `${dateLabel} · ${form.schedule} · ${tripLabel}`,
+                items: [
+                  `👤 ${form.fullName}`,
+                  `🛂 ${form.passportNumber}`,
+                  `📍 ${route.from.split(",")[0]} → ${route.to}`,
+                  `🗓 ${dateLabel} · ${form.schedule}`,
+                  `🎫 ${tripLabel}`,
+                ],
+                kind: "route",
+                // A ferry ticket covers the crossing only — no driver. This is
+                // what lets the cart flag a bundle that already includes it.
+                covers: ["ferry"],
+                ferry: {
+                  passenger: form.fullName,
+                  passportNumber: form.passportNumber,
+                  passportExpiry: form.passportExpiry,
+                  nationality: form.nationality,
+                  routeFrom: route.from.split(",")[0],
+                  routeTo: route.to,
+                  travelDate: form.travelDate,
+                  schedule: form.schedule,
+                  tripType: form.tripType,
+                },
+              });
+              setAdded(true);
             }}
             className="flex items-center gap-2 bg-accent hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-colors shadow-lg shadow-accent/25"
           >
-            <Ticket className="w-4 h-4" /> {t("ferry.modal.confirm")}
+            <Ticket className="w-4 h-4" /> {t("ferry.modal.addToCart")}
           </button>
         </div>
         <p className="text-[11px] text-muted text-center">{t("ferry.modal.demo")}</p>
@@ -409,7 +443,11 @@ function BookingModal({ route, onClose, onConfirm, onSeeTours }: { route: Route;
   );
 }
 
-export default function FerrySection() {
+export default function FerrySection({ onAddToCart, onOpenCart }: {
+  onAddToCart: (item: Omit<CartItem, "id">) => void;
+  /** Opens the cart drawer — the modal closes itself first. */
+  onOpenCart: () => void;
+}) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
@@ -529,7 +567,11 @@ export default function FerrySection() {
               <BookingModal
                 route={selectedRoute}
                 onClose={() => setSelectedRoute(null)}
-                onConfirm={() => {}}
+                onAddToCart={onAddToCart}
+                onViewCart={() => {
+                  setSelectedRoute(null);
+                  onOpenCart();
+                }}
                 onSeeTours={() => {
                   // Close first, then scroll — a fixed overlay would swallow the
                   // smooth scroll if we left it up.
