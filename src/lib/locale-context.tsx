@@ -19,7 +19,6 @@ const translations: Record<string, Record<Locale, string>> = {
   "nav.ferry":       { en: "Ferry",      id: "Feri" },
   "nav.bundle":      { en: "Bundle",     id: "Bundling" },
   "nav.faq":         { en: "FAQ",        id: "FAQ" },
-  "nav.rideGuide":   { en: "Ride Guide", id: "Panduan Ride" },
 
   // Hero
   "hero.badge.location":    { en: "Batam, Riau Islands",        id: "Batam, Kepulauan Riau" },
@@ -264,24 +263,6 @@ const translations: Record<string, Record<Locale, string>> = {
   "cart.badgeDeal":  { en: "Tour",                             id: "Tour" },
   "cart.items":      { en: "items",                             id: "item" },
   "cart.item":       { en: "item",                              id: "item" },
-
-  // Ride guide
-  "ride.label":       { en: "Smart Ride Guide",            id: "Panduan Ride Pintar" },
-  "ride.heading1":    { en: "No Shuttle?",                 id: "Tidak Ada Shuttle?" },
-  "ride.heading2":    { en: "No Problem.",                 id: "Tidak Masalah." },
-  "ride.heading3":    { en: "Go Local.",                   id: "Jelajah Lokal." },
-  "ride.sub":         { en: "We integrated fare estimates so you can travel like a local. Just open Gojek or Grab — we show you exactly where to stand.", id: "Kami menyediakan estimasi tarif agar Anda bepergian seperti orang lokal. Cukup buka Gojek atau Grab — kami tunjukkan titik penjemputan yang tepat." },
-  "ride.minsAway":    { en: "8 min away",                  id: "8 menit lagi" },
-  "ride.book":        { en: "Book",                        id: "Pesan" },
-  "ride.pickupConfirmed": { en: "Pickup Confirmed",        id: "Penjemputan Dikonfirmasi" },
-  "ride.driver2min":  { en: "Driver is 2 min away",        id: "Sopir tiba 2 menit lagi" },
-  "ride.fares":       { en: "Estimated Fares",             id: "Estimasi Tarif" },
-  "ride.pickup":      { en: "Pick-up Point Guide",         id: "Panduan Titik Penjemputan" },
-  "ride.seeFull":     { en: "See full ride guide",         id: "Lihat panduan ride lengkap" },
-  "ride.bc.location": { en: "Exit gate, turn left 50m",    id: "Gerbang keluar, belok kiri 50 m" },
-  "ride.bc.tip":      { en: "Look for the green Grab/Gojek sign", id: "Cari papan hijau Grab/Gojek" },
-  "ride.hb.location": { en: "Ground floor, east exit",     id: "Lantai dasar, pintu timur" },
-  "ride.hb.tip":      { en: "Pre-book before docking for faster pickup", id: "Pesan sebelum kapal sandar agar penjemputan lebih cepat" },
 
   // How it works
   "how.label":      { en: "How It Works",   id: "Cara Kerja" },
