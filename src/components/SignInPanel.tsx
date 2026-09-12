@@ -1,17 +1,32 @@
 "use client";
 
-import { AlertCircle, Database, KeyRound } from "lucide-react";
+import { AlertCircle, Database, KeyRound, Lock, Mail } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
 
-// The sign-in card. Its main job during a demo is to fail *usefully*: if Google
-// credentials or the database aren't configured yet, it says exactly which
-// environment variables are missing instead of bouncing the visitor through a
-// Google error page and back.
+// The sign-in card. Its main job during a demo is to fail *usefully*: if the
+// database or the demo credentials aren't configured yet, it says exactly which
+// environment variables are missing instead of bouncing the visitor through an
+// error page and back.
 
 const ERRORS: Record<string, { en: string; id: string }> = {
+  bad_credentials: {
+    en: "That email and password don't match. Check both and try again.",
+    id: "Email dan password itu tidak cocok. Periksa keduanya lalu coba lagi.",
+  },
+  demo_unconfigured: {
+    en: "Demo sign-in isn't set up yet. Add DEMO_EMAIL and DEMO_PASSWORD, then restart.",
+    id: "Login demo belum diatur. Tambahkan DEMO_EMAIL dan DEMO_PASSWORD, lalu restart.",
+  },
+  no_db: {
+    en: "Sign-in needs a database — set DATABASE_URL. Without it the session would point at nothing.",
+    id: "Login butuh database — set DATABASE_URL. Tanpanya sesi tidak akan menemukan apa pun.",
+  },
+  // The Google routes are still in the codebase but no longer linked from this
+  // card. Keeping their messages means a direct visit to one of them still
+  // explains itself rather than showing an unexplained empty page.
   not_configured: {
-    en: "Google sign-in isn't configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, then restart.",
-    id: "Login Google belum dikonfigurasi. Tambahkan GOOGLE_CLIENT_ID dan GOOGLE_CLIENT_SECRET, lalu restart.",
+    en: "Google sign-in isn't configured. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, or use the demo login below.",
+    id: "Login Google belum dikonfigurasi. Tambahkan GOOGLE_CLIENT_ID dan GOOGLE_CLIENT_SECRET, atau pakai login demo di bawah.",
   },
   cancelled: {
     en: "Sign-in was cancelled at Google. You can try again whenever you're ready.",
@@ -31,32 +46,29 @@ const ERRORS: Record<string, { en: string; id: string }> = {
   },
 };
 
+const inputClass =
+  "w-full rounded-xl border border-line bg-white pl-10 pr-3.5 py-2.5 text-[14px] text-fg placeholder:text-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition";
+
 export default function SignInPanel({
   next,
   error,
-  googleReady,
+  demoReady,
   dbReady,
 }: {
   next: string;
   error?: string;
-  googleReady: boolean;
+  demoReady: boolean;
   dbReady: boolean;
 }) {
   const { t, locale } = useLocale();
   const message = error ? ERRORS[error] : undefined;
 
   const blockers: { icon: typeof KeyRound; text: string }[] = [];
-  if (!googleReady) {
-    blockers.push({
-      icon: KeyRound,
-      text: t("signin.needGoogle"),
-    });
+  if (!demoReady) {
+    blockers.push({ icon: KeyRound, text: t("signin.needDemo") });
   }
   if (!dbReady) {
-    blockers.push({
-      icon: Database,
-      text: t("signin.needDb"),
-    });
+    blockers.push({ icon: Database, text: t("signin.needDb") });
   }
 
   return (
@@ -92,43 +104,64 @@ export default function SignInPanel({
           </p>
         </div>
       ) : (
-        <a
-          href={`/api/auth/google?next=${encodeURIComponent(next)}`}
-          className="flex w-full items-center justify-center gap-3 bg-white border border-line-strong hover:bg-surface-sunken text-fg text-[14px] font-semibold py-3.5 rounded-xl transition-colors shadow-[var(--sh-1)]"
-        >
-          <GoogleMark />
-          {t("signin.google")}
-        </a>
+        <form method="post" action="/api/auth/demo" className="space-y-3.5">
+          {/* Where to land after signing in, carried through the POST. */}
+          <input type="hidden" name="next" value={next} />
+
+          <div>
+            <label htmlFor="si-email" className="block text-[12px] font-semibold text-fg mb-1.5">
+              {t("signin.email")}
+            </label>
+            <div className="relative">
+              <Mail
+                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-faint pointer-events-none"
+                aria-hidden="true"
+              />
+              <input
+                id="si-email"
+                name="email"
+                type="email"
+                className={inputClass}
+                placeholder="demo@batamsmart.test"
+                autoComplete="username"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="si-pass" className="block text-[12px] font-semibold text-fg mb-1.5">
+              {t("signin.password")}
+            </label>
+            <div className="relative">
+              <Lock
+                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-faint pointer-events-none"
+                aria-hidden="true"
+              />
+              <input
+                id="si-pass"
+                name="password"
+                type="password"
+                className={inputClass}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                required
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-accent text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] text-[14px] font-semibold py-3 rounded-xl transition-colors"
+          >
+            {t("signin.submit")}
+          </button>
+        </form>
       )}
 
       <p className="text-[11px] text-muted mt-5 leading-relaxed">
         {t("signin.privacy")}
       </p>
     </div>
-  );
-}
-
-// Google's mark, inline so it renders without a network request. The brand
-// colours are required by their sign-in guidelines.
-function GoogleMark() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-      <path
-        fill="#4285F4"
-        d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"
-      />
-      <path
-        fill="#34A853"
-        d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33Z"
-      />
-      <path
-        fill="#EA4335"
-        d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"
-      />
-    </svg>
   );
 }

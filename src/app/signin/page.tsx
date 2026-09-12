@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUserId } from "@/lib/session";
-import { googleConfigured } from "@/lib/google-oauth";
+import { demoConfigured } from "@/lib/demo-auth";
 import { hasDatabase } from "@/lib/db";
 import SignInPanel from "@/components/SignInPanel";
 
-// Google sign-in. Only one provider, so this is a single button rather than a
-// provider list.
+// Sign-in. One demo account, held in environment variables — see
+// src/lib/demo-auth.ts for why. Google sign-in remains in the codebase at
+// /api/auth/google for anyone who needs a real identity, but is not linked
+// from this page.
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +38,7 @@ export default async function SignInPage({
         <SignInPanel
           next={next}
           error={searchParams.error}
-          googleReady={googleConfigured()}
+          demoReady={demoConfigured()}
           dbReady={hasDatabase()}
         />
 

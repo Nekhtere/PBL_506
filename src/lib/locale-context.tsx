@@ -269,11 +269,13 @@ const translations: Record<string, Record<Locale, string>> = {
   "nav.signout":    { en: "Sign out",      id: "Keluar" },
 
   "signin.title":   { en: "Sign in",       id: "Masuk" },
-  "signin.sub":     { en: "Sign in with Google to keep every ticket in one place — ferry, tours and bundles.", id: "Masuk dengan Google agar semua tiket tersimpan di satu tempat — feri, tour dan bundling." },
-  "signin.google":  { en: "Continue with Google", id: "Lanjutkan dengan Google" },
-  "signin.privacy": { en: "We store only your name, email and profile picture, and use them to show your tickets. Nothing is sold or shared.", id: "Kami hanya menyimpan nama, email dan foto profil Anda, dan memakainya untuk menampilkan tiket. Tidak dijual atau dibagikan." },
+  "signin.sub":     { en: "Sign in to keep every ticket in one place — ferry, tours and bundles.", id: "Masuk agar semua tiket tersimpan di satu tempat — feri, tour dan bundling." },
+  "signin.email":   { en: "Email",         id: "Email" },
+  "signin.password":{ en: "Password",      id: "Password" },
+  "signin.submit":  { en: "Sign in",       id: "Masuk" },
+  "signin.privacy": { en: "We store only your name and email, and use them to show your tickets. Nothing is sold or shared.", id: "Kami hanya menyimpan nama dan email Anda, dan memakainya untuk menampilkan tiket. Tidak dijual atau dibagikan." },
   "signin.setupHint":{ en: "Add the missing variables to .env.local (locally) or Vercel → Settings → Environment Variables, then restart. See .env.example for the full list.", id: "Tambahkan variabel yang kurang ke .env.local (lokal) atau Vercel → Settings → Environment Variables, lalu restart. Lihat .env.example untuk daftar lengkapnya." },
-  "signin.needGoogle":{ en: "Google sign-in needs GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.", id: "Login Google butuh GOOGLE_CLIENT_ID dan GOOGLE_CLIENT_SECRET." },
+  "signin.needDemo":{ en: "Demo sign-in needs DEMO_EMAIL and DEMO_PASSWORD.", id: "Login demo butuh DEMO_EMAIL dan DEMO_PASSWORD." },
   "signin.needDb":  { en: "Tickets need a database — set DATABASE_URL. Without it the store is in-memory and resets on every deploy.", id: "Tiket butuh database — set DATABASE_URL. Tanpanya penyimpanan hanya di memori dan hilang setiap deploy." },
 
   "tickets.mine":        { en: "My Tickets",     id: "Tiket Saya" },
