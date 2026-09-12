@@ -23,6 +23,26 @@ type Body = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Generous enough for a real SMTP handshake, short enough that a stuck Gmail
+// cannot hold the confirmation screen. On expiry the order still succeeds.
+const EMAIL_TIMEOUT_MS = 15_000;
+
+function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`timed out after ${ms}ms`)), ms);
+    work.then(
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(timer);
+        reject(e);
+      },
+    );
+  });
+}
+
 export async function POST(req: Request) {
   let body: Body;
   try {
@@ -85,22 +105,42 @@ export async function POST(req: Request) {
     );
   }
 
-  // Fire-and-forget: the buyer gets their tickets on screen immediately, and a
-  // slow or failing SMTP handshake cannot hold up or break the confirmation.
-  // `emailed` reports whether a send was ATTEMPTED and configured — the actual
-  // result lands in the logs and in the order's emailedAt.
+  // Send the tickets BEFORE responding.
+  //
+  // This used to be fire-and-forget, which is a trap on serverless: the
+  // platform freezes the function the moment the response goes out, so an
+  // un-awaited send simply never finishes. The symptom is silent — no error
+  // logged, emailed_at left null, and a buyer who never receives anything.
+  //
+  // The cost is that the buyer waits for the SMTP handshake. A timeout keeps
+  // that bounded: if Gmail is slow the order still succeeds and is visibly
+  // unsent, rather than holding the confirmation screen hostage.
+  let emailed = false;
+  let emailError: string | null = null;
+
   if (willEmail) {
-    void sendTicketEmail(order, origin)
-      .then(() => markOrderEmailed(order.id))
-      .catch((err) => {
-        // emailedAt stays null, so the order is visibly unsent and can be retried.
-        console.error(`[email] failed for order ${order.id}:`, err);
-      });
+    try {
+      await withTimeout(sendTicketEmail(order, origin), EMAIL_TIMEOUT_MS);
+      await markOrderEmailed(order.id);
+      emailed = true;
+    } catch (err) {
+      // emailed_at stays null, so the order is visibly unsent and can be retried.
+      emailError = err instanceof Error ? err.message : String(err);
+      console.error(`[email] failed for order ${order.id}:`, err);
+    }
   } else {
     console.warn(
       `[email] skipped for order ${order.id} — Gmail not configured. Ticket page: ${origin}/tickets/${order.id}`,
     );
   }
 
-  return NextResponse.json({ orderId: order.id, emailed: willEmail });
+  // `emailed` now means the message actually left — not merely that a send was
+  // configured. The old version returned true whenever Gmail was set up, even
+  // when delivery failed, which is the kind of false success that wastes an
+  // afternoon of debugging.
+  return NextResponse.json({
+    orderId: order.id,
+    emailed,
+    ...(emailError ? { emailError } : {}),
+  });
 }
