@@ -4,6 +4,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Shield, Zap, Search, ArrowRight } from "lucide-react";
 import { merchants } from "@/lib/merchants";
+import { useLocale } from "@/lib/locale-context";
 
 const bgSlides = [
   {
@@ -31,18 +32,20 @@ const avgRating = (
   merchants.reduce((sum, m) => sum + m.rating, 0) / merchants.length
 ).toFixed(1);
 
-const stats = [
-  { value: String(merchants.length), label: "Merchant Partners" },
-  { value: `${avgRating}★`, label: "Average Rating" },
-  { value: "SGD", label: "Pay in Dollars" },
-  { value: "< 1 hr", label: "From Singapore" },
-];
-
 // Same words the deals row already searches on, so a tap here and a tap on the
 // chips down there land on the same result.
 const quickSearches = ["Seafood", "Spa", "Shopping", "Hotel"];
 
 export default function HeroSection({ onSearch }: { onSearch: (query: string) => void }) {
+  const { t } = useLocale();
+  // Keys read the translation table so the stats bar follows the toggle; the
+  // numbers themselves stay read off the catalogue.
+  const stats = [
+    { value: String(merchants.length), labelKey: "hero.stat.merchants" },
+    { value: `${avgRating}★`, labelKey: "hero.stat.rating" },
+    { value: "SGD", labelKey: "hero.stat.currency" },
+    { value: "< 1 hr", labelKey: "hero.stat.distance" },
+  ];
   const [current, setCurrent] = useState(0);
   const [value, setValue] = useState("");
 
@@ -109,7 +112,7 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
             <MapPin className="w-3 h-3 text-sky-400 shrink-0" aria-hidden="true" />
             <span>Batam, Indonesia ·</span>
             <Zap className="w-3 h-3 text-yellow-400 shrink-0" aria-hidden="true" />
-            <span>45 min ferry from Singapore</span>
+            <span>{t("hero.badge.ferry")}</span>
           </motion.div>
 
           <motion.div
@@ -119,7 +122,7 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
             className="inline-flex items-center gap-2 glass-dark rounded-full px-3 py-1.5 text-white/90 text-[12px] font-medium"
           >
             <Shield className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
-            Verified Merchants Only
+            {t("hero.badge.verified")}
           </motion.div>
         </div>
 
@@ -130,22 +133,18 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
           transition={{ duration: 0.7, delay: 0.25 }}
           className="text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-4"
         >
-          Unlock Batam&apos;s Best.
+          {t("hero.headline1")}
           <br />
-          <span className="text-white/60">Effortlessly.</span>
+          <span className="text-white/60">{t("hero.headline2")}</span>
         </motion.h1>
 
-        {/* Sub-headline. No contrast ratio can be quoted here: the backdrop is a
-            photo, so the same text scores differently on a bright slide than a
-            dark one. Legibility comes from sitting in the dark end of the
-            bottom-to-top scrim. */}
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.35 }}
           className="text-[15px] md:text-lg text-white/80 max-w-lg mb-7 leading-relaxed"
         >
-          Curated deals for Seafood, Spa &amp; Shopping — pay in SGD, redeem instantly with QR.
+          {t("hero.sub")}
         </motion.p>
 
         {/* Search — the product's primary action, so it belongs here and not
@@ -164,7 +163,7 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
               type="text"
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder="Seafood, spa, shopping…"
+              placeholder={t("hero.search.placeholder")}
               aria-label="Search Batam deals"
               className="flex-1 min-w-0 bg-transparent py-2.5 text-[14px] text-white placeholder:text-white/65 focus-on-dark"
             />
@@ -172,7 +171,7 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
               type="submit"
               className="flex shrink-0 items-center gap-1.5 rounded-xl sm:rounded-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-[13px] font-semibold px-4 py-2.5 transition-colors duration-200"
             >
-              Search
+              {t("hero.search.button")}
               <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
@@ -185,7 +184,7 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
           transition={{ duration: 0.5, delay: 0.55 }}
           className="flex flex-wrap items-center gap-2 mt-3"
         >
-          <span className="text-[11px] font-medium text-white/60">Popular:</span>
+          <span className="text-[11px] font-medium text-white/60">{t("hero.popular")}</span>
           {quickSearches.map((term) => (
             <button
               key={term}
@@ -206,10 +205,10 @@ export default function HeroSection({ onSearch }: { onSearch: (query: string) =>
           className="mt-10 border-t border-white/10 pt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
         >
           {stats.map((s) => (
-            <div key={s.label} className="text-left">
+            <div key={s.labelKey} className="text-left">
               <p className="text-xl md:text-2xl font-bold text-white">{s.value}</p>
               {/* Same caveat as the sub-headline: the scrim, not a ratio. */}
-              <p className="text-[11px] text-white/60 mt-0.5">{s.label}</p>
+              <p className="text-[11px] text-white/60 mt-0.5">{t(s.labelKey)}</p>
             </div>
           ))}
         </motion.div>

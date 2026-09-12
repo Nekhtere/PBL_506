@@ -10,13 +10,19 @@ import MerchantCard from "./MerchantCard";
 import MerchantDetail from "./MerchantDetail";
 import { merchants, type Merchant } from "@/lib/merchants";
 import type { CartItem } from "./Navbar";
+import { useLocale } from "@/lib/locale-context";
 
 // Leaflet reads window/document at import time, so it must never run on the server.
 // ponytail: ssr:false keeps this a client-only island; move to static tiles if pin SEO ever matters.
 const NearbyMap = dynamic(() => import("./NearbyMap"), { ssr: false });
 
 // "Café" was dropped: no merchant carries it, so the chip always emptied the row.
-const popularTags = ["🦐 Seafood", "💆 Spa", "🛍️ Shopping", "🌃 Night Market", "🏨 Hotel", "🗺️ Attraction"];
+// Chips display translated, but always search the English term — merchant data
+// (categories, descriptions) is English-only, so a translated query would find
+// nothing in ID mode.
+const popularTags = ["🦐", "💆", "🛍️", "🌃", "🏨", "🗺️"];
+const tagTerms = ["Seafood", "Spa", "Shopping", "Night Market", "Hotel", "Attraction"];
+const tagKeys = ["deals.tag.seafood", "deals.tag.spa", "deals.tag.shopping", "deals.tag.night", "deals.tag.hotel", "deals.tag.attraction"];
 
 type Coords = { lat: number; lng: number };
 
@@ -40,6 +46,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
 }) {
   const sectionRef    = useRef<HTMLDivElement>(null);
   const scrollRef     = useRef<HTMLDivElement>(null);
+  const { t }         = useLocale();
   const isInView      = useInView(sectionRef, { once: true, margin: "-100px" });
   const [canScrollLeft, setCanScrollLeft]   = useState(false);
   // Starts false, not true: the arrows must not claim there is more to the right
@@ -117,7 +124,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
   // unexplained, and most browsers now auto-suppress a prompt with no user gesture.
   const locate = () => {
     if (!navigator.geolocation) {
-      setGeoMsg("This browser can't share your location.");
+      setGeoMsg(t("deals.geoUnsupported"));
       return;
     }
     setLocating(true);
@@ -131,8 +138,8 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
         setLocating(false);
         setGeoMsg(
           err.code === err.PERMISSION_DENIED
-            ? "Location blocked. Allow it in your browser settings to see deals near you."
-            : "Couldn't get your location just now. Try again.",
+            ? t("deals.geoDenied")
+            : t("deals.geoError"),
         );
       },
       // City-scale accuracy is plenty for ranking merchants by distance.
@@ -224,7 +231,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             transition={{ duration: 0.5 }}
             className="text-accent-ink text-[12px] font-semibold tracking-widest uppercase"
           >
-            Top Picks in Batam
+            {t("deals.label")}
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -232,7 +239,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-3xl sm:text-4xl md:text-5xl font-bold text-fg mt-2 tracking-tight"
           >
-            Smart Merchant Deals
+            {t("deals.heading")}
           </motion.h2>
           {/* #515154 on #FBFBFD = 7.7:1 ✓ WCAG AA */}
           <motion.p
@@ -241,8 +248,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-muted mt-3 text-[15px] max-w-md leading-relaxed"
           >
-            The best-rated seafood, spa and shopping in Batam. Prices locked in SGD,
-            vouchers redeemed by QR — valid 30 days.
+            {t("deals.sub")}
           </motion.p>
         </div>
 
@@ -260,7 +266,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
                 type="text"
                 value={query}
                 onChange={(e) => onQueryChange(e.target.value)}
-                placeholder="Search Batam — seafood, spa, shopping…"
+                placeholder={t("deals.searchPlaceholder")}
                 className="flex-1 min-w-0 bg-transparent text-[13px] sm:text-[14px] text-fg placeholder:text-fg/45 py-2.5"
                 aria-label="Search deals in Batam"
               />
@@ -285,27 +291,30 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
               className="flex min-h-11 items-center gap-1.5 bg-accent hover:bg-accent-hover disabled:opacity-60 text-white text-[12px] sm:text-[13px] font-semibold px-3 sm:px-4 py-2.5 rounded-xl transition-colors duration-200 shrink-0"
             >
               <Navigation className={`w-3.5 h-3.5 ${locating ? "animate-spin" : ""}`} aria-hidden="true" />
-              {locating ? "Locating…" : "Near Me"}
+              {locating ? t("deals.locating") : t("deals.nearme")}
             </button>
           </div>
 
           {/* Popular tags */}
           <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <span className="text-muted text-[11px] font-medium">Popular:</span>
-            {popularTags.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                /* The chip is a filter, not a text field — say so, rather than
-                   leaving "🦐 Seafood" to be read out as a bare label. */
-                aria-label={`Filter deals by ${tag.replace(/^\S+\s/, "")}`}
-                aria-pressed={query === tag.replace(/^\S+\s/, "")}
-                onClick={() => onQueryChange(tag.replace(/^\S+\s/, ""))}
-                className="text-[12px] text-muted hover:text-fg px-2.5 py-1 rounded-full bg-surface-sunken hover:bg-line border border-line-soft transition-colors duration-150"
-              >
-                {tag}
-              </button>
-            ))}
+            <span className="text-muted text-[11px] font-medium">{t("deals.popular")}</span>
+            {popularTags.map((tag, i) => {
+              const label = t(tagKeys[i]);
+              return (
+                <button
+                  key={tagTerms[i]}
+                  type="button"
+                  /* The chip is a filter, not a text field — say so, rather than
+                     leaving "🦐 Seafood" to be read out as a bare label. */
+                  aria-label={`Filter deals by ${label}`}
+                  aria-pressed={query === tagTerms[i]}
+                  onClick={() => onQueryChange(tagTerms[i])}
+                  className="text-[12px] text-muted hover:text-fg px-2.5 py-1 rounded-full bg-surface-sunken hover:bg-line border border-line-soft transition-colors duration-150"
+                >
+                  {tag} {label}
+                </button>
+              );
+            })}
           </div>
 
           {geoMsg && (
@@ -318,7 +327,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
                 onClick={locate}
                 className="shrink-0 font-semibold underline underline-offset-2"
               >
-                Try again
+                {t("deals.tryAgain")}
               </button>
             </div>
           )}
@@ -395,9 +404,9 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             ))}
             {near.length === 0 && (
               <p className="text-[13px] text-muted py-12 w-full text-center">
-                No deals match &ldquo;{query}&rdquo;.{" "}
+                {t("deals.noMatch").replace("{q}", query)}{" "}
                 <button onClick={() => onQueryChange("")} className="text-accent-ink font-medium hover:underline">
-                  Try another search
+                  {t("deals.tryAnother")}
                 </button>
               </p>
             )}
@@ -406,7 +415,7 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
           {/* Announces the result count when it changes — searching from the hero
               otherwise updates the row with nothing said aloud. */}
           <p aria-live="polite" className="sr-only">
-            {near.length} {near.length === 1 ? "deal" : "deals"} found
+            {t("deals.found").replace("{n}", String(near.length))}
           </p>
         </div>
 
@@ -424,8 +433,8 @@ export default function DealsSection({ onAddToCart, query, onQueryChange }: {
             className="inline-flex items-center gap-2 bg-fg hover:bg-black text-white text-[13px] font-semibold px-4 py-2 rounded-full transition-colors duration-200"
           >
             <LayoutGrid className="w-3.5 h-3.5" aria-hidden="true" />
-            All
-            <span className="text-white/60 font-medium">· {merchants.length} merchants</span>
+            {t("deals.viewAll")}
+            <span className="text-white/60 font-medium">· {merchants.length} merchant</span>
           </Link>
         </motion.div>
 

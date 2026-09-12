@@ -1,24 +1,27 @@
 "use client";
 
+import { useLocale } from "@/lib/locale-context";
+
 const footerLinks = {
   // Absolute hash paths, not bare "#deals": this footer is shared with
   // /merchants, where a bare fragment points at nothing and does nothing.
   Product: [
-    { label: "Deals", href: "/#deals" },
-    { label: "Itinerary", href: "/#itinerary" },
-    { label: "Getting Here", href: "/#ferry" },
-    { label: "Ride Guide", href: "/#ride-guide" },
-    { label: "How It Works", href: "/#how-it-works" },
+    { labelKey: "nav.deals", href: "/#deals" },
+    { labelKey: "nav.itinerary", href: "/#itinerary" },
+    { labelKey: "nav.ferry", href: "/#ferry" },
+    { labelKey: "nav.rideGuide", href: "/#ride-guide" },
+    { labelKey: "how.label", href: "/#how-it-works" },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "/legal/privacy" },
-    { label: "Terms of Service", href: "/legal/terms" },
-    { label: "Cookie Policy", href: "/legal/cookies" },
-    { label: "Refund Policy", href: "/legal/refunds" },
+    { labelKey: "footer.legal.privacy", href: "/legal/privacy" },
+    { labelKey: "footer.legal.terms", href: "/legal/terms" },
+    { labelKey: "footer.legal.cookies", href: "/legal/cookies" },
+    { labelKey: "footer.legal.refunds", href: "/legal/refunds" },
   ],
 };
 
 export default function Footer() {
+  const { t } = useLocale();
   return (
     <footer className="bg-[var(--surface-sunken)] border-t border-[var(--line-soft)] pt-8 pb-6 px-6">
       <div className="max-w-6xl mx-auto">
@@ -29,13 +32,13 @@ export default function Footer() {
               Batam<span className="text-[var(--accent-ink)]">Smart</span>
             </span>
             <p className="text-[var(--muted)] text-sm mt-1">
-              Smart travel, simple vouchers.
+              {t("footer.tagline")}
             </p>
           </div>
           <nav className="flex flex-wrap gap-4 justify-center md:justify-end text-sm">
-            {footerLinks.Product.map(({ label, href }) => (
+            {footerLinks.Product.map(({ labelKey, href }) => (
               <a key={href} href={href} className="text-[var(--muted)] hover:text-[var(--fg)] transition-colors">
-                {label}
+                {t(labelKey)}
               </a>
             ))}
           </nav>
@@ -43,12 +46,12 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row items-center justify-between text-xs text-[var(--muted)]">
-          <p>© {new Date().getFullYear()} BatamSmart. All rights reserved.</p>
-          <p>Batam, Kepulauan Riau, Indonesia · SGD / IDR supported</p>
+          <p>{t("footer.copyright").replace("{year}", String(new Date().getFullYear()))}</p>
+          <p>{t("footer.location")}</p>
           <div className="flex gap-2">
-            {footerLinks.Legal.map(({ label, href }, i) => (
+            {footerLinks.Legal.map(({ labelKey, href }, i) => (
               <span key={href} className="flex items-center">
-                <a href={href} className="hover:underline">{label}</a>
+                <a href={href} className="hover:underline">{t(labelKey)}</a>
                 {i < footerLinks.Legal.length - 1 && <span className="mx-1 text-[var(--faint)]">|</span>}
               </span>
             ))}

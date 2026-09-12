@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart } from "lucide-react";
+import { useLocale } from "@/lib/locale-context";
 
 // ponytail: bar only appears once the cart has items — an empty bar is dead weight.
 // Wire onCheckout to the real flow when payment lands.
@@ -10,6 +11,8 @@ export default function MobileCartBar({ count, total, onCheckout }: {
   total: number;
   onCheckout: () => void;
 }) {
+  const { t, locale } = useLocale();
+  const totalDisplay = locale === "id" ? `Rp ${Math.round(total * 11800).toLocaleString("id-ID")}` : `S$ ${total.toFixed(2)}`;
   return (
     <AnimatePresence>
       {count > 0 && (
@@ -24,9 +27,9 @@ export default function MobileCartBar({ count, total, onCheckout }: {
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[11px] text-[var(--muted)]">
-                {count} {count === 1 ? "item" : "items"} · E-Cash
+                {count} {count === 1 ? t("cart.item") : t("cart.items")}
               </p>
-              <p className="text-[17px] font-bold text-[var(--fg)]">S$ {total.toFixed(2)}</p>
+              <p className="text-[17px] font-bold text-[var(--fg)]">{totalDisplay}</p>
             </div>
             <button
               onClick={onCheckout}
@@ -34,7 +37,7 @@ export default function MobileCartBar({ count, total, onCheckout }: {
               className="flex items-center gap-2 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold px-5 py-3 rounded-xl transition-colors duration-200 shrink-0"
             >
               <ShoppingCart className="w-4 h-4" aria-hidden="true" />
-              <span aria-hidden="true">View Cart</span>
+              <span aria-hidden="true">{t("footer.viewCart")}</span>
             </button>
           </div>
         </motion.div>
