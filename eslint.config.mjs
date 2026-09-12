@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local Claude Code worktrees are separate checkouts on their own
+    // branches — linting them from the main checkout reports errors for code
+    // this branch does not own. Already git-ignored; mirror that here.
+    ".claude/worktrees/**",
   ]),
 ]);
 

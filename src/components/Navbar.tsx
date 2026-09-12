@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, Menu, X } from "lucide-react";
+import { saveCartForCheckout } from "@/lib/checkout";
 
 // Absolute hash paths: the navbar is shared with /merchants, where a bare
 // "#deals" points at nothing.
@@ -33,11 +35,20 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
   const cartCount = items.length;
   const total = items.reduce((sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"), 0);
   // Indicative conversion for IDR-side comparison. Fixed rate is a rough guide only.
   // ponytail: swap for a live FX rate (or a daily constant) when pricing goes real.
   const totalIDR = Math.round(total * 11800);
+
+  // The cart snapshot crosses to /checkout via sessionStorage (client state
+  // can't reach a separate route on its own).
+  const goToCheckout = () => {
+    saveCartForCheckout(items);
+    onCartOpenChange(false);
+    router.push("/checkout");
+  };
 
   useEffect(() => {
     if (!cartOpen) return;
@@ -293,7 +304,10 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                         </div>
                         <p className="text-xl font-bold text-fg">S$ {total.toFixed(2)}</p>
                       </div>
-                      <button className="mt-3 w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-accent/25">
+                      <button
+                        onClick={goToCheckout}
+                        className="mt-3 w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-accent/25"
+                      >
                         <ShoppingCart className="w-4 h-4" aria-hidden="true" />
                         Checkout · S$ {total.toFixed(2)}
                       </button>
