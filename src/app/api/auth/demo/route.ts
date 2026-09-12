@@ -24,7 +24,9 @@ export const dynamic = "force-dynamic";
 // cookie on the wrong host, so the browser would drop it and the visitor would
 // land back on /signin looking signed out. siteOrigin() reads x-forwarded-host.
 function back(req: Request, reason: string): NextResponse {
-  return NextResponse.redirect(`${siteOrigin(req)}/signin?error=${reason}`);
+  // 303, not the default 307: this answers a POST, and 307 would replay the
+  // POST at the new URL (POST / → 405). 303 forces the follow-up as GET.
+  return NextResponse.redirect(`${siteOrigin(req)}/signin?error=${reason}`, 303);
 }
 
 export async function POST(req: Request) {
@@ -81,7 +83,8 @@ export async function POST(req: Request) {
   // Same-site paths only — an absolute URL here would be an open redirect.
   const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
-  const res = NextResponse.redirect(`${siteOrigin(req)}${safeNext}`);
+  // 303: see back() above — the browser must GET the landing page.
+  const res = NextResponse.redirect(`${siteOrigin(req)}${safeNext}`, 303);
   res.cookies.set(SESSION_COOKIE, createSessionToken(user.id), sessionCookieOptions());
   return res;
 }
