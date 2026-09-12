@@ -13,6 +13,7 @@
 // their real base rates and zone surcharges at signing.
 
 import type { JourneyTheme } from "./destinations";
+export type { JourneyTheme };
 
 export type TourSlot = {
   time: string;
