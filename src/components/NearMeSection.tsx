@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import { useRef, useState, useCallback, useMemo } from "react";
 import { motion, useInView } from "framer-motion";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import {
   Search,
   Navigation,
@@ -208,13 +209,13 @@ function DestinationDetail({ destination: d }: { destination: Destination }) {
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-2 pt-4 border-t border-line-soft">
           <p className="text-[12px] text-muted">{t("nearby.ctaHint")}</p>
-          <a
+          <Link
             href="/#journey"
             className="flex items-center justify-center gap-2 bg-fg hover:bg-fg-hover text-white text-[13px] font-bold px-5 py-3 rounded-xl transition-colors duration-200"
           >
             <ArrowDown className="w-4 h-4" aria-hidden="true" />
             {t("nearby.ctaJourney")}
-          </a>
+          </Link>
         </div>
       </div>
     </div>

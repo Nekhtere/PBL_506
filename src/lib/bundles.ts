@@ -9,8 +9,6 @@
 // the S$99–122 market (Klook, JA Travel) as a launch position — partner
 // ferry + travel rates confirmed at signing.
 
-import type { JourneyTheme } from "./destinations";
-
 export type BundleSlot = {
   time: string;
   emoji: string;

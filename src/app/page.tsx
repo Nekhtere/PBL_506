@@ -8,7 +8,6 @@ import JourneySection from "@/components/JourneySection";
 import FerrySection from "@/components/FerrySection";
 import BundleSection from "@/components/BundleSection";
 import FaqSection from "@/components/FaqSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
 import Footer from "@/components/Footer";
 import MobileCartBar from "@/components/MobileCartBar";
 import { loadCartForCheckout, saveCartForCheckout } from "@/lib/checkout";
@@ -67,7 +66,6 @@ export default function Home() {
       <FerrySection />
       <BundleSection onAddToCart={(item) => addToCart(item)} />
       <FaqSection />
-      <HowItWorksSection />
       <div className={cartItems.length > 0 ? "bg-surface-sunken pb-24 md:pb-0" : undefined}>
         <Footer />
       </div>
