@@ -30,6 +30,25 @@ export function demoConfigured(): boolean {
   return demoEmail() !== null && demoPassword() !== null;
 }
 
+/**
+ * The pair, for printing on the sign-in card so a presenter can tap to copy
+ * instead of reading it off a slide.
+ *
+ * This is a deliberate, knowing exposure: the password ends up in the page
+ * source of a public URL. It is acceptable ONLY because this account guards
+ * nothing — no real user's data hangs off it, and the address is not a real
+ * inbox, so claimOrdersByEmail() can never pull in someone else's orders. Do
+ * not reuse this pattern for an account that owns anything.
+ *
+ * Returns null when unconfigured, so the card never renders an empty box.
+ */
+export function demoCredentialsForDisplay(): { email: string; password: string } | null {
+  const email = demoEmail();
+  const password = demoPassword();
+  if (!email || !password) return null;
+  return { email, password };
+}
+
 /** Constant-time compare, so response timing cannot reveal the password. */
 function safeEqual(a: string, b: string): boolean {
   const x = Buffer.from(a, "utf8");

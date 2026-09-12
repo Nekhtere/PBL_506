@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUserId } from "@/lib/session";
-import { demoConfigured } from "@/lib/demo-auth";
+import { demoConfigured, demoCredentialsForDisplay } from "@/lib/demo-auth";
 import { hasDatabase } from "@/lib/db";
 import SignInPanel from "@/components/SignInPanel";
 
@@ -40,6 +40,7 @@ export default async function SignInPage({
           error={searchParams.error}
           demoReady={demoConfigured()}
           dbReady={hasDatabase()}
+          demo={demoCredentialsForDisplay()}
         />
 
         <p className="text-center text-[11px] text-muted mt-6 leading-relaxed">

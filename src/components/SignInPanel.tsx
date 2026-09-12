@@ -1,6 +1,7 @@
 "use client";
 
-import { AlertCircle, Database, KeyRound, Lock, Mail } from "lucide-react";
+import { useRef, useState } from "react";
+import { AlertCircle, Check, Copy, Database, KeyRound, Lock, Mail } from "lucide-react";
 import { useLocale } from "@/lib/locale-context";
 
 // The sign-in card. Its main job during a demo is to fail *usefully*: if the
@@ -54,14 +55,45 @@ export default function SignInPanel({
   error,
   demoReady,
   dbReady,
+  demo,
 }: {
   next: string;
   error?: string;
   demoReady: boolean;
   dbReady: boolean;
+  /** The demo pair, printed below the form so a presenter can tap to copy. */
+  demo: { email: string; password: string } | null;
 }) {
   const { t, locale } = useLocale();
   const message = error ? ERRORS[error] : undefined;
+
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  // Which field was just copied, so its button can confirm it for a moment.
+  const [copied, setCopied] = useState<"email" | "password" | null>(null);
+
+  async function copy(kind: "email" | "password", value: string) {
+    // navigator.clipboard needs a secure context. localhost and https qualify;
+    // a plain-http LAN address (a phone on the same wifi) does not — so fall
+    // back to selecting the text, which the visitor can then copy by hand.
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      const el = kind === "email" ? emailRef.current : passwordRef.current;
+      el?.select();
+      return;
+    }
+    setCopied(kind);
+    window.setTimeout(() => setCopied(null), 1600);
+  }
+
+  function useCredentials() {
+    if (!demo) return;
+    if (emailRef.current) emailRef.current.value = demo.email;
+    if (passwordRef.current) passwordRef.current.value = demo.password;
+    setCopied(null);
+  }
 
   const blockers: { icon: typeof KeyRound; text: string }[] = [];
   if (!demoReady) {
@@ -121,6 +153,7 @@ export default function SignInPanel({
                 id="si-email"
                 name="email"
                 type="email"
+                ref={emailRef}
                 className={inputClass}
                 placeholder="demo@batamsmart.test"
                 autoComplete="username"
@@ -142,6 +175,7 @@ export default function SignInPanel({
                 id="si-pass"
                 name="password"
                 type="password"
+                ref={passwordRef}
                 className={inputClass}
                 placeholder="••••••••"
                 autoComplete="current-password"
@@ -157,6 +191,62 @@ export default function SignInPanel({
             {t("signin.submit")}
           </button>
         </form>
+      )}
+
+      {/* The demo pair, printed so nobody has to read it off a slide. Shown only
+          when sign-in is actually configured, so it can never disagree with
+          what the form accepts. */}
+      {demo && blockers.length === 0 && (
+        <div className="mt-5 rounded-2xl border border-dashed border-line bg-bg/60 p-3.5">
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <KeyRound className="w-3.5 h-3.5 text-muted" aria-hidden="true" />
+            <span className="text-[11px] font-semibold text-muted uppercase tracking-wide">
+              {t("signin.demoTitle")}
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {(
+              [
+                ["email", demo.email, t("signin.email")],
+                ["password", demo.password, t("signin.password")],
+              ] as const
+            ).map(([kind, value, label]) => (
+              <div key={kind} className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] text-faint mb-0.5">{label}</div>
+                  <div className="font-mono text-[12px] text-fg truncate">{value}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => copy(kind, value)}
+                  aria-label={`${t("signin.demoCopy")} ${label}`}
+                  className="shrink-0 inline-flex items-center gap-1 text-[11px] font-semibold text-accent-ink bg-accent/10 hover:bg-accent/20 rounded-lg px-2.5 py-1.5 transition-colors"
+                >
+                  {copied === kind ? (
+                    <>
+                      <Check className="w-3 h-3" aria-hidden="true" />
+                      {t("signin.demoCopied")}
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3" aria-hidden="true" />
+                      {t("signin.demoCopy")}
+                    </>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={useCredentials}
+            className="w-full mt-3 text-[12px] font-semibold text-fg bg-surface border border-line hover:border-accent rounded-lg py-2 transition-colors"
+          >
+            {t("signin.demoUse")}
+          </button>
+        </div>
       )}
 
       <p className="text-[11px] text-muted mt-5 leading-relaxed">
