@@ -33,12 +33,36 @@ export function googleConfigured(): boolean {
   return googleClientId() !== null && googleClientSecret() !== null;
 }
 
-/** Absolute origin for building the redirect_uri. Vercel sets VERCEL_URL;
-    locally we fall back to the dev server. */
+/** Absolute origin for the redirect_uri and the links inside emails.
+ *
+ * Order matters, and getting it wrong breaks sign-in with
+ * redirect_uri_mismatch: Google compares our redirect_uri against the
+ * registered list character for character, so it must be the host the visitor
+ * is actually on. */
 export function siteOrigin(req: Request): string {
+  // 1. An explicit override wins — set NEXT_PUBLIC_SITE_URL to the canonical
+  //    domain and every generated link points there regardless of how the
+  //    request arrived.
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (configured) return configured.replace(/\/+$/, "");
 
+  // 2. The host the visitor actually used — what the browser's address bar
+  //    says, and therefore the only value Google will accept. Vercel forwards
+  //    the public hostname here (the request reaches the function over an
+  //    internal one).
+  const forwarded = req.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const host = forwarded || req.headers.get("host")?.trim();
+  if (host) {
+    const proto =
+      req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+      (/^(localhost|127\.|\[::1\])/.test(host) ? "http" : "https");
+    return `${proto}://${host}`;
+  }
+
+  // 3. Vercel's own variable. NOTE: this is the DEPLOYMENT url
+  //    (app-<hash>.vercel.app), NOT the production alias, so it will not match
+  //    a registered redirect URI unless you registered that exact host. Kept
+  //    only as a last resort.
   const vercel = process.env.VERCEL_URL?.trim();
   if (vercel) return `https://${vercel}`;
 
