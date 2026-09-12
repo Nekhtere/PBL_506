@@ -1,0 +1,14 @@
+# Never upload secrets or build output to Vercel.
+#
+# The CLI uploads the working directory when you deploy from a local machine,
+# and .env.local holds the database URL, Google client secret, Gmail app
+# password and the session secret. Vercel injects its own copies of these from
+# the project settings, so the local file must never travel with a deployment.
+.env
+.env.*
+!.env.example
+
+node_modules
+.next
+.vercel
+*.log
