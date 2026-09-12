@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star, ShoppingCart, Heart, MapPin, CheckCircle } from "lucide-react";
 import { tagColors, discountPercent, type Merchant } from "@/lib/merchants";
 import type { CartItem } from "./Navbar";
+import { useLocale } from "@/lib/locale-context";
 
 // Photo-forward tile: look at where you could go. Validity and inclusions live
 // in the detail modal, so the card stays mostly a picture — but the saving is
@@ -19,6 +20,10 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
   onAddToCart: (item: Omit<CartItem, "id">) => void;
 }) {
   const [liked, setLiked] = useState(false);
+  const { t, locale } = useLocale();
+  // ponytail: FX pegged at 11800 — swap for a live rate endpoint at launch.
+  const toIDR = (raw: string) =>
+    `Rp ${Math.round(parseFloat(raw.replace(/[^0-9.]/g, "") || "0") * 11800).toLocaleString("id-ID")}`;
   const [added, setAdded] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const discount = discountPercent(merchant.originalPrice, merchant.salePrice);
@@ -133,10 +138,10 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
           <span className="flex items-baseline min-w-0">
             {/* /70 not /55: struck-through 12px over a photo is the smallest
                 text on the card, so it needs the most headroom. */}
-            <span className="text-white/70 text-[12px] line-through mr-1.5 shrink-0">{merchant.originalPrice}</span>
+            <span className="text-white/70 text-[12px] line-through mr-1.5 shrink-0">{locale === "id" ? toIDR(merchant.originalPrice) : merchant.originalPrice}</span>
             <span className="text-white text-[18px] font-bold">
-              {merchant.salePrice}
-              <span className="text-white/70 text-[11px] font-medium ml-1.5">E-Cash</span>
+              {locale === "id" ? toIDR(merchant.salePrice) : merchant.salePrice}
+              <span className="text-white/70 text-[11px] font-medium ml-1.5">SGD</span>
             </span>
           </span>
           <motion.button
@@ -156,7 +161,7 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
                   className="flex items-center gap-1.5"
                 >
                   <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
-                  Added
+                  {t("deals.added")}
                 </motion.span>
               ) : (
                 <motion.span
@@ -168,7 +173,7 @@ export default function MerchantCard({ merchant, index, isInView, onSelect, onAd
                   className="flex items-center gap-1.5"
                 >
                   <ShoppingCart className="w-3.5 h-3.5" aria-hidden="true" />
-                  Add
+                  {t("deals.add")}
                 </motion.span>
               )}
             </AnimatePresence>

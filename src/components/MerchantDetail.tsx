@@ -3,6 +3,7 @@
 import { Star, ShoppingCart, Check, MapPin, Clock } from "lucide-react";
 import { merchantDetails, tagColors, discountPercent, type Merchant } from "@/lib/merchants";
 import type { CartItem } from "./Navbar";
+import { useLocale } from "@/lib/locale-context";
 
 // Body of the detail modal. Shared by the home carousel and the /merchants
 // directory so a merchant looks and behaves the same wherever it is opened.
@@ -15,6 +16,8 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
 }) {
   const details = merchantDetails[merchant.id];
   const discount = discountPercent(merchant.originalPrice, merchant.salePrice);
+  const { t, locale } = useLocale();
+  const priceIDR = `Rp ${Math.round(parseFloat(merchant.salePrice.replace(/[^0-9.]/g, "") || "0") * 11800).toLocaleString("id-ID")}`;
 
   return (
     <div className="flex flex-col">
@@ -39,7 +42,7 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-white/85 text-[12px]">
             <span className="flex items-center gap-1">
               <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
-              {merchant.rating} ({merchant.reviews} reviews)
+              {merchant.rating} ({merchant.reviews} {t("itinerary.reviews")})
             </span>
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5" aria-hidden="true" /> {merchant.location}
@@ -73,7 +76,7 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
           {/* Includes */}
           {details && (
             <div className="mb-4">
-              <p className="text-[12px] font-semibold text-fg mb-2">What&apos;s included</p>
+              <p className="text-[12px] font-semibold text-fg mb-2">{t("itinerary.included")}</p>
               <ul className="space-y-1.5">
                 {details.includes.map((item) => (
                   <li key={item} className="flex items-center gap-2 text-[12px] text-muted">
@@ -98,8 +101,8 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
         <div className="flex items-center justify-between bg-surface-sunken rounded-2xl p-4 mb-4 shrink-0">
           <div className="flex items-baseline flex-wrap gap-x-2">
             <span className="text-[12px] text-muted line-through">{merchant.originalPrice}</span>
-            <span className="text-2xl font-bold text-fg">{merchant.salePrice}</span>
-            <span className="text-[11px] text-muted">E-Cash</span>
+            <span className="text-2xl font-bold text-fg">{locale === "id" ? priceIDR : merchant.salePrice}</span>
+            <span className="text-[11px] text-muted">{locale === "id" ? "per voucher" : "SGD"}</span>
             {discount > 0 && (
               <span className="rounded-full bg-emerald-600 text-white text-[11px] font-bold px-2 py-0.5">
                 -{discount}%
@@ -110,7 +113,7 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mt-4 pt-4 border-t border-line-soft shrink-0">
           <div>
-            <p className="text-[11px] text-muted">Voucher can be redeemed at</p>
+            <p className="text-[11px] text-muted">{t("deals.redeemAt")}</p>
             <p className="text-[13px] font-semibold text-fg">{merchant.location}</p>
           </div>
           <button
@@ -127,7 +130,7 @@ export default function MerchantDetail({ merchant, onAddToCart, onDone }: {
             }}
           >
             <ShoppingCart className="w-4 h-4" aria-hidden="true" />
-            Add to Cart
+            {t("deals.addToCart")}
           </button>
         </div>
       </div>

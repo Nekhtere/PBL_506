@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Navigation, Smartphone, MapPin, ArrowRight } from "lucide-react";
+import { useLocale } from "@/lib/locale-context";
 
 const fareData = [
   { route: "Ferry Port → Golden Prawn",  app: "GrabCar",  fare: "SGD 3 – 5", time: "~8 min"  },
@@ -12,13 +13,14 @@ const fareData = [
 ];
 
 const pickupPoints = [
-  { terminal: "Batam Center Ferry", location: "Exit gate, turn left 50m", emoji: "⛴️", tip: "Look for the green Grab/Gojek sign" },
-  { terminal: "Harbour Bay Ferry", location: "Ground floor, east exit", emoji: "🚢", tip: "Pre-book before docking for faster pickup" },
+  { terminal: "Batam Center Ferry", locationKey: "ride.bc.location", emoji: "⛴️", tipKey: "ride.bc.tip" },
+  { terminal: "Harbour Bay Ferry", locationKey: "ride.hb.location", emoji: "🚢", tipKey: "ride.hb.tip" },
 ];
 
 export default function RideGuideSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const { t } = useLocale();
 
   return (
     <section id="ride-guide" ref={sectionRef} className="py-24 px-6 overflow-hidden">
@@ -83,7 +85,7 @@ export default function RideGuideSection() {
                   {/* Glass overlay card on map */}
                   <div className="absolute bottom-4 left-3 right-3 glass rounded-2xl p-3">
                     <p className="text-xs font-semibold text-fg mb-1">
-                      🚗 GrabCar · 8 min away
+                      🚗 GrabCar · {t("ride.minsAway")}
                     </p>
                     <div className="flex items-center justify-between">
                       <div>
@@ -91,7 +93,7 @@ export default function RideGuideSection() {
                         <p className="text-sm font-bold text-fg mt-0.5">~S$ 4.50</p>
                       </div>
                       <button className="bg-accent text-white text-xs font-semibold px-3 py-1.5 rounded-xl">
-                        Book
+                        {t("ride.book")}
                       </button>
                     </div>
                   </div>
@@ -107,8 +109,8 @@ export default function RideGuideSection() {
                    cover. It only floats outside once there is room at sm+. */
                 className="absolute right-0 sm:-right-6 top-20 glass rounded-2xl px-4 py-3 shadow-lg"
               >
-                <p className="text-xs font-semibold text-fg">🎯 Pickup Confirmed</p>
-                <p className="text-[10px] text-subtle mt-0.5">Driver is 2 min away</p>
+                <p className="text-xs font-semibold text-fg">🎯 {t("ride.pickupConfirmed")}</p>
+                <p className="text-[10px] text-subtle mt-0.5">{t("ride.driver2min")}</p>
               </motion.div>
             </div>
           </motion.div>
@@ -120,18 +122,18 @@ export default function RideGuideSection() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           >
             <span className="text-[var(--accent-ink)] text-[12px] font-semibold tracking-widest uppercase">
-              Smart Ride Guide
+              {t("ride.label")}
             </span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--fg)] mt-2 mb-4 tracking-tight leading-tight">
-              No Shuttle?
+              {t("ride.heading1")}
               <br />
-              No Problem.
+              {t("ride.heading2")}
               <br />
               {/* #515154 on #FBFBFD = 7.7:1 ✓ WCAG AA */}
-              <span className="text-[var(--muted)]">Go Local.</span>
+              <span className="text-[var(--muted)]">{t("ride.heading3")}</span>
             </h2>
             <p className="text-[var(--muted)] text-[15px] leading-relaxed mb-8">
-              We integrated fare estimates so you can travel like a local. Just open Gojek or Grab — we show you exactly where to stand.
+              {t("ride.sub")}
             </p>
 
             {/* Fare Table */}
@@ -139,7 +141,7 @@ export default function RideGuideSection() {
               <div className="bg-[var(--surface-sunken)] px-4 py-2.5 flex items-center gap-2">
                 <Navigation className="w-4 h-4 text-[var(--muted)]" aria-hidden="true" />
                 <span className="text-[11px] font-semibold text-[var(--muted)] uppercase tracking-widest">
-                  Estimated Fares
+                  {t("ride.fares")}
                 </span>
               </div>
               {fareData.map((row, i) => (
@@ -163,7 +165,7 @@ export default function RideGuideSection() {
             <div>
               <h3 className="text-[13px] font-semibold text-[var(--fg)] mb-3 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-[var(--accent-ink)]" aria-hidden="true" />
-                Pick-up Point Guide
+                {t("ride.pickup")}
               </h3>
               <div className="space-y-3">
                 {pickupPoints.map((p, i) => (
@@ -172,9 +174,9 @@ export default function RideGuideSection() {
                     <div>
                       <p className="text-[13px] font-semibold text-[var(--fg)]">{p.terminal}</p>
                       {/* #515154 on #F5F5F7 = 7.3:1 ✓ WCAG AA */}
-                      <p className="text-[12px] text-[var(--muted)] mt-0.5">{p.location}</p>
+                      <p className="text-[12px] text-[var(--muted)] mt-0.5">{t(p.locationKey)}</p>
                       <p className="text-[12px] text-[var(--accent-ink)] mt-1 flex items-center gap-1">
-                        <Smartphone className="w-3 h-3" aria-hidden="true" /> {p.tip}
+                        <Smartphone className="w-3 h-3" aria-hidden="true" /> {t(p.tipKey)}
                       </p>
                     </div>
                   </div>
@@ -183,7 +185,7 @@ export default function RideGuideSection() {
             </div>
 
             <button className="mt-8 flex items-center gap-2 text-[var(--accent-ink)] text-[13px] font-semibold hover:gap-3 transition-all duration-200">
-              See full ride guide <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              {t("ride.seeFull")} <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </motion.div>
         </div>

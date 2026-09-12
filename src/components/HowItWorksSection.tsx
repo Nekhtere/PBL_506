@@ -3,31 +3,18 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { ShoppingCart, QrCode, Smile } from "lucide-react";
+import { useLocale } from "@/lib/locale-context";
 
 const steps = [
-  {
-    step: "01",
-    icon: ShoppingCart,
-    title: "Buy in SGD",
-    description: "Choose a curated deal and pay securely in Singapore Dollars.",
-  },
-  {
-    step: "02",
-    icon: QrCode,
-    title: "Scan QR Code",
-    description: "Receive your voucher instantly and show its QR code at checkout.",
-  },
-  {
-    step: "03",
-    icon: Smile,
-    title: "Enjoy Batam",
-    description: "Merchant confirms redemption in seconds. No app download needed.",
-  },
+  { step: "01", icon: ShoppingCart, titleKey: "how.step1.title", descKey: "how.step1.desc" },
+  { step: "02", icon: QrCode, titleKey: "how.step2.title", descKey: "how.step2.desc" },
+  { step: "03", icon: Smile, titleKey: "how.step3.title", descKey: "how.step3.desc" },
 ];
 
 export default function HowItWorksSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const { t } = useLocale();
 
   return (
     <section id="how-it-works" ref={sectionRef} className="bg-[var(--surface-sunken)] px-6 py-24">
@@ -39,15 +26,15 @@ export default function HowItWorksSection() {
           className="mx-auto mb-14 max-w-xl text-center"
         >
           <span className="text-[12px] font-semibold uppercase tracking-widest text-[var(--accent-ink)]">
-            How It Works
+            {t("how.label")}
           </span>
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--fg)] sm:text-4xl md:text-5xl">
-            Three Steps.
+            {t("how.heading1")}
             <br />
-            <span className="text-[var(--muted)]">Pure Simplicity.</span>
+            <span className="text-[var(--muted)]">{t("how.heading2")}</span>
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-[var(--muted)]">
-            From payment to redemption, every step stays effortless.
+            {t("how.sub")}
           </p>
         </motion.div>
 
@@ -69,8 +56,8 @@ export default function HowItWorksSection() {
                   </span>
                   <Icon className="h-5 w-5 text-[var(--muted)]" strokeWidth={1.6} aria-hidden="true" />
                 </div>
-                <h3 className="text-[18px] font-semibold text-[var(--fg)]">{step.title}</h3>
-                <p className="mt-2 text-[14px] leading-relaxed text-[var(--muted)]">{step.description}</p>
+                <h3 className="text-[18px] font-semibold text-[var(--fg)]">{t(step.titleKey)}</h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-[var(--muted)]">{t(step.descKey)}</p>
               </motion.article>
             );
           })}

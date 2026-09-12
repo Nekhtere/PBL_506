@@ -6,24 +6,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { saveCartForCheckout } from "@/lib/checkout";
+import { useLocale } from "@/lib/locale-context";
+import type { Locale } from "@/lib/locale-context";
 
-// Absolute hash paths: the navbar is shared with /merchants, where a bare
-// "#deals" points at nothing.
+export type { Locale };
+
 const navLinks = [
-  { label: "Home", href: "/#home" },
-  { label: "Deals", href: "/#deals" },
-  { label: "Itinerary", href: "/#itinerary" },
-  { label: "Ferry", href: "/#ferry" },
-  { label: "Ride Guide", href: "/#ride-guide" },
+  { labelKey: "nav.home",      href: "/#home" },
+  { labelKey: "nav.deals",     href: "/#deals" },
+  { labelKey: "nav.itinerary", href: "/#itinerary" },
+  { labelKey: "nav.ferry",     href: "/#ferry" },
+  { labelKey: "nav.rideGuide", href: "/#ride-guide" },
 ];
 
 export interface CartItem {
   id: string;
   name: string;
-  price: string; // e.g. "S$ 14"
-  subtitle?: string; // e.g. category, route type
-  image?: string;    // photo URL
-  items?: string[];  // included merchant/voucher names
+  price: string;
+  subtitle?: string;
+  image?: string;
+  items?: string[];
   kind: "deal" | "route";
 }
 
@@ -33,14 +35,21 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
   cartOpen: boolean;
   onCartOpenChange: (open: boolean) => void;
 }) {
+  const { locale, setLocale, t } = useLocale();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const router = useRouter();
   const cartCount = items.length;
   const total = items.reduce((sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"), 0);
-  // Indicative conversion for IDR-side comparison. Fixed rate is a rough guide only.
-  // ponytail: swap for a live FX rate (or a daily constant) when pricing goes real.
   const totalIDR = Math.round(total * 11800);
+  const isID = locale === "id";
+
+  const priceDisplay = (raw: string) => {
+    if (!isID) return raw;
+    const num = parseFloat(raw.replace(/[^0-9.]/g, "") || "0");
+    return `Rp ${Math.round(num * 11800).toLocaleString("id-ID")}`;
+  };
+  const totalDisplay = isID ? `Rp ${totalIDR.toLocaleString("id-ID")}` : `S$ ${total.toFixed(2)}`;
 
   // The cart snapshot crosses to /checkout via sessionStorage (client state
   // can't reach a separate route on its own).
@@ -97,7 +106,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
           </span>
         </Link>
 
-        {/* Desktop Nav — centred absolutely so logo + actions balance independently */}
+        {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
           {navLinks.map((link) => (
             <a
@@ -105,13 +114,27 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
               href={link.href}
               className="px-3.5 py-1.5 text-[13px] font-medium text-fg rounded-full hover:shadow-md hover:shadow-accent/30 transition-shadow duration-200"
             >
-              {link.label}
+              {t(link.labelKey)}
             </a>
           ))}
         </nav>
 
         {/* Right Actions */}
         <div className="flex items-center gap-1.5">
+          {/* Language / Currency Toggle */}
+          <button
+            onClick={() => setLocale(locale === "en" ? "id" : "en")}
+            aria-label={locale === "en" ? "Switch to Indonesian / IDR" : "Switch to English / SGD"}
+            className="flex items-center gap-0 rounded-full bg-black/[0.06] hover:bg-black/[0.10] transition-colors duration-200 overflow-hidden text-[11px] font-semibold h-7"
+          >
+            <span className={`px-2.5 h-full flex items-center transition-colors duration-200 rounded-full ${locale === "en" ? "bg-accent text-white" : "text-fg/50"}`}>
+              EN
+            </span>
+            <span className={`px-2.5 h-full flex items-center transition-colors duration-200 rounded-full ${locale === "id" ? "bg-accent text-white" : "text-fg/50"}`}>
+              ID
+            </span>
+          </button>
+
           {/* Cart */}
           <button
             className="relative p-2 rounded-full hover:bg-black/[0.06] transition-all duration-200"
@@ -167,7 +190,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                 onClick={() => setMobileOpen(false)}
                 className="px-3 py-2.5 text-[14px] font-medium text-fg rounded-xl hover:shadow-md hover:shadow-black/10 transition-shadow"
               >
-                {link.label}
+                {t(link.labelKey)}
               </a>
             ))}
           </motion.div>
@@ -206,14 +229,14 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
 
               <div className="p-6">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-xl font-bold text-fg">Your Cart</h3>
+                  <h3 className="text-xl font-bold text-fg">{t("cart.title")}</h3>
                   {items.length > 0 && (
                     <span className="text-[11px] font-semibold text-muted bg-surface-sunken px-2.5 py-1 rounded-full">
-                      {items.length} {items.length === 1 ? "item" : "items"}
+                      {items.length} item{items.length !== 1 ? "s" : ""}
                     </span>
                   )}
                 </div>
-                <p className="text-[12px] text-muted mb-5">E-Cash vouchers, redeemed via QR at the merchant.</p>
+                <p className="text-[12px] text-muted mb-5">{t("cart.subtitle")}</p>
 
                 {items.length === 0 ? (
                   <div className="text-center py-10">
@@ -221,7 +244,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                       <ShoppingCart className="w-6 h-6 text-faint" aria-hidden="true" />
                     </div>
                     <p className="text-[13px] text-muted leading-relaxed">
-                      Your cart is empty.<br />Add a deal or itinerary route to get started.
+                      {t("cart.empty")}<br />{t("cart.emptyBody")}
                     </p>
                   </div>
                 ) : (
@@ -250,7 +273,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                             ) : (
                               <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0">
                                 <span className="text-[10px] font-bold text-accent-ink uppercase tracking-wide">
-                                  {item.kind === "route" ? "Route" : "Deal"}
+                                  {item.kind === "route" ? t("cart.badgeRoute") : t("cart.badgeDeal")}
                                 </span>
                               </div>
                             )}
@@ -258,7 +281,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
                                 <p className="text-[13px] font-semibold text-fg leading-snug">{item.name}</p>
-                                <p className="text-[13px] font-bold text-fg shrink-0">{item.price}</p>
+                                <p className="text-[13px] font-bold text-fg shrink-0">{priceDisplay(item.price)}</p>
                               </div>
                               {item.subtitle && (
                                 <p className="text-[11px] text-muted mt-0.5">{item.subtitle}</p>
@@ -270,7 +293,7 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
                               )}
                               <div className="flex items-center justify-between mt-2">
                                 <span className="text-[10px] font-medium text-accent-ink bg-accent/10 px-2 py-0.5 rounded-full">
-                                  QR Voucher
+                                  {item.kind === "route" ? t("cart.badgeRoute") : t("cart.qrVoucher")}
                                 </span>
                                 <button
                                   className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-muted hover:text-red-500 transition-colors shrink-0"
@@ -288,28 +311,28 @@ export default function Navbar({ items, onRemoveItem, cartOpen, onCartOpenChange
 
                     <div className="pt-4 mt-4 border-t border-line-soft space-y-1.5">
                       <div className="flex items-center justify-between text-[12px] text-muted">
-                        <span>Subtotal</span>
-                        <span>S$ {total.toFixed(2)}</span>
+                        <span>{t("cart.subtotal")}</span>
+                        <span>{totalDisplay}</span>
                       </div>
                       <div className="flex items-center justify-between text-[12px] text-muted">
-                        <span>Booking fee</span>
-                        <span className="text-emerald-600 font-medium">Free</span>
+                        <span>{t("cart.fee")}</span>
+                        <span className="text-emerald-600 font-medium">{t("cart.free")}</span>
                       </div>
                       <div className="flex items-center justify-between pt-2">
                         <div>
-                          <p className="text-[13px] font-semibold text-fg">Total</p>
+                          <p className="text-[13px] font-semibold text-fg">{t("cart.total")}</p>
                           <p className="text-[11px] text-muted">
-                            ≈ Rp {totalIDR.toLocaleString("id-ID")} · charged in SGD
+                            {isID ? `≈ S$ ${total.toFixed(2)} · dibayar dalam IDR` : `≈ Rp ${totalIDR.toLocaleString("id-ID")} · charged in SGD`}
                           </p>
                         </div>
-                        <p className="text-xl font-bold text-fg">S$ {total.toFixed(2)}</p>
+                        <p className="text-xl font-bold text-fg">{totalDisplay}</p>
                       </div>
                       <button
                         onClick={goToCheckout}
                         className="mt-3 w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-white text-[14px] font-bold py-3 rounded-xl transition-colors duration-200 shadow-lg shadow-accent/25"
                       >
                         <ShoppingCart className="w-4 h-4" aria-hidden="true" />
-                        Checkout · S$ {total.toFixed(2)}
+                        {t("cart.checkout")} · {totalDisplay}
                       </button>
                     </div>
                   </>

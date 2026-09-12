@@ -14,8 +14,6 @@ import MobileCartBar from "@/components/MobileCartBar";
 export default function Home() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  // Owned here because the hero's search box and the deals row are siblings —
-  // neither can hold the other's state. The hero writes it, the row reads it.
   const [dealQuery, setDealQuery] = useState("");
   const cartTotal = cartItems.reduce(
     (sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"),
@@ -41,15 +39,10 @@ export default function Home() {
       />
       <HeroSection onSearch={setDealQuery} />
       <DealsSection onAddToCart={(item) => addToCart(item)} query={dealQuery} onQueryChange={setDealQuery} />
-      <ItinerarySection
-        onAddToCart={(item) => addToCart(item)}
-      />
+      <ItinerarySection onAddToCart={(item) => addToCart(item)} />
       <FerrySection />
       <RideGuideSection />
       <HowItWorksSection />
-      {/* The fixed MobileCartBar overlays the bottom of the viewport on mobile.
-          Extra bottom padding (in the footer's own colour) gives the legal links
-          room to clear it instead of staying trapped underneath. */}
       <div className={cartItems.length > 0 ? "bg-surface-sunken pb-24 md:pb-0" : undefined}>
         <Footer />
       </div>
