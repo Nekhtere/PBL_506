@@ -29,8 +29,8 @@ export default function CartDrawer() {
     return `Rp ${Math.round(num * 11800).toLocaleString("id-ID")}`;
   };
 
-  // Warns when the cart holds a bundle plus something the bundle already
-  // includes. Advisory only — the buyer may have a real reason, so this never
+  // Warns when one cart line's coverage is a strict superset of another's.
+  // Advisory only — the buyer may have a real reason, so this never
   // blocks checkout. See lib/coverage.ts for the rule.
   const clashes = findCoverageClashes(items);
   const coveredLabel = (c: Covered) => t(`cart.covers.${c}`);

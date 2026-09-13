@@ -1,7 +1,7 @@
 // Single source of truth for every destination shown in the free Near Me
 // section and referenced by the paid Journey themes. A Destination is a place,
-// not a product — it carries no price of its own. What we sell (tours, ferry
-// tickets, bundles) lives elsewhere.
+// not a product — it carries no price of its own. What we sell (tours and
+// ferry tickets) lives elsewhere.
 //
 // Zone drives the distance-based tour pricing (team decision: travel revenue
 // is the cost of getting A→B, so further costs more — matching how Batam

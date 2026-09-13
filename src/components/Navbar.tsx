@@ -15,7 +15,7 @@ import { useLocale } from "@/lib/locale-context";
 // the cart context. Splitting them keeps this component about identity and
 // orientation, and means the drawer isn't re-created on every route change.
 
-// "Home" is deliberately absent: the logo already links there, and at five
+// "Home" is deliberately absent: the logo already links there, and at four
 // items the pill stays uncrowded. "Destinations" is intentionally not here:
 // it has its own page and users reach it from the home search/chips or the
 // mobile menu, not through the main nav pill.
@@ -23,7 +23,6 @@ const navLinks = [
   { labelKey: "nav.nearme",  href: "/#near-me" },
   { labelKey: "nav.journey", href: "/#journey" },
   { labelKey: "nav.ferry",   href: "/#ferry" },
-  { labelKey: "nav.bundle",  href: "/#bundle" },
   { labelKey: "nav.faq",     href: "/#faq" },
 ];
 

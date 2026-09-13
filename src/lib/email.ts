@@ -85,7 +85,7 @@ export function buildTicketEmail(order: StoredOrder, origin: string) {
     <div style="font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px">
       Batam<span style="color:#0f766e">Smart</span>
     </div>
-    <p style="color:#6b7280;font-size:13px;margin:0 0 24px">Ferry, tours and bundles — one smart checkout.</p>
+    <p style="color:#6b7280;font-size:13px;margin:0 0 24px">Ferry and tours — one smart checkout.</p>
 
     <div style="background:#fff;border-radius:20px;padding:24px">
       <h1 style="font-size:20px;margin:0 0 6px">Your e-tickets are ready</h1>

@@ -1,33 +1,18 @@
 // What each product already contains — the vocabulary behind the cart's
-// double-booking warning.
-//
-// The problem it solves: a bundle already includes its own return ferry AND a
-// car+driver. Adding a day tour (car+driver) or a ferry ticket alongside it
-// therefore charges the buyer twice for the same thing. The bundle is the
-// all-in-one, so a clash is any pair where one item's coverage is a strict
-// superset of another's.
-//
-// That rule is deliberately narrow, and it falls out of the data rather than a
-// list of special cases:
-//   bundle + tour   → bundle ⊃ tour  → clash on "driver"
-//   bundle + ferry  → bundle ⊃ ferry → clash on "ferry"
-//   tour + ferry    → neither is a superset → no clash (a sensible pairing)
-//   tour + tour     → equal coverage → no clash (two different days)
+// double-booking warning: a clash is any pair where one item's coverage is a
+// strict superset of another's. With the current catalogue (tours cover the
+// driver, ferry tickets cover the crossing) no pair can clash — tour + ferry
+// is a sensible pairing, tour + tour is two different days — but the check
+// stays so a future multi-cover product can't silently double-charge.
 
 import type { CartItem } from "@/lib/cart";
 
 export type Covered = "ferry" | "driver";
 
-export const COVERS: Record<"bundle" | "tour" | "ferry", Covered[]> = {
-  bundle: ["ferry", "driver"],
-  tour: ["driver"],
-  ferry: ["ferry"],
-};
-
 export type CoverageClash = {
   /** The thing paid for twice, e.g. "driver". */
   covered: Covered;
-  /** Item that already includes it — the bundle, normally. */
+  /** Item that already includes it. */
   includes: string;
   /** Item that charges for it again. */
   redundant: string;

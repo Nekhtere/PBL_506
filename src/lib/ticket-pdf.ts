@@ -77,7 +77,7 @@ export async function buildTicketPdf(order: StoredOrder, origin: string): Promis
   const batamW = bold.widthOfTextAtSize("Batam", 20);
   text("Smart", M + batamW, y, { size: 20, f: bold, color: TEAL });
   y -= 18;
-  text("Ferry, tours and bundles - one smart checkout.", M, y, { size: 9, color: MUTED });
+  text("Ferry and tours - one smart checkout.", M, y, { size: 9, color: MUTED });
   y -= 22;
 
   page.drawLine({

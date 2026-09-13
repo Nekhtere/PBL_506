@@ -1,6 +1,5 @@
-// Shared ferry route data — used by both the standalone ferry section and the
-// bundled ferry+tour packages. Keeps schedules, fares and terminal facts in one
-// place so bundle calculations never drift from the ferry section.
+// Shared ferry route data — schedules, fares and terminal facts in one place
+// so every section quotes the same crossing.
 
 export type RouteTheme = {
   gradient: string;

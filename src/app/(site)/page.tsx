@@ -4,7 +4,6 @@ import HeroSection from "@/components/HeroSection";
 import NearMeSection from "@/components/NearMeSection";
 import JourneySection from "@/components/JourneySection";
 import FerrySection from "@/components/FerrySection";
-import BundleSection from "@/components/BundleSection";
 import FaqSection from "@/components/FaqSection";
 import { useCart, useCartUi } from "@/lib/cart-context";
 
@@ -28,7 +27,6 @@ export default function Home() {
           only when the buyer asks for it — popping it open on add would hide
           the confirmation panel they just earned. */}
       <FerrySection onAddToCart={addItem} onOpenCart={() => setCartOpen(true)} />
-      <BundleSection onAddToCart={addItem} />
       <FaqSection />
     </main>
   );

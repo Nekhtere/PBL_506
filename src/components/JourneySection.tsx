@@ -172,8 +172,8 @@ function TourCard({
         return `${d.emoji} ${d.name} (${s.time})`;
       }),
       kind: "route",
-      // A tour is car + driver only — no ferry. Lets the cart spot a bundle
-      // that already covers the driver.
+      // A tour is car + driver only — no ferry. Lets the cart spot another
+      // line that already covers the driver.
       covers: ["driver"],
     });
     setTimeout(() => setAdded(false), 1400);
@@ -301,8 +301,8 @@ function TourModal({
         return `${d.emoji} ${d.name} (${s.time})`;
       }),
       kind: "route",
-      // A tour is car + driver only — no ferry. Lets the cart spot a bundle
-      // that already covers the driver.
+      // A tour is car + driver only — no ferry. Lets the cart spot another
+      // line that already covers the driver.
       covers: ["driver"],
     });
     setTimeout(() => {

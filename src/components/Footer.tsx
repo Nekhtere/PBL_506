@@ -9,7 +9,6 @@ const footerLinks = {
     { labelKey: "nav.nearme", href: "/#near-me" },
     { labelKey: "nav.journey", href: "/#journey" },
     { labelKey: "nav.ferry", href: "/#ferry" },
-    { labelKey: "nav.bundle", href: "/#bundle" },
     { labelKey: "nav.faq", href: "/#faq" },
   ],
   Legal: [

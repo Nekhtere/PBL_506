@@ -67,8 +67,8 @@ function BookingModal({ route, onClose, onAddToCart, onViewCart, onSeeTours }: {
   });
   const [touched, setTouched] = useState<Partial<Record<keyof BookingForm, boolean>>>({});
   const [added, setAdded] = useState(false);
-  // The bundle offer only appears after a booking lands and stays dismissible —
-  // it's a nudge toward the flagship product, not a gate on finishing here.
+  // The day-tour cross-sell only appears after a booking lands and stays
+  // dismissible — it's a nudge toward adding wheels, not a gate on finishing here.
   const [showUpsell, setShowUpsell] = useState(true);
 
   const passportInvalid = validatePassport(form.passportExpiry, form.travelDate);
@@ -129,10 +129,9 @@ function BookingModal({ route, onClose, onAddToCart, onViewCart, onSeeTours }: {
         </button>
 
         {/* Cross-sell to the day tours — the crossing is in the cart, so the
-            wheels are the gap left in the trip. Points at Journey, not Bundle:
-            a bundle carries its own return ferry and would charge the crossing
-            twice. Dismissible, and it never blocks closing out the ferry the
-            buyer actually came here for. */}
+            wheels are the gap left in the trip. The tours are car-and-driver
+            only, so nothing the buyer paid for gets charged twice. Dismissible,
+            and it never blocks closing out the ferry they came here for. */}
         {showUpsell && (
           <div className="w-full text-left bg-surface-sunken border border-line-soft rounded-2xl p-4 mt-6">
             <div className="flex items-start gap-3">
@@ -344,7 +343,7 @@ function BookingModal({ route, onClose, onAddToCart, onViewCart, onSeeTours }: {
                 ],
                 kind: "route",
                 // A ferry ticket covers the crossing only — no driver. This is
-                // what lets the cart flag a bundle that already includes it.
+                // what lets the cart flag another line that already includes it.
                 covers: ["ferry"],
                 ferry: {
                   passenger: form.fullName,

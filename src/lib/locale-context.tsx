@@ -18,7 +18,6 @@ const translations: Record<string, Record<Locale, string>> = {
   "nav.nearme":      { en: "Near Me",    id: "Dekat Saya" },
   "nav.journey":     { en: "Journey",    id: "Journey" },
   "nav.ferry":       { en: "Ferry",      id: "Feri" },
-  "nav.bundle":      { en: "Bundle",     id: "Bundling" },
   "nav.faq":         { en: "FAQ",        id: "FAQ" },
 
   // Hero
@@ -26,7 +25,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "hero.badge.trusted":     { en: "Trusted by 10,000+ visitors", id: "Dipercaya 10.000+ pengunjung" },
   "hero.headline1":         { en: "Unlock Batam's Best.",        id: "Temukan yang Terbaik di Batam." },
   "hero.headline2":         { en: "Effortlessly.",               id: "Mudah & Hemat." },
-  "hero.sub":               { en: "Beaches, temples, tours, ferry tickets and bundles — the whole Batam trip in one place, designed for Singapore visitors.", id: "Pantai, vihara, tour, tiket feri dan bundling — seluruh perjalanan Batam dalam satu tempat, untuk turis dari Singapura." },
+  "hero.sub":               { en: "Beaches, temples, tours and ferry tickets — the whole Batam trip in one place, designed for Singapore visitors.", id: "Pantai, vihara, tour dan tiket feri — seluruh perjalanan Batam dalam satu tempat, untuk turis dari Singapura." },
   "hero.search.placeholder":{ en: "Search places, tours, ferry…", id: "Cari tempat, tour, feri…" },
   "hero.search.button":     { en: "Search",                      id: "Cari" },
   "hero.stat.destinations": { en: "Places to Explore",          id: "Tempat untuk Dijelajahi" },
@@ -119,28 +118,6 @@ const translations: Record<string, Record<Locale, string>> = {
   "journey.terminalNote":  { en: "Times are calculated from {terminal} terminal. Driver meets you after immigration.", id: "Waktu dihitung dari terminal {terminal}. Supir menunggu setelah imigrasi." },
   "journey.zoneNote":    { en: "Island Explorer costs more because Barelang & Nongsa are 30–45 min further — the same distance surcharge Batam drivers charge.", id: "Island Explorer lebih mahal karena Barelang & Nongsa 30–45 menit lebih jauh — surcharge jarak yang sama seperti tarif supir Batam." },
 
-  // Bundle section — ferry + city tour, the flagship
-  "bundle.label":        { en: "Best Value",                 id: "Paling Hemat" },
-  "bundle.heading":      { en: "Ferry + Tour, One Price",    id: "Feri + Tour, Satu Harga" },
-  "bundle.sub":          { en: "The whole trip in a single checkout: your crossing and your driver, timed to each other.", id: "Seluruh perjalanan dalam satu checkout: penyeberangan dan supir Anda, saling menyesuaikan jadwal." },
-  "bundle.badge":        { en: "Ferry + Tour",               id: "Feri + Tour" },
-  "bundle.featured":     { en: "Most Popular",               id: "Paling Populer" },
-  "bundle.day1":         { en: "1 day",                      id: "1 hari" },
-  "bundle.ferryIncluded":{ en: "Return ferry included",      id: "Feri pulang-pergi termasuk" },
-  "bundle.timeline":     { en: "Your day, hour by hour",     id: "Hari Anda, jam demi jam" },
-  "bundle.included":     { en: "Included",                   id: "Termasuk" },
-  "bundle.excluded":     { en: "Not included",               id: "Tidak termasuk" },
-  "bundle.saving":       { en: "Save {s} vs booking separately", id: "Hemat {s} dibanding pesan terpisah" },
-  "bundle.moreTimeline": { en: "+{n} more — tap for the full timeline", id: "+{n} lagi — ketuk untuk timeline lengkap" },
-  "bundle.themeNote":    { en: "Pick {n} theme(s) at checkout: {themes}", id: "Pilih {n} tema saat checkout: {themes}" },
-  "bundle.paxNote":      { en: "Prices are per pax, minimum 2 pax. Solo travellers welcome with a small surcharge — ask us at checkout.", id: "Harga per orang, minimal 2 orang. Turis solo tetap bisa dengan sedikit surcharge — tanyakan saat checkout." },
-  "bundle.routeLabel":   { en: "Ferry route", id: "Rute feri" },
-  "bundle.outbound":     { en: "Outbound", id: "Berangkat" },
-  "bundle.return":       { en: "Return", id: "Pulang" },
-  "bundle.passengerTitle": { en: "Passenger details", id: "Detail penumpang" },
-  "bundle.priceNote":    { en: "Ferry return fare included", id: "Harga feri pulang-pergi sudah termasuk" },
-  "bundle.configure":    { en: "Configure & Add", id: "Atur & Tambah" },
-
   // FAQ
   "faq.label":         { en: "Good to Know",                 id: "Perlu Diketahui" },
   "faq.heading":       { en: "Questions, Answered",          id: "Pertanyaan, Terjawab" },
@@ -156,32 +133,13 @@ const translations: Record<string, Record<Locale, string>> = {
   "faq.q.visa":        { en: "Do I need a visa?",            id: "Apakah saya perlu visa?" },
   "faq.a.visa":        { en: "Singapore passports: visa-free, 30 days. Most other nationalities: Visa on Arrival at the terminal, US$15 (≤7 days) or US$35 (≤30 days), payable in cash.", id: "Paspor Singapura: bebas visa 30 hari. Kebanyakan kewarganegaraan lain: Visa on Arrival di terminal, US$15 (≤7 hari) atau US$35 (≤30 hari), dibayar tunai." },
   "faq.q.delay":       { en: "What if my ferry is delayed and I miss the tour?", id: "Bagaimana jika feri saya terlambat dan tour terlewat?" },
-  "faq.a.delay":       { en: "Your driver tracks your ferry and waits — the itinerary shifts, it doesn't cancel. For bundled packages we re-time the day around the actual arrival.", id: "Supir Anda memantau feri dan menunggu — itinerary bergeser, bukan batal. Untuk paket bundling kami menyesuaikan jadwal dengan waktu tiba yang sebenarnya." },
+  "faq.a.delay":       { en: "Your driver tracks your ferry and waits — the itinerary shifts, it doesn't cancel.", id: "Supir Anda memantau feri dan menunggu — itinerary bergeser, bukan batal." },
   "faq.q.refund":      { en: "Can I get a refund or reschedule?", id: "Bisakah saya refund atau mengubah jadwal?" },
   "faq.a.refund":      { en: "Tours stay valid 90 days — reschedule free anytime before the day. Ferry tickets follow the operator's policy (usually free date change up to 24h before departure).", id: "Tour berlaku 90 hari — ubah jadwal gratis kapan pun sebelum hari-H. Tiket feri mengikuti kebijakan operator (umumnya ganti tanggal gratis hingga 24 jam sebelum berangkat)." },
   "faq.q.language":    { en: "What language does the driver speak?", id: "Supirnya berbahasa apa?" },
   "faq.a.language":    { en: "Every partner driver speaks Bahasa Indonesia and conversational English — enough for stops, timing and local tips.", id: "Semua supir mitra berbahasa Indonesia dan Inggris percakapan — cukup untuk pemberhentian, jadwal dan tips lokal." },
   "faq.q.meals":       { en: "Are meals and attraction tickets included in the tour price?", id: "Apakah makan dan tiket wisata termasuk dalam harga tour?" },
-  "faq.a.meals":       { en: "No — the tour price is your private car, driver, fuel and parking. Meals, gate tickets and treatments are paid by you at each stop, so you only spend on what you actually want. (The 2D1N bundle does include one seafood lunch and your hotel night.)", id: "Tidak — harga tour mencakup mobil pribadi, supir, BBM dan parkir. Makan, tiket masuk dan perawatan dibayar sendiri di tiap pemberhentian, jadi Anda hanya membayar yang benar-benar diinginkan. (Paket 2D1N sudah termasuk satu makan siang seafood dan hotel semalam.)" },
-
-  // Itinerary section
-  "itinerary.label":     { en: "Full-Day Travel Package",    id: "Paket Wisata Seharian" },
-  "itinerary.heading1":  { en: "1-Day Trip,",                id: "Wisata 1 Hari," },
-  "itinerary.heading2":  { en: "Your Way",                   id: "Sesuai Keinginan Anda" },
-  "itinerary.sub":       { en: "Dedicated driver, curated stops, all transport included. Swap any stop for an alternative — price stays bundled.", id: "Driver khusus, destinasi terkurasi, semua transportasi sudah termasuk. Ganti destinasi sesuai keinginan — harga tetap bundling." },
-  "itinerary.transport": { en: "Full-day transport included", id: "Transportasi seharian termasuk" },
-  "itinerary.customised":{ en: "Customised — tap any stop to swap", id: "Dikustomisasi — ketuk destinasi untuk ganti" },
-  "itinerary.default":   { en: "Tap any stop to swap for an alternative", id: "Ketuk destinasi untuk pilih alternatif" },
-  "itinerary.swapLabel": { en: "Choose a stop for this slot", id: "Pilih destinasi untuk slot ini" },
-  "itinerary.included":  { en: "What's included",            id: "Yang sudah termasuk" },
-  "itinerary.addCart":   { en: "Add to Cart",                id: "Tambah ke Keranjang" },
-  "itinerary.added":     { en: "Added!",                     id: "Ditambahkan!" },
-  "itinerary.perPax":    { en: "per pax",                    id: "per orang" },
-  "itinerary.custom":    { en: "Request a custom itinerary", id: "Minta itinerary khusus" },
-  "itinerary.booked":    { en: "booked this week",           id: "dipesan minggu ini" },
-  "itinerary.transportIncluded": { en: "Transport included", id: "Transportasi termasuk" },
-  "itinerary.reviews":  { en: "reviews",                   id: "ulasan" },
-  "itinerary.validity": { en: "Valid 30 days from purchase", id: "Berlaku 30 hari sejak pembelian" },
+  "faq.a.meals":       { en: "No — the tour price is your private car, driver, fuel and parking. Meals, gate tickets and treatments are paid by you at each stop, so you only spend on what you actually want.", id: "Tidak — harga tour mencakup mobil pribadi, supir, BBM dan parkir. Makan, tiket masuk dan perawatan dibayar sendiri di tiap pemberhentian, jadi Anda hanya membayar yang benar-benar diinginkan." },
 
   // Ferry section
   "ferry.label":         { en: "Getting Here",               id: "Cara Tiba" },
@@ -236,9 +194,8 @@ const translations: Record<string, Record<Locale, string>> = {
   "ferry.modal.fareBatamFee":{ en: "Batam terminal fee",       id: "Biaya terminal Batam" },
   "ferry.modal.returnSaving":{ en: "Return-ticket saving",     id: "Hemat tiket pulang-pergi" },
   // Bridge from a completed ferry booking to a day tour — the buyer has a
-  // crossing but no wheels. Deliberately NOT the bundle: a bundle includes
-  // its own return ferry, so pointing there would sell the crossing twice.
-  // The tours are car-and-driver only, which is exactly the gap left open.
+  // crossing but no wheels. The tours are car-and-driver only, which is
+  // exactly the gap left open.
   "ferry.upsell.title":      { en: "Add a driver for the day?", id: "Tambah supir untuk sehari?" },
   "ferry.upsell.body":       { en: "Your crossing is booked. Our day tours are car and driver only — no second ferry ticket — so nothing you have paid for gets charged again.", id: "Tiket feri Anda sudah dipesan. Tour kami hanya mobil dan supir — tanpa tiket feri kedua — jadi tidak ada yang sudah Anda bayar tertagih lagi." },
   "ferry.upsell.cta":        { en: "See day tours",             id: "Lihat tour harian" },
@@ -251,7 +208,7 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // Cart
   "cart.title":      { en: "Your Cart",                         id: "Keranjang" },
-  "cart.subtitle":   { en: "Tours, ferry tickets & bundles, confirmed instantly.", id: "Tour, tiket feri & bundling, dikonfirmasi langsung." },
+  "cart.subtitle":   { en: "Tours & ferry tickets, confirmed instantly.", id: "Tour & tiket feri, dikonfirmasi langsung." },
   "cart.close":      { en: "Close cart",                        id: "Tutup keranjang" },
   "cart.open":       { en: "Open cart",                         id: "Buka keranjang" },
   "cart.remove":     { en: "Remove",                            id: "Hapus" },
@@ -266,15 +223,15 @@ const translations: Record<string, Record<Locale, string>> = {
   // so the two surfaces never disagree about what the buyer is actually charged.
   "cart.chargedSgd": { en: "charged in SGD",                    id: "ditagih dalam SGD" },
   "cart.empty":      { en: "Your cart is empty.",               id: "Keranjang kosong." },
-  "cart.emptyBody":  { en: "Add a tour, ferry ticket or bundle to get started.", id: "Tambahkan tour, tiket feri atau bundling untuk mulai." },
+  "cart.emptyBody":  { en: "Add a tour or ferry ticket to get started.", id: "Tambahkan tour atau tiket feri untuk mulai." },
   "cart.subtotal":   { en: "Subtotal",                          id: "Subtotal" },
   "cart.fee":        { en: "Booking fee",                       id: "Biaya pemesanan" },
   "cart.free":       { en: "Free",                              id: "Gratis" },
   "cart.total":      { en: "Total",                             id: "Total" },
   "cart.checkout":   { en: "Checkout",                          id: "Checkout" },
   "cart.qrVoucher":  { en: "E-Ticket",                         id: "E-Tiket" },
-  // Double-booking warning — the bundle already includes its own ferry and
-  // driver, so a tour or ferry ticket beside it is paid for twice.
+  // Double-booking warning — one line already includes what another line
+  // charges for again.
   "cart.clash.title":{ en: "Heads up — you may be paying twice", id: "Perhatian — mungkin Anda membayar dua kali" },
   "cart.clash.body": { en: "{includes} already includes {covered}, so {redundant} is a duplicate. Remove whichever you don't need.", id: "{includes} sudah termasuk {covered}, jadi {redundant} adalah duplikat. Hapus salah satu yang tidak diperlukan." },
   "cart.covers.ferry":  { en: "the return ferry",              id: "feri pulang-pergi" },
@@ -331,7 +288,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "checkout.processing.aria": { en: "Processing payment",          id: "Memproses pembayaran" },
 
   "checkout.emptyTitle":   { en: "Your cart is empty",             id: "Keranjang Anda kosong" },
-  "checkout.emptyBody":    { en: "Add a tour, ferry ticket or bundle first, then come back to check out.", id: "Tambahkan tour, tiket feri atau bundling dulu, lalu kembali ke checkout." },
+  "checkout.emptyBody":    { en: "Add a tour or ferry ticket first, then come back to check out.", id: "Tambahkan tour atau tiket feri dulu, lalu kembali ke checkout." },
 
   "checkout.summary":      { en: "Order summary",                  id: "Ringkasan pesanan" },
   "checkout.chargedSgd":   { en: "charged in SGD",                 id: "ditagih dalam SGD" },
@@ -347,14 +304,14 @@ const translations: Record<string, Record<Locale, string>> = {
   "how.heading2":   { en: "Pure Simplicity.", id: "Sederhana Sepenuhnya." },
   "how.sub":        { en: "From payment to your driver at the terminal, every step stays effortless.", id: "Dari pembayaran sampai supir menjemput Anda di terminal, setiap langkah tetap mudah." },
   "how.step1.title":{ en: "Book in SGD",    id: "Pesan dalam SGD" },
-  "how.step1.desc": { en: "Pick your ferry, tour or bundle and pay securely by card in Singapore Dollars.", id: "Pilih feri, tour atau bundling lalu bayar dengan aman memakai kartu dalam Dolar Singapura." },
+  "how.step1.desc": { en: "Pick your ferry or tour and pay securely by card in Singapore Dollars.", id: "Pilih feri atau tour lalu bayar dengan aman memakai kartu dalam Dolar Singapura." },
   "how.step2.title":{ en: "Get Your E-Ticket", id: "Terima E-Tiket" },
   "how.step2.desc": { en: "Your e-ticket arrives instantly with a QR code — ferry check-in and driver pickup both scan the same one.", id: "E-tiket Anda langsung terbit dengan kode QR — check-in feri dan penjemputan supir memindai kode yang sama." },
   "how.step3.title":{ en: "Enjoy Batam",    id: "Nikmati Batam" },
   "how.step3.desc": { en: "Show the QR, board, and your driver is waiting. No app to download, no queue at the counter.", id: "Tunjukkan QR, naik kapal, dan supir Anda sudah menunggu. Tanpa unduh aplikasi, tanpa antre di loket." },
 
   // Footer
-  "footer.tagline":   { en: "Ferry, tours and bundles — one smart checkout.", id: "Feri, tour dan bundling — satu checkout pintar." },
+  "footer.tagline":   { en: "Ferry and tours — one smart checkout.", id: "Feri dan tour — satu checkout pintar." },
   "footer.legal.privacy": { en: "Privacy Policy",    id: "Kebijakan Privasi" },
   "footer.legal.terms":   { en: "Terms of Service",  id: "Ketentuan Layanan" },
   "footer.legal.cookies": { en: "Cookie Policy",     id: "Kebijakan Cookie" },
@@ -375,7 +332,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "loading.sea":     { en: "Crossing to Batam", id: "Menyeberang ke Batam" },
 
   "signin.title":   { en: "Sign in",       id: "Masuk" },
-  "signin.sub":     { en: "Sign in to keep every ticket in one place — ferry, tours and bundles.", id: "Masuk agar semua tiket tersimpan di satu tempat — feri, tour dan bundling." },
+  "signin.sub":     { en: "Sign in to keep every ticket in one place — ferry and tours.", id: "Masuk agar semua tiket tersimpan di satu tempat — feri dan tour." },
   "signin.email":   { en: "Email",         id: "Email" },
   "signin.password":{ en: "Password",      id: "Password" },
   "signin.submit":  { en: "Sign in",       id: "Masuk" },
