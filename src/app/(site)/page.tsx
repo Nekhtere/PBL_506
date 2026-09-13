@@ -6,7 +6,7 @@ import JourneySection from "@/components/JourneySection";
 import FerrySection from "@/components/FerrySection";
 import BundleSection from "@/components/BundleSection";
 import FaqSection from "@/components/FaqSection";
-import { useCart } from "@/lib/cart-context";
+import { useCart, useCartUi } from "@/lib/cart-context";
 
 // The home page is now only its sections. The navbar, footer, cart drawer and
 // mobile cart bar are mounted by src/app/(site)/layout.tsx, and the cart itself
@@ -16,7 +16,8 @@ import { useCart } from "@/lib/cart-context";
 // Search now navigates to /destinations?q=... so the catalog has its own URL.
 
 export default function Home() {
-  const { addItem, setCartOpen } = useCart();
+  const { addItem } = useCart();
+  const { setCartOpen } = useCartUi();
 
   return (
     <main className="min-h-screen bg-bg">

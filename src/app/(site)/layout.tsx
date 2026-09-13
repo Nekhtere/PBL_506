@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import MobileCartBar from "@/components/MobileCartBar";
+import SignOutNotice from "@/components/SignOutNotice";
 import { CartProvider } from "@/lib/cart-context";
 
 // The site shell: everything that makes a page feel like it belongs to
@@ -29,6 +30,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Footer />
       <CartDrawer />
       <MobileCartBar />
+      <SignOutNotice />
     </CartProvider>
   );
 }

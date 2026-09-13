@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
-import { useCart } from "@/lib/cart-context";
+import { useCart, useCartUi } from "@/lib/cart-context";
 import { useLocale } from "@/lib/locale-context";
 
 // The sticky checkout bar on phones. It reads the cart from context now that
@@ -11,7 +11,8 @@ import { useLocale } from "@/lib/locale-context";
 // the home page threading count/total/onCheckout down as props.
 
 export default function MobileCartBar() {
-  const { count, total, setCartOpen } = useCart();
+  const { count, total } = useCart();
+  const { setCartOpen } = useCartUi();
   const { t, locale } = useLocale();
   const pathname = usePathname();
 

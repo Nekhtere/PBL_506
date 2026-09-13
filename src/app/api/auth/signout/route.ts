@@ -6,7 +6,9 @@ import { SESSION_COOKIE } from "@/lib/session";
 // signs the caller out.
 
 export async function GET(req: Request) {
-  const res = NextResponse.redirect(new URL("/", req.url));
+  const url = new URL("/", req.url);
+  url.searchParams.set("signedout", "1");
+  const res = NextResponse.redirect(url);
   res.cookies.set(SESSION_COOKIE, "", { path: "/", maxAge: 0 });
   return res;
 }

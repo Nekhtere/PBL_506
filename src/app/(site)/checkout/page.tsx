@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   ShoppingCart,
   Smartphone,
+  X,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useLocale } from "@/lib/locale-context";
@@ -50,7 +51,7 @@ export default function CheckoutPage() {
   // The cart comes from CartProvider, which reads sessionStorage after mount.
   // `loaded` is false until that read happens — rendering the empty-cart state
   // before it would flash "your cart is empty" at someone who has a cart.
-  const { items, loaded, clear } = useCart();
+  const { items, loaded, clear, removeItem } = useCart();
   const [step, setStep] = useState<Step>("details");
 
   const [name, setName] = useState("");
@@ -60,6 +61,16 @@ export default function CheckoutPage() {
   const [cvc, setCvc] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  // One key per checkout attempt, generated on first submit so a retry reuses the
+  // same order server-side instead of minting a duplicate. See /api/orders
+  // idempotency. Generated inside the handler (not render) to stay pure.
+  const idempotencyKeyRef = useRef<string | null>(null);
+  // Guards against a second POST while the first is still in flight (double
+  // click on Verify, or a stray re-submit of the 3DS form).
+  const submittingRef = useRef(false);
+  // The post-success navigation timer — kept so we can cancel it if the component
+  // unmounts before it fires, otherwise router.push runs on a dead tree.
+  const navTimerRef = useRef<number | null>(null);
   // null = auth status not known yet; the sign-in gate waits for it so a
   // signed-in buyer never sees a login flash on the way to payment.
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
@@ -86,6 +97,15 @@ export default function CheckoutPage() {
       cancelled = true;
     };
   }, [router]);
+
+  // Cancel the post-success navigation if we leave the page before it fires, so
+  // router.replace never runs on an unmounted tree (tab closed during processing,
+  // or a quick Back press).
+  useEffect(() => {
+    return () => {
+      if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
+    };
+  }, []);
 
   const total = useMemo(
     () =>
@@ -135,6 +155,19 @@ export default function CheckoutPage() {
   if (expiry.replace(/\D/g, "").length !== 4) missing.push(t("checkout.need.expiry"));
   if (cvc.length < 3) missing.push(t("checkout.need.cvc"));
 
+  // "Back" leaves checkout the same way it was reached. We came via push (from
+  // the cart drawer), so history.back() returns to that caller — but on a hard
+  // reload or a deep link there is no caller, and back() would either re-render
+  // /checkout (the entry it just left) or leave the app. A pushed state means we
+  // own at least one entry we can safely drop; otherwise fall back to home.
+  function goBack() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      router.push("/");
+    }
+  }
+
   function simulatePaymentIntent(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     // Read straight from the form, not just React state: browser autofill can
@@ -173,6 +206,9 @@ export default function CheckoutPage() {
       setError(t("checkout.errOtp"));
       return;
     }
+    // Refuse a second submit while one is already in flight — a double click on
+    // this button must never fire two payment requests.
+    if (submittingRef.current) return;
     setError("");
     setStep("processing");
     // Real version: the payment_intent.succeeded webhook issues the vouchers
@@ -182,6 +218,14 @@ export default function CheckoutPage() {
   }
 
   async function issueOrder() {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    // Mint the idempotency key once, on the first submit of this attempt. Stored
+    // in a ref so a React re-render never regenerates it (which would defeat the
+    // dedup). See /api/orders.
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = `co_${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    }
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -191,6 +235,7 @@ export default function CheckoutPage() {
           buyerName: name.trim(),
           email: email.trim(),
           currency: "SGD",
+          idempotencyKey: idempotencyKeyRef.current,
         }),
       });
 
@@ -202,20 +247,27 @@ export default function CheckoutPage() {
       const { orderId } = (await res.json()) as { orderId: string };
       clear();
       // The order now lives on the server, so this URL works from anywhere —
-      // the QR code, the email, or another device.
-      window.setTimeout(() => router.push(`/tickets/${orderId}?new=1`), 700);
+      // the QR code, the email, or another device. replace() (not push) so the
+      // processing screen doesn't linger in history: Back from the ticket would
+      // otherwise land on an already-emptied checkout.
+      navTimerRef.current = window.setTimeout(
+        () => router.replace(`/tickets/${orderId}?new=1`),
+        700,
+      );
     } catch (err) {
       // A 401 means the session lapsed mid-payment (signed out in another tab,
-      // cookie expired). Send them to sign in with a way back — the cart
-      // survives in sessionStorage — rather than showing a cryptic order error.
+      // cookie expired). Policy is uniform: a lost session is treated like a
+      // sign-out, so we send them to /signin with no "way back" — the progress
+      // here is gone but the cart survives in sessionStorage for a fresh attempt.
       if (err instanceof Error && err.message.includes("(401)")) {
-        router.replace("/signin?next=/checkout");
+        router.replace("/signin");
         return;
       }
       // Send them back to the form with a reason rather than leaving the
       // spinner turning forever. The "not charged" reassurance is part of the
       // message in both locales — a failed order must never leave the visitor
       // wondering whether the money left their card.
+      submittingRef.current = false;
       setStep("details");
       setError(
         err instanceof Error
@@ -381,7 +433,7 @@ export default function CheckoutPage() {
                     )}
                     <button
                       type="button"
-                      onClick={() => router.back()}
+                      onClick={goBack}
                       className="w-full text-[13px] font-medium text-muted hover:text-fg transition-colors py-1"
                     >
                       ← {t("checkout.details.back")}
@@ -515,6 +567,18 @@ export default function CheckoutPage() {
                     )}
                   </div>
                   <p className="text-[13px] font-semibold text-fg shrink-0">{priceDisplay(item.price)}</p>
+                  {/* In-place remove — the summary used to be read-only, so editing
+                      the cart meant opening the drawer over a page that already
+                      showed the same list. Removing here keeps checkout a single
+                      surface. The drawer stays available if they navigate away. */}
+                  <button
+                    type="button"
+                    onClick={() => removeItem(item.id)}
+                    aria-label={`${t("cart.remove")} ${item.name}`}
+                    className="w-7 h-7 shrink-0 rounded-full bg-surface-sunken flex items-center justify-center text-muted hover:text-red-500 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" aria-hidden="true" />
+                  </button>
                 </li>
               ))}
             </ul>

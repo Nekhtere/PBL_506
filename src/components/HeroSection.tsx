@@ -10,19 +10,19 @@ import { useRotator } from "@/lib/use-rotator";
 
 const bgSlides = [
   {
-    url: "https://images.unsplash.com/photo-1559628233-100c798642d4?w=1800&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1559628233-100c798642d4?w=1200&q=80&auto=format&fit=crop",
     label: "Seafood Harbour, Batam",
   },
   {
-    url: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1800&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1200&q=80&auto=format&fit=crop",
     label: "Spa & Wellness, Batam",
   },
   {
-    url: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1800&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1200&q=80&auto=format&fit=crop",
     label: "Harbour Bay Mall, Batam",
   },
   {
-    url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1800&q=80&auto=format&fit=crop",
+    url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80&auto=format&fit=crop",
     label: "Local Cuisine, Batam",
   },
 ];

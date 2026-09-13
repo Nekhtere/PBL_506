@@ -70,6 +70,10 @@ type Memory = { users: Map<string, StoredUser>; orders: Map<string, StoredOrder>
 
 declare global {
   var __bsdMemory: Memory | undefined;
+  // Idempotency keys -> order ids, so a retried or double-clicked payment
+  // never mints a second order. In-memory: a serverless instance shares it with
+  // the request that created the order, which is exactly the retried call.
+  var __bsdIdempotency: Map<string, string> | undefined;
 }
 
 function memory(): Memory {
@@ -77,6 +81,21 @@ function memory(): Memory {
     global.__bsdMemory = { users: new Map(), orders: new Map() };
   }
   return global.__bsdMemory;
+}
+
+function idempotency(): Map<string, string> {
+  if (!global.__bsdIdempotency) global.__bsdIdempotency = new Map();
+  return global.__bsdIdempotency;
+}
+
+/** Returns the order id already created under this key, or null. */
+export function checkIdempotency(key: string): string | null {
+  return idempotency().get(key) ?? null;
+}
+
+/** Records that this key produced this order id. */
+export function markIdempotency(key: string, orderId: string): void {
+  idempotency().set(key, orderId);
 }
 
 // ── Orders ───────────────────────────────────────────────────────────────────

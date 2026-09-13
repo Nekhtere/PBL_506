@@ -28,21 +28,28 @@ import {
 // the server render has no storage, so reading during the first client render
 // would produce a different tree and fail hydration.
 
-interface CartContextValue {
+interface CartData {
   items: CartItem[];
-  /** False until sessionStorage has been read — pages that must not flash an
-      empty state (checkout) wait for it. */
   loaded: boolean;
   count: number;
   total: number;
   addItem: (item: NewCartItem) => void;
   removeItem: (id: string) => void;
   clear: () => void;
+  priceDisplay: (raw: string) => string;
+}
+
+interface CartUi {
   cartOpen: boolean;
   setCartOpen: (open: boolean) => void;
 }
 
-const CartContext = createContext<CartContextValue | null>(null);
+// Two contexts on purpose: `cartOpen` flips on every open/close of the drawer,
+// while the data (items/total) changes only when the cart edits. If both lived
+// in one value, opening the drawer would re-render the whole page tree (navbar,
+// the current route, footer, …). Splitting keeps the toggle cheap.
+const CartDataContext = createContext<CartData | null>(null);
+const CartUiContext = createContext<CartUi | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -82,7 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const total = useMemo(() => cartTotalOf(items), [items]);
 
-  const value = useMemo<CartContextValue>(
+  const data = useMemo<CartData>(
     () => ({
       items,
       loaded,
@@ -91,19 +98,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
       addItem,
       removeItem,
       clear,
-      cartOpen,
-      setCartOpen,
+      priceDisplay: (raw: string) =>
+        `S$ ${parseFloat(raw.replace(/[^0-9.]/g, "") || "0").toFixed(2)}`,
     }),
-    [items, loaded, total, addItem, removeItem, clear, cartOpen],
+    [items, loaded, total, addItem, removeItem, clear],
   );
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  const ui = useMemo<CartUi>(() => ({ cartOpen, setCartOpen }), [cartOpen]);
+
+  return (
+    <CartDataContext.Provider value={data}>
+      <CartUiContext.Provider value={ui}>{children}</CartUiContext.Provider>
+    </CartDataContext.Provider>
+  );
 }
 
-export function useCart(): CartContextValue {
-  const context = useContext(CartContext);
+export function useCart(): CartData {
+  const context = useContext(CartDataContext);
   if (!context) {
     throw new Error("useCart must be used inside <CartProvider> — see src/app/(site)/layout.tsx");
+  }
+  return context;
+}
+
+/** Only the open/close flag. Subscribe here from the drawer, the navbar cart
+    button, and the mobile bar so toggling the drawer doesn't re-render the
+    page content. */
+export function useCartUi(): CartUi {
+  const context = useContext(CartUiContext);
+  if (!context) {
+    throw new Error("useCartUi must be used inside <CartProvider> — see src/app/(site)/layout.tsx");
   }
   return context;
 }

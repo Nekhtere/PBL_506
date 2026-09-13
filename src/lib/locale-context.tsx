@@ -257,6 +257,10 @@ const translations: Record<string, Record<Locale, string>> = {
   // the other way round.
   "cart.noteIdr":    { en: "paid in IDR",                       id: "dibayar dalam IDR" },
   "cart.noteSgd":    { en: "charged in SGD",                    id: "dibayar dalam SGD" },
+  // Shown in the cart drawer only under the id locale: the main figure there is
+  // IDR, but the card is always billed in SGD. Mirrors checkout's chargedSgd note
+  // so the two surfaces never disagree about what the buyer is actually charged.
+  "cart.chargedSgd": { en: "charged in SGD",                    id: "ditagih dalam SGD" },
   "cart.empty":      { en: "Your cart is empty.",               id: "Keranjang kosong." },
   "cart.emptyBody":  { en: "Add a tour, ferry ticket or bundle to get started.", id: "Tambahkan tour, tiket feri atau bundling untuk mulai." },
   "cart.subtotal":   { en: "Subtotal",                          id: "Subtotal" },
@@ -271,7 +275,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "cart.clash.body": { en: "{includes} already includes {covered}, so {redundant} is a duplicate. Remove whichever you don't need.", id: "{includes} sudah termasuk {covered}, jadi {redundant} adalah duplikat. Hapus salah satu yang tidak diperlukan." },
   "cart.covers.ferry":  { en: "the return ferry",              id: "feri pulang-pergi" },
   "cart.covers.driver": { en: "a car and driver",              id: "mobil dan supir" },
-  "cart.badgeRoute": { en: "Tour",                             id: "Tour" },
+  "cart.badgeRoute": { en: "Ferry",                            id: "Feri" },
   "cart.badgeDeal":  { en: "Tour",                             id: "Tour" },
   "cart.items":      { en: "items",                             id: "item" },
   "cart.item":       { en: "item",                              id: "item" },
@@ -295,7 +299,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "checkout.card":         { en: "Card number",                    id: "Nomor kartu" },
   "checkout.expiry":       { en: "Expiry",                         id: "Kedaluwarsa" },
   "checkout.pay":          { en: "Pay {amount}",                   id: "Bayar {amount}" },
-  "checkout.details.back": { en: "Back to cart",                  id: "Kembali ke keranjang" },
+  "checkout.details.back": { en: "Back",                           id: "Kembali" },
   "checkout.errIncomplete":{ en: "Please complete all fields — name, email, 16-digit card, expiry and CVC.", id: "Mohon lengkapi semua kolom — nama, email, kartu 16 digit, tanggal kedaluwarsa dan CVC." },
   // The locked Pay button says exactly which field is missing rather than
   // leaving the visitor to guess (autofill paints the input without firing
@@ -359,6 +363,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "nav.signin":     { en: "Sign in",       id: "Masuk" },
   "nav.myTickets":  { en: "My Tickets",    id: "Tiket Saya" },
   "nav.signout":    { en: "Sign out",      id: "Keluar" },
+  "auth.signedOut": { en: "Signed out successfully", id: "Berhasil keluar" },
   "nav.account":    { en: "Account menu",  id: "Menu akun" },
   "nav.primary":    { en: "Main sections", id: "Seksi utama" },
   "nav.openMenu":   { en: "Open menu",     id: "Buka menu" },

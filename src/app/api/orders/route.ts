@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { CartItem } from "@/lib/cart";
 import { currentUserId } from "@/lib/session";
 import { hasDatabase } from "@/lib/db";
-import { newId, newTicketCode, createOrder, markOrderEmailed, type OrderTicket } from "@/lib/store";
+import { newId, newTicketCode, createOrder, markOrderEmailed, checkIdempotency, markIdempotency, type OrderTicket } from "@/lib/store";
 import { sendTicketEmail, mailConfigured } from "@/lib/email";
 import { siteOrigin } from "@/lib/google-oauth";
 
@@ -19,6 +19,9 @@ type Body = {
   buyerName?: string;
   email?: string;
   currency?: "SGD" | "IDR";
+  // Client-generated idempotency key (one per checkout attempt). Lets a retry or
+  // a double-click reuse the original order instead of minting a second one.
+  idempotencyKey?: string;
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -83,6 +86,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Sign-in required" }, { status: 401 });
   }
 
+  // Idempotency: a retried request (double-click, tab closed mid-flight, flaky
+  // network) reuses the order it already created instead of minting a twin. The
+  // key is minted per checkout attempt on the client, so two genuinely separate
+  // attempts get distinct keys and distinct orders.
+  const idemKey = body.idempotencyKey;
+  if (idemKey) {
+    const existing = checkIdempotency(idemKey);
+    if (existing) {
+      return NextResponse.json({ orderId: existing, emailed: false, retried: true });
+    }
+  }
+
   const totalSgd = items.reduce(
     (sum, item) => sum + parseFloat(item.price.replace(/[^0-9.]/g, "") || "0"),
     0,
@@ -99,6 +114,10 @@ export async function POST(req: Request) {
     tickets,
     emailedAt: null,
   });
+
+  // Stamp the key only after the row is written, so a concurrent retry that
+  // loses the race still sees no recorded key and proceeds to create once.
+  if (idemKey) markIdempotency(idemKey, order.id);
 
   const origin = siteOrigin(req);
   const willEmail = mailConfigured();

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, Menu, X, Ticket, LogOut, UserRound } from "lucide-react";
-import { useCart } from "@/lib/cart-context";
+import { useCart, useCartUi } from "@/lib/cart-context";
 import { useLocale } from "@/lib/locale-context";
 
 // The site header. Mounted once by src/app/(site)/layout.tsx, so it is present
@@ -46,7 +46,8 @@ function initialsOf(account: Account): string {
 
 export default function Navbar() {
   const { locale, setLocale, t } = useLocale();
-  const { count, cartOpen, setCartOpen } = useCart();
+  const { count } = useCart();
+  const { cartOpen, setCartOpen } = useCartUi();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -234,15 +235,23 @@ export default function Navbar() {
 
                     {/* A plain anchor, not a Link: this hits a route handler that
                         clears the cookie and redirects, so the browser must do a
-                        real navigation rather than a client-side one. */}
-                    <a
-                      href="/api/auth/signout"
-                      role="menuitem"
-                      className="flex items-center gap-2.5 px-3 py-3 rounded-xl text-[13px] font-medium text-fg hover:bg-black/[0.06] transition-colors"
-                    >
-                      <LogOut className="w-4 h-4 text-muted" strokeWidth={1.8} aria-hidden="true" />
-                      {t("nav.signout")}
-                    </a>
+                        real navigation rather than a client-side one.
+
+                        Hidden on /checkout: the sign-out policy is uniform (any
+                        session loss lands on /), but during a live payment the
+                        menu must not offer an action that silently drops the
+                        filled-in form. The cart survives in sessionStorage, so a
+                        deliberate sign-out from elsewhere is unaffected. */}
+                    {pathname !== "/checkout" && (
+                      <a
+                        href="/api/auth/signout"
+                        role="menuitem"
+                        className="flex items-center gap-2.5 px-3 py-3 rounded-xl text-[13px] font-medium text-fg hover:bg-black/[0.06] transition-colors"
+                      >
+                        <LogOut className="w-4 h-4 text-muted" strokeWidth={1.8} aria-hidden="true" />
+                        {t("nav.signout")}
+                      </a>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
