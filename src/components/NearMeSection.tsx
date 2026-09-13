@@ -12,8 +12,10 @@ import {
   Clock,
   Ticket,
   ArrowDown,
+  ArrowUpRight,
   Car,
   TreePalm,
+  X,
   ChevronLeft,
   ChevronRight,
   Pause,
@@ -240,13 +242,7 @@ function DestinationDetail({
 }
 
 // ── NearMeSection ──────────────────────────────────────────────────────────────
-export default function NearMeSection({
-  query,
-}: {
-  // Controlled by the parent so the hero's search box can detect the current value.
-  // Navigation to /destinations is now handled by Link navigation from chips/button.
-  query: string;
-}) {
+export default function NearMeSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { t } = useLocale();
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
@@ -254,22 +250,34 @@ export default function NearMeSection({
   const [locating, setLocating] = useState(false);
   const [geoMsg, setGeoMsg] = useState<string | null>(null);
   const [selected, setSelected] = useState<Destination | null>(null);
-  const [localChip, setLocalChip] = useState<Destination["category"] | "All">("All");
+  const [query, setQuery] = useState("");
   const rowRef = useRef<HTMLDivElement>(null);
 
-  // Active category filter: when the map is visible we filter locally so the
-  // user can narrow nearby places without leaving the home page.
-  const activeCategory = user ? localChip : "All";
+  // Chips filter the strip in place (and the map, via filteredNear) so a tap
+  // never leaves the page. The Search box and "Show all N" button are the
+  // deliberate paths to the full /destinations catalogue.
+  const [activeCategory, setActiveCategory] = useState<Destination["category"] | "All">("All");
 
-  // Featured spotlights: top-rated destinations. When the map is active they
-  // follow the local category filter so the strip feels connected to the map.
+  // Client-side text match (data is already imported, so no extra fetch).
+  const q = query.trim().toLowerCase();
+  const matches = (d: Destination) =>
+    !q ||
+    d.name.toLowerCase().includes(q) ||
+    d.area.toLowerCase().includes(q) ||
+    d.desc.toLowerCase().includes(q) ||
+    d.category.toLowerCase().includes(q);
+
+  // Featured spotlights: top-rated destinations. Filter first, then take the top
+  // five — so a category that isn't in the overall top-5 still surfaces its own
+  // best places instead of leaving the strip empty.
   const featured = useMemo(
     () =>
       [...destinations]
         .filter((d) => activeCategory === "All" || d.category === activeCategory)
+        .filter(matches)
         .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
         .slice(0, 5),
-    [activeCategory],
+    [activeCategory, q],
   );
 
   // Nearest first — used by the map, which still follows "Near Me".
@@ -285,8 +293,11 @@ export default function NearMeSection({
 
   const near = useMemo(() => withKm(destinations), [withKm]);
   const filteredNear = useMemo(
-    () => (activeCategory === "All" ? near : near.filter(({ d }) => d.category === activeCategory)),
-    [near, activeCategory],
+    () =>
+      (activeCategory === "All" ? near : near.filter(({ d }) => d.category === activeCategory)).filter(
+        ({ d }) => matches(d),
+      ),
+    [near, activeCategory, q],
   );
   const mapPoints = useMemo(
     () =>
@@ -303,9 +314,10 @@ export default function NearMeSection({
     [filteredNear],
   );
 
-  // WCAG 2.2.2 for the spotlight rotator: pauses on hover/focus (hold) and via
-  // the explicit button, and never runs at all for reduced-motion users.
-  const rotator = useRotator(featured.length, 5000);
+  // WCAG 2.2.2 for the spotlight rotator: pauses on hover/focus (hold), via the
+  // explicit button, for reduced-motion users, and — per request — while Near Me
+  // is active, since the map already shows the nearest places up top.
+  const rotator = useRotator(featured.length, 5000, !!user);
   const spotlight = featured[rotator.index] ?? null;
   const onHold = (v: boolean) => rotator.setPaused(v);
 
@@ -378,15 +390,33 @@ export default function NearMeSection({
           className="mb-6"
         >
           <div className="flex items-center gap-3 flex-col sm:flex-row">
-            <Link
-              href="/destinations"
-              className="flex-1 card-soft rounded-2xl p-2 sm:p-3 flex items-center gap-2 text-fg hover:text-fg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-            >
-              <Search className="w-4 h-4 text-fg/50 shrink-0" strokeWidth={2} aria-hidden="true" />
-              <span className="text-[13px] sm:text-[14px] text-fg/60 truncate">
-                {t("nearby.searchPlaceholder")}
-              </span>
-            </Link>
+            <div className="flex-1 card-soft rounded-2xl p-1.5 sm:p-2 flex items-center gap-2 focus-within:ring-2 focus-within:ring-[var(--accent)]">
+              <Search className="w-4 h-4 text-fg/50 shrink-0 ml-1.5" strokeWidth={2} aria-hidden="true" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  rotator.setIndex(0);
+                }}
+                placeholder={t("nearby.searchPlaceholder")}
+                aria-label={t("nearby.searchPlaceholder")}
+                className="flex-1 bg-transparent text-[13px] sm:text-[14px] text-fg placeholder:text-fg/45 outline-none min-w-0 py-1.5"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    rotator.setIndex(0);
+                  }}
+                  aria-label={t("nearby.clear")}
+                  className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full text-muted hover:text-fg hover:bg-line transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" aria-hidden="true" />
+                </button>
+              )}
+            </div>
             <button
               type="button"
               onClick={locate}
@@ -399,44 +429,29 @@ export default function NearMeSection({
             </button>
           </div>
 
-          {/* Category chips: when the map is active they filter locally;
-              otherwise they deep-link to the dedicated catalog page. */}
-          <div className="flex items-center gap-2 mt-3 flex-wrap">
+          {/* Category chips — filter the strip in place (and the map), so a tap
+              never leaves the page. The active chip is emphasised. Horizontal
+              scroll on mobile keeps them on one row; they wrap on desktop. */}
+          <div className="flex items-center gap-2 mt-3 overflow-x-auto scrollbar-hide snap-x sm:flex-wrap sm:overflow-visible">
             {CHIPS.map((c) => {
-              const active = user
-                ? localChip === c.term
-                : query === c.term || (c.term === "All" && !query);
-              const chipClass = `text-[12px] px-2.5 py-1 rounded-full border transition-colors ${
-                active
-                  ? "bg-fg text-white border-fg"
-                  : "text-muted hover:text-fg bg-surface-sunken hover:bg-line border-line-soft"
-              }`;
-              if (user) {
-                return (
-                  <button
-                    key={c.term}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setLocalChip(c.term as Destination["category"] | "All")}
-                    className={chipClass}
-                  >
-                    {c.emoji} {t(c.key)}
-                  </button>
-                );
-              }
-              const href =
-                c.term === "All"
-                  ? "/destinations"
-                  : `/destinations?category=${encodeURIComponent(c.term)}`;
+              const active = activeCategory === c.term;
               return (
-                <Link
+                <button
                   key={c.term}
-                  href={href}
+                  type="button"
+                  onClick={() => {
+                    setActiveCategory(c.term);
+                    rotator.setIndex(0);
+                  }}
                   aria-pressed={active}
-                  className={chipClass}
+                  className={`shrink-0 snap-start text-[12px] px-2.5 py-1 rounded-full border transition-colors ${
+                    active
+                      ? "border-accent bg-accent/10 text-accent-ink font-semibold"
+                      : "border-line-soft text-muted hover:text-fg bg-surface-sunken hover:bg-line"
+                  }`}
                 >
                   {c.emoji} {t(c.key)}
-                </Link>
+                </button>
               );
             })}
           </div>
@@ -466,7 +481,7 @@ export default function NearMeSection({
             transition={{ duration: 0.4 }}
             className="mb-8"
           >
-            <div className="isolate h-64 sm:h-80 rounded-3xl overflow-hidden border border-line shadow-[var(--sh-2)]">
+            <div className="isolate h-72 sm:h-80 rounded-3xl overflow-hidden border border-line shadow-[var(--sh-2)]">
               <NearbyMap
                 points={mapPoints}
                 user={user}
@@ -489,10 +504,41 @@ export default function NearMeSection({
           onBlur={() => onHold(false)}
           className="mb-8"
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-5">
+            {featured.length === 0 ? (
+              <div className="card-soft rounded-3xl p-8 text-center text-muted">
+                <Search className="w-6 h-6 mx-auto mb-3 text-faint" aria-hidden="true" />
+                <p className="text-[14px] font-semibold text-fg">
+                  {t("nearby.noMatch").replace("{q}", query.trim() || t("nearby.filters"))}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    setActiveCategory("All");
+                    rotator.setIndex(0);
+                  }}
+                  className="mt-3 text-[13px] font-semibold text-accent-ink underline underline-offset-2"
+                >
+                  {t("nearby.clearFilters")}
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-5">
               {/* Hero spotlight card — spans 2 cols on desktop, full width on
                   mobile, and crossfades between the top-rated places. */}
-              <div className="md:col-span-1 lg:col-span-2 relative rounded-3xl overflow-hidden border border-line shadow-[var(--sh-2)] min-h-[260px] sm:min-h-[300px]">
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label={spotlight ? `${spotlight.name} — ${t("nearby.viewDetails")}` : undefined}
+                onClick={() => spotlight && setSelected(spotlight)}
+                onKeyDown={(e) => {
+                  if (spotlight && (e.key === "Enter" || e.key === " ")) {
+                    e.preventDefault();
+                    setSelected(spotlight);
+                  }
+                }}
+                className="md:col-span-1 lg:col-span-2 relative rounded-3xl overflow-hidden border border-line shadow-[var(--sh-2)] min-h-[260px] sm:min-h-[300px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/70"
+              >
                 <AnimatePresence initial={false} mode="popLayout">
                   {spotlight && (
                     <motion.div
@@ -520,21 +566,22 @@ export default function NearMeSection({
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" aria-hidden="true" />
                           {spotlight.rating} · {spotlight.area}
                         </p>
-                        <button
-                          type="button"
-                          onClick={() => setSelected(spotlight)}
-                          className="mt-2 text-[12px] font-semibold underline underline-offset-2"
-                        >
+                        <span className="mt-2 inline-block text-[12px] font-semibold underline underline-offset-2 pointer-events-none">
                           {t("nearby.viewDetails")}
-                        </button>
+                        </span>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
                 {/* Rotator controls: pause/play plus dots. The dots jump to a
-                    slide and pause on focus via the container's onFocus. */}
-                <div className="absolute bottom-3 right-3 flex items-center gap-1.5 z-10">
+                    slide and pause on focus via the container's onFocus. Clicks
+                    here must not open the card's detail modal. */}
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  className="absolute bottom-3 right-3 flex items-center gap-1.5 z-10"
+                >
                   <button
                     type="button"
                     onClick={() => rotator.setPaused(!rotator.paused)}
@@ -635,15 +682,18 @@ export default function NearMeSection({
                 </div>
               </div>
             </div>
+            )}
 
             {/* All button — navigates to /destinations for full catalog */}
             <div className="mt-6 flex justify-center">
               <Link
                 href="/destinations"
+                aria-label={t("nearby.openCatalogue")}
                 className="inline-flex items-center gap-2 bg-fg hover:bg-fg-hover text-white text-[13px] font-bold px-6 py-3 rounded-xl transition-colors duration-200"
               >
                 <ArrowDown className="w-4 h-4" aria-hidden="true" />
                 {t("nearby.showAll").replace("{n}", String(destinations.length))}
+                <ArrowUpRight className="w-4 h-4 opacity-70" aria-hidden="true" />
               </Link>
             </div>
           </div>

@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-bg">
       <HeroSection />
-      <NearMeSection query="" />
+      <NearMeSection />
       <JourneySection onAddToCart={addItem} />
       {/* The ferry form is a multi-step booking, so the cart drawer is opened
           only when the buyer asks for it — popping it open on add would hide
